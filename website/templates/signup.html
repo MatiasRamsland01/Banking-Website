@@ -2,11 +2,25 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}Sign Up{% endblock %}
 {% block body %}
-<h1>
-  This is the sign up page!
-  <div>
-    <button>test</button>
+<form method="POST">
+  <h3 align="center">Sign up (outline) CSS = simple bootstrap</h3>
+  <div class="form-group">
+    <label for="name">Full Name</label>
+    <input type="text" class="form-control" id="name" name="name" placeholder="Full Name">
   </div>
-</h1>
-
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+  </div>
+  <div class="form-group">
+    <label for="password1">Password</label>
+    <input type="text" class="form-control" id="password1" name="password1" placeholder="Password">
+  </div>
+  <div class="form-group">
+    <label for="password2">Password (Confirm)</label>
+    <input type="text" class="form-control" id="password1" name="password1" placeholder="Password (Confirm)">
+  </div>
+  <br>
+  <button type="button" class="btn btn-dark">Submit</button>
+</form>
 {% endblock %}
