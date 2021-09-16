@@ -1,8 +1,8 @@
-from flask import Flask
+from flask import Flask, flash
 
 def create_app():
   app = Flask(__name__)
-  app.config['SECRET KEY'] = 'reoube wioujwu bgowwo'
+  app.secret_key = 'rbgweiuwbgnp ubiq fviuq'
 
   from .views import views
   from .auth import auth

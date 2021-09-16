@@ -1,5 +1,6 @@
+from os import error
 import re
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, flash
 
 auth = Blueprint('auth', __name__)
 
@@ -10,8 +11,11 @@ def sign_up():
     email = request.form.get('email')
     password1 = request.form.get('password1')
     password2 = request.form.get('password2')
+    if len(name) < 2:
+      flash('Name needs to be greater than 1 character', category='error')
+
     #Pseudo code: if input not valid --> print error message --> else: add user to database
-    
+
   return render_template('signup.html')
 
 @auth.route('/login', methods=['GET', 'POST'])
