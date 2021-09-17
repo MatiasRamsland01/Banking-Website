@@ -2,7 +2,7 @@ from flask import Flask, flash
 
 def create_app():
   app = Flask(__name__)
-  app.secret_key = 'rbgweiuwbgnp ubiq fviuq'
+  app.secret_key = 'rbgweqrty894t37t7eiuwbgnp ubiq fviuq'
 
   from .views import views
   from .auth import auth
