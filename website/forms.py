@@ -16,4 +16,4 @@ class LoginForm(FlaskForm):
   email = StringField(label='Email', validators=[Email()])
   password = PasswordField(label='Password', validators=[DataRequired(), Length(min=7, max=100,
                                                                                     message="Password must be between 7 and 100 characters!")])
-  submit = SubmitField(label='Login')
+  submit = SubmitField(label='Log in')
