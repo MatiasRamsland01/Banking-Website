@@ -24,4 +24,8 @@ def sign_up():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+  if request.method == 'POST':
+    logEmail = request.form.get('email')
+    logPassword = request.form.get('password1')
+
   return render_template('login.html')
