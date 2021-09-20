@@ -2,25 +2,30 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}Home{% endblock %}
 {% block body %}
-<h1>Log inn!</h1>
+<body class="text-center">
+  <div class="container">
+    <form method="POST" class="form-register" style="color:white">
+      {{ form.hidden_tag() }}
+      <h1 align='center' style="font-family: Monospace; color: #FAF5EF; font-size: 35px;">
+        Login
+      </h1>
+      <br>
+      <br>
 
-<form name="Log in"> 
 
-  <div class="Log in form" name="username">
-    <label for="name">Enter Username: </label>
-    <input type="text" class="form-control" id="name" name="username" placeholder="Username">
+      {{ form.email(class="form-control", placeholder="Email") }}
+      <br>
+      {{ form.password(class="form-control", placeholder="Password") }}
+
+      <br>
+
+      {{ form.submit(class="btn btn-lg btn-block btn-dark") }}
+    </form>
+    {% for field, errors in form.errors.items() %}
+  <p1 style="color: red;">
+    {{ ', '.join(errors) }}
+  </p1>
+{% endfor %}
   </div>
-
-  <div class="Log in form" name="password">
-    <label for="name">Passord: </label>
-    <input type="text" class="form-control" id="pass" name="password" placeholder="Passord">
-  </div>
-
-  <div class ="Log in form" name="submit">
-    <br>
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </div>
-
-</form>
-
+</body>
 {% endblock %}
