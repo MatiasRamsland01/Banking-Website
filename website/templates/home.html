@@ -1,9 +1,35 @@
 {% extends "base.html" %}
 <!--Takes the code from base but overwrites it with the code you type in here-->
-{% block title %}Home{% endblock %}
+{% block title %}<h1> Home </h1>{% endblock %}
 {% block body %}
 <h1>
   This is the home page!
 </h1>
+
+<div class="bank-accounts">
+ <form>
+    <p>
+        <label>Account n: </label> <label> PENGER HER </label>
+    </p>
+    <p>
+        <span class="add">Add Account</span>
+        <br>
+        <span class="remove">Remove account</span>
+    </p>
+</form>
+</div>
+
+<script>
+  $(".add").click(function() {
+    $("form > p:first-child").clone(true).insertBefore("form > p:last-child");
+    return false;
+});
+
+$(".remove").click(function() {
+    $(this).parent().remove();
+});
+
+</script>
+
 
 {% endblock %}

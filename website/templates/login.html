@@ -2,8 +2,25 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}Home{% endblock %}
 {% block body %}
-<h1>
-  This is the login page!
-</h1>
+<h1>Log inn!</h1>
+
+<form name="Log in"> 
+
+  <div class="Log in form" name="username">
+    <label for="name">Enter Username: </label>
+    <input type="text" class="form-control" id="name" name="username" placeholder="Username">
+  </div>
+
+  <div class="Log in form" name="password">
+    <label for="name">Passord: </label>
+    <input type="text" class="form-control" id="pass" name="password" placeholder="Passord">
+  </div>
+
+  <div class ="Log in form" name="submit">
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+
+</form>
 
 {% endblock %}
