@@ -10,3 +10,10 @@ class RegisterForm(FlaskForm):
   password1 = PasswordField(label='Password:', validators=[DataRequired(), Length(min=7, max=100, message="Password must be between 7 and 100 characters!")])
   password2 = PasswordField(label='Confirm Password', validators=[DataRequired(), EqualTo('password1', message="Passwords don't match!")])
   submit = SubmitField(label='Create Account')
+
+
+class LoginForm(FlaskForm):
+  email = StringField(label='Email', validators=[Email()])
+  password = PasswordField(label='Password', validators=[DataRequired(), Length(min=7, max=100,
+                                                                                    message="Password must be between 7 and 100 characters!")])
+  submit = SubmitField(label='Login')

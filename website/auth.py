@@ -2,7 +2,7 @@ from os import error
 import re
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
-from website.forms import RegisterForm
+from website.forms import RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
@@ -24,8 +24,10 @@ def sign_up():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-  if request.method == 'POST':
-    logEmail = request.form.get('email')
-    logPassword = request.form.get('password1')
+  form = LoginForm()
+  if form.validate_on_submit():
+    logEmail = form.email.data
+    logPassword = form.password.data
+    return redirect(url_for('views.home'))
 
-  return render_template('login.html')
+  return render_template('login.html', form=form)
