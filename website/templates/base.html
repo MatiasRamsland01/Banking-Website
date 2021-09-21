@@ -29,6 +29,10 @@
     >
       <span class="navbar-toggler-icon"></span>
     </button>
+
+    <!-- Puts the logo in the middle of the navbar!-->
+    <img src="{{url_for('static', filename='Logo.png')}}" style="height: 48px; border-radius: 50%; overflow: hidden; margin-top: -6px; position: absolute;left: calc((100% - 96px)/2)" >
+    
     <div class="collapse navbar-collapse" id="navbar">
       <div class="navbar-nav">
         <a class="nav-item nav-link" id="home" href="/">Home</a>
@@ -37,6 +41,7 @@
       </div>
     </div>
   </nav>
+
 
 
 
