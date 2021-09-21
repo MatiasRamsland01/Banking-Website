@@ -2,34 +2,10 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}<h1> Home </h1>{% endblock %}
 {% block body %}
-<h1 style="color: white;">
-  This is the home page!
-</h1>
+<div style="background-color: gray; height: 600pt; float: left;" class="col-12">
+  <div style="background-color: red; height: 40%;" class="col-5">Mer Text </div>
+  <div style="background-color: red; height: 40%;" class="col-5 aside"> Text!! </div>
 
-<div class="bank-accounts">
- <form>
-    <p>
-        <label>Account n: </label> <label> PENGER HER </label>
-    </p>
-    <p>
-        <span class="add">Add Account</span>
-        <br>
-        <span class="remove">Remove account</span>
-    </p>
-</form>
 </div>
-
-<script>
-  $(".add").click(function() {
-    $("form > p:first-child").clone(true).insertBefore("form > p:last-child");
-    return false;
-});
-
-$(".remove").click(function() {
-    $(this).parent().remove();
-});
-
-</script>
-
 
 {% endblock %}
