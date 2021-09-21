@@ -15,7 +15,7 @@
       href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="../static/stylesheet.css">
   <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
@@ -39,9 +39,12 @@
   </nav>
 
 
-<div style="background-color: #123456;">
+
+<div style="background-color: white;">
   <div class="container">
-    {% block body %}{% endblock %} <!--This is where you edit the body in each template-->
+    {% block body %}
+    
+    {% endblock %} <!--This is where you edit the body in each template-->
     </div>
 </div>
 
@@ -64,7 +67,7 @@
 </body>
 <style>
   body {
-    background-color: #123456;
+    background-color: white;
   }
 </style>
 </html>

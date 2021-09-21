@@ -4,17 +4,18 @@
 {% block body %}
 <body class="text-center">
   <div class="container">
-    <form method="POST" class="form-register" style="color:white">
+    <form method="POST" class="form-register" style="color:darkslategray">
       {{ form.hidden_tag() }}
-      <h1 align='center' style="font-family: Monospace; color: #FAF5EF; font-size: 35px;">
+      <h1 align='center' style="font-family: Monospace; color: darkslategray; font-size: 35px;">
         Login
       </h1>
       <br>
       <br>
 
-
+      {{ form.email.label() }}
       {{ form.email(class="form-control", placeholder="Email") }}
       <br>
+      {{ form.password.label() }}
       {{ form.password(class="form-control", placeholder="Password") }}
 
       <br>
