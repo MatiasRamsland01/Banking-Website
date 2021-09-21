@@ -16,11 +16,13 @@ def sign_up():
     email = form.email.data
     password1 = form.password1.data
     password2 = form.password2.data
-    return redirect(url_for('views.home'))
+    return redirect(url_for('auth.home_login'))
 
   return render_template('signup.html', form=form)  
 
-
+@auth.route('/homelogin', methods=['GET', 'POST'])
+def home_login():
+  return render_template('homelogin.html')
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -28,6 +30,6 @@ def login():
   if form.validate_on_submit():
     logEmail = form.email.data
     logPassword = form.password.data
-    return redirect(url_for('views.home'))
+    return redirect(url_for('auth.home_login'))
 
   return render_template('login.html', form=form)
