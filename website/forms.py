@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField
+from wtforms import validators
 from wtforms.validators import DataRequired, Email, EqualTo, Length
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class RegisterForm(FlaskForm):
@@ -14,6 +16,11 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
   email = StringField(label='Email', validators=[Email()])
-  password = PasswordField(label='Password', validators=[DataRequired(), Length(min=7, max=100,
-                                                                                    message="Password must be between 7 and 100 characters!")])
+  password = PasswordField(label='Password', validators=[DataRequired(), Length(min=7, max=100, message="Password must be between 7 and 100 characters!")])
   submit = SubmitField(label='Log in')
+
+
+class TransactionForm(FlaskForm):
+  amount = IntegerField(label='Choose your desired amount', validators=[DataRequired(), validators.NumberRange(min=1, max=10, message="THe amount must be between 0 and ")]) #Max need to change
+  to = StringField(label='Username', validators=[DataRequired()])
+  submit = SubmitField(label='Transfer Money')

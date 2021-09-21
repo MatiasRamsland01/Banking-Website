@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+<!--Takes the code from base but overwrites it with the code you type in here-->
+{% block title %}Transaction{% endblock %}
+{% block body %}
+<body class="text-center">
+  <div class="container">
+    <form method="POST" class="form-register" style="color:white">
+      {{ form.hidden_tag() }}
+      <h1 align='center' style="font-family: Monospace; color: #FAF5EF; font-size: 35px;">
+        Please choose amount and to which account you would like to transfer to
+      </h1>
+      <br>
+      <br>
+
+      {{ form.amount.label() }}
+      {{ form.amount(class="form-control", placeholder="Amount") }}
+
+      {{ form.to.label() }}
+      {{ form.to(class="form-control", placeholder="To which account?") }}
+
+      
+
+      <br>
+
+      {{ form.submit(class="btn btn-lg btn-block btn-dark") }}
+    </form>
+    {% for field, errors in form.errors.items() %}
+  <p1 style="color: red;">
+    {{ ', '.join(errors) }}
+  </p1>
+{% endfor %}
+  </div>
+</body>
+
+{% endblock %}
