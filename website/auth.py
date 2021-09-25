@@ -15,7 +15,8 @@ def sign_up():
     lastName = form.nameLast.data
     email = form.email.data
     password1 = form.password1.data
-    password2 = form.password2.data
+    password1Hash = generate_password_hash(password1)
+    
     return redirect(url_for('auth.home_login'))
 
   return render_template('signup.html', form=form)  
