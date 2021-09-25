@@ -17,7 +17,7 @@ def sign_up():
     password1 = form.password1.data
     password1Hash = generate_password_hash(password1)
     
-    return redirect(url_for('auth.home_login'))
+    return redirect(url_for('auth.two_factor_setup'))
 
   return render_template('signup.html', form=form)  
 
@@ -34,6 +34,10 @@ def login():
     return redirect(url_for('auth.home_login'))
 
   return render_template('login.html', form=form)
+
+@auth.route('/two_factor_setup')
+def two_factor_setup():
+  return render_template('two-factor-setup.html')
 
 @auth.route('/transaction', methods=['GET', 'POST'])
 def transaction():
