@@ -41,15 +41,18 @@ class RegisterForm(FlaskForm):
     bigLetter = 0
     smallLetter = 0
     number = 0
+    illegal = 0
     for letter in password1.data:
       if ord(letter) >= 48 and ord(letter) <= 57:
         number += 1
-      if ord(letter) >= 97 and ord(letter) <= 122:
+      elif ord(letter) >= 97 and ord(letter) <= 122:
         smallLetter += 1
-      if ord(letter) >= 65 and ord(letter) <= 90:
+      elif ord(letter) >= 65 and ord(letter) <= 90:
         bigLetter += 1
+      else:
+        illegal += 1
     #Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
-    if bigLetter == 0 or smallLetter == 0 or number == 0:
+    if bigLetter == 0 or smallLetter == 0 or number == 0 and illegal == 0:
       raise ValidationError("Your password must contain digits, small and big letters")
        
 
