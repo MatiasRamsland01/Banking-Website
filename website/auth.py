@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 
 from website import db
-from website.db import User
+from website.db import User, init_db
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -17,18 +17,8 @@ def sign_up():
     if form.validate_on_submit():
 
         #TODO TEMP Testing
-        db.drop_all()
-        db.create_all()
+        init_db()
 
-        admin = User(username='admin', email='admin@example.com', password='Test123#')
-        guest = User(username='guest', email='guest@example.com', password='Test123#')
-        admin.money = "32.123456789101112"
-
-        db.session.add(admin)
-        db.session.add(guest)
-        db.session.commit()
-
-        User.query.all()
         #END
         # Correct input, now check database
         if not User.query.filter_by(username=form.nameFirst).first():#TODO TEMP username as firstName
