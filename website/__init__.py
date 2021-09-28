@@ -3,6 +3,7 @@ import click
 from flask import Flask, flash
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
+from flask_recaptcha import ReCaptcha
 
 db = SQLAlchemy()
 
@@ -19,9 +20,13 @@ def create_app():
     os.makedirs(app.instance_path, exist_ok=True)
 
   app.config['SECRET_KEY'] = 'bd5049afa301c7c5d709f821'
+  app.config['RECAPTCHA_PUBLIC_KEY'] = '6LeJKpYcAAAAAK9NxeH7cNAPl9BWMQk16hkMdpFy'
+  app.config['RECAPTCHA_PRIVATE_KEY'] = '6LeJKpYcAAAAAIK7he7W0f490MZ-t_V_8cDYFDCK'
   app.config['SQLALCHEMY_DATABASE_URI']=db_url
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 
+  ReCaptcha(app)
+  
   db.init_app(app)
   app.cli.add_command(init_db_command)
 

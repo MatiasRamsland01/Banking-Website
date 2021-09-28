@@ -1,16 +1,16 @@
 from os import error
 import re
+from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 from sqlalchemy import literal
-
 from website import db
 from website.db import User, init_db
+from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
-
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
@@ -35,7 +35,7 @@ def sign_up():
             db.session.add(User(username=firstName, email=email, password=password1))
             db.session.commit()
             #print(User.query.filter_by(username=form.nameFirst.data).first().password)
-            return redirect(url_for('auth.home_login'))
+            return redirect(url_for('auth.two_factor_setup'))
 
     return render_template('signup.html', form=form)
 
@@ -47,14 +47,16 @@ def home_login():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        logEmail = form.email.data
-        logPassword = form.password.data
-        return redirect(url_for('auth.home_login'))
+  form = LoginForm()
+  if form.validate_on_submit():  
+    logEmail = form.email.data
+    logPassword = form.password.data
+    return redirect(url_for('auth.home_login'))
 
-    return render_template('login.html', form=form)
 
+@auth.route('/two_factor_setup')
+def two_factor_setup():
+  return render_template('two-factor-setup.html')
 
 @auth.route('/transaction', methods=['GET', 'POST'])
 def transaction():
