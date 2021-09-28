@@ -1,5 +1,7 @@
 from itertools import count
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, recaptcha
+from flask_wtf.recaptcha.fields import RecaptchaField
+from flask_wtf.recaptcha.validators import Recaptcha
 from wtforms import StringField, PasswordField, SubmitField, IntegerField
 from wtforms import validators
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
@@ -13,6 +15,7 @@ class RegisterForm(FlaskForm):
   email = StringField(label='Email:', validators=[Email()])
   password1 = PasswordField(label='Password:', validators=[DataRequired(), Length(min=7, max=100, message="Password must be between 7 and 100 characters!")])
   password2 = PasswordField(label='Confirm Password', validators=[DataRequired(), EqualTo('password1', message="Passwords don't match!")])
+  recaptcha = RecaptchaField()
   submit = SubmitField(label='Create Account')
 
     # Checks if name does not contain any special letters
@@ -62,6 +65,7 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
   email = StringField(label='Email', validators=[Email()])
   password = PasswordField(label='Password', validators=[DataRequired(), Length(min=7, max=100, message="Password must be between 7 and 100 characters!")])
+  recaptcha = RecaptchaField()
   submit = SubmitField(label='Log in')
 
 

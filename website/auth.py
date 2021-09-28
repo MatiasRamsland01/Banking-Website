@@ -1,11 +1,15 @@
 from os import error
 import re
+from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
+from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
+
+
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
@@ -28,7 +32,7 @@ def home_login():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
   form = LoginForm()
-  if form.validate_on_submit():
+  if form.validate_on_submit():  
     logEmail = form.email.data
     logPassword = form.password.data
     return redirect(url_for('auth.home_login'))
