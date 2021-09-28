@@ -55,8 +55,8 @@ class RegisterForm(FlaskForm):
       else:
         illegal += 1
     #Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
-    if bigLetter == 0 or smallLetter == 0 or number == 0 and illegal == 0:
-      raise ValidationError("Your password must contain digits, small and big letters")
+    if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0:
+      raise ValidationError("Your password must contain digits, small, big letters and no illegal characters.")
        
 
     
