@@ -20,13 +20,13 @@ def init_db():
     db.drop_all()
     db.create_all()
 
-    admin = User(username='admin', email='admin@example.com', password='Test123#')
-    guest = User(username='guest', email='guest@example.com', password='Test123#')
-    admin.money = "32.123456789101112"
+    #admin = User(username='admin', email='admin@example.com', password='Test123#')
+    #guest = User(username='guest', email='guest@example.com', password='Test123#')
+    #admin.money = "32.123456789101112"
 
-    db.session.add(admin)
-    db.session.add(guest)
-    db.session.commit()
+    #db.session.add(admin)
+    #db.session.add(guest)
+    #db.session.commit()
 
 
 

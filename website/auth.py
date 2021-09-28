@@ -2,6 +2,7 @@ from os import error
 import re
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
+from sqlalchemy import literal
 
 from website import db
 from website.db import User, init_db
@@ -21,17 +22,19 @@ def sign_up():
 
         #END
         # Correct input, now check database
-        if not User.query.filter_by(username=form.nameFirst).first():#TODO TEMP username as firstName
-            print(f"User {form.username} is already registered.")
+        q = db.session.query(User).filter(User.username == form.nameFirst.data)
+
+        if db.session.query(literal(True)).filter(q.exists()).scalar():#TODO TEMP username as firstName
+            print(f"User {form.nameFirst.data} is already registered.")
         else:
             firstName = form.nameFirst.data
             lastName = form.nameLast.data
             email = form.email.data
             password1 = form.password1.data
             password2 = form.password2.data#Prob redundant, unless we don't validate password in "form.validate_on_submit"
-            db.session.add(User(username=firstName, lastName=lastName, email=email, password=password1))
+            db.session.add(User(username=firstName, email=email, password=password1))
             db.session.commit()
-            print(User.query.filter_by(username='test').first().password)
+            #print(User.query.filter_by(username=form.nameFirst.data).first().password)
             return redirect(url_for('auth.home_login'))
 
     return render_template('signup.html', form=form)
