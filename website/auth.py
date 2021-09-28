@@ -19,14 +19,14 @@ def sign_up():
     if form.validate_on_submit():
 
         # TODO TEMP Testing
-        init_db()
+        #init_db()
 
         # END
         # Correct input, now check database
         q = db.session.query(User).filter(User.username == form.nameFirst.data)
 
         if db.session.query(literal(True)).filter(q.exists()).scalar():  # TODO TEMP username as firstName
-            print(f"User {form.nameFirst.data} is already registered.")
+            flash("Account already created!", category='error')
         else:
             firstName = form.nameFirst.data
             lastName = form.nameLast.data
@@ -35,6 +35,7 @@ def sign_up():
             password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
             db.session.add(User(username=firstName, email=email, password=password1))
             db.session.commit()
+            flash('Account Created', category='success')
             # print(User.query.filter_by(username=form.nameFirst.data).first().password)
             return redirect(url_for('auth.two_factor_setup'))
 
@@ -53,6 +54,7 @@ def login():
         logEmail = form.email.data
         logPassword = form.password.data
         return redirect(url_for('auth.home_login'))
+    return render_template('login.html', form=form)
 
 
 @auth.route('/two_factor_setup')
