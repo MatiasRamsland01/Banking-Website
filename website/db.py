@@ -16,19 +16,33 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
+def init_db():
+    db.drop_all()
+    db.create_all()
+
+    #admin = User(username='admin', email='admin@example.com', password='Test123#')
+    #guest = User(username='guest', email='guest@example.com', password='Test123#')
+    #admin.money = "32.123456789101112"
+
+    #db.session.add(admin)
+    #db.session.add(guest)
+    #db.session.commit()
+
+
+
 #TEST
-db.drop_all()
-db.create_all()
+#db.drop_all()
+#db.create_all()
 
-admin = User(username='admin', email='admin@example.com', password='Test123#')
-guest = User(username='guest', email='guest@example.com', password='Test123#')
-admin.money = "32.123456789101112"
+#admin = User(username='admin', email='admin@example.com', password='Test123#')
+#guest = User(username='guest', email='guest@example.com', password='Test123#')
+#admin.money = "32.123456789101112"
 
-db.session.add(admin)
-db.session.add(guest)
-db.session.commit()
+#db.session.add(admin)
+#db.session.add(guest)
+#db.session.commit()
 
-User.query.all()
-queried_admin = User.query.filter_by(email ='admin@example.com').first()
-queried_guest = User.query.filter_by(username='guest').first()
-print(str(queried_admin)+" "+str(queried_admin.id)+" "+str(queried_guest.id)+"_"+str(queried_admin.money))
+#User.query.all()
+#queried_admin = User.query.filter_by(email ='admin@example.com').first()
+#queried_guest = User.query.filter_by(username='guest').first()
+#print(str(queried_admin)+" "+str(queried_admin.id)+" "+str(queried_guest.id)+"_"+str(queried_admin.money))
