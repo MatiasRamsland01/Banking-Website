@@ -1,5 +1,6 @@
 from os import error
 import re
+from flask import session
 from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
@@ -9,6 +10,8 @@ from website.db import User, init_db
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
+import pyotp
+import os
 
 auth = Blueprint('auth', __name__)
 
@@ -19,7 +22,7 @@ def sign_up():
     if form.validate_on_submit():
 
         # TODO TEMP Testing
-        #init_db()
+        init_db()
 
         # END
         # Correct input, now check database
@@ -36,8 +39,9 @@ def sign_up():
             db.session.add(User(username=firstName, email=email, password=password1))
             db.session.commit()
             flash('Account Created', category='success')
+            session['user'] = email
             # print(User.query.filter_by(username=form.nameFirst.data).first().password)
-            return redirect(url_for('auth.two_factor_setup'))
+            return redirect(url_for('auth.two_factor_view', email=email))
 
     return render_template('signup.html', form=form)
 
@@ -57,9 +61,31 @@ def login():
     return render_template('login.html', form=form)
 
 
-@auth.route('/two_factor_setup')
+@auth.route('/two_factor_setup', methods=['GET'])
+def two_factor_view():
+    try:
+        email = request.args['email']
+    except KeyError:
+        flash("You don't hav access to this page", category='error')
+        return redirect(url_for('auth.sign_up'))
+    secret = pyotp.random_base32()
+    intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name='BankDat250')
+    session['secret'] = secret
+    return render_template('two-factor-setup.html', qr_link = intizalize )
+    
+
+@auth.route('/two_factor_setup', methods=['POST'])
 def two_factor_setup():
-    return render_template('two-factor-setup.html')
+    otp = int(request.form.get("otp"))
+    if pyotp.TOTP(session['secret']).verify(otp):
+        flash("The TOTP 2FA token is valid", "success")
+        print("sucess")
+        return redirect(url_for("home_login"))
+    else: 
+        flash("The TOTP 2FA token is valid", "success")
+        print("fail")
+        return redirect(url_for("login"))
+    
 
 
 @auth.route('/transaction', methods=['GET', 'POST'])

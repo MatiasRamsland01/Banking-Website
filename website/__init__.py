@@ -4,6 +4,7 @@ from flask import Flask, flash
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 from flask_recaptcha import ReCaptcha
+from flask_qrcode import QRcode
 
 db = SQLAlchemy()
 
@@ -27,7 +28,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     ReCaptcha(app)
-
+    QRcode(app)
     db.init_app(app)
     app.cli.add_command(init_db_command)
 

@@ -3,10 +3,19 @@
 {% block title %}Sign Up{% endblock %}
 {% block body %}
 <body class="text-center">
+  <style>
+    input{
+      width: 40% !important;
+      margin: auto;
+    }
+    text{
+      margin: auto;
+    }
+  </style>
   <div class="container">
-    <form method="POST" class="form-register" style="color:darkslategray">
+    <form method="POST" class="form-register" style="color:black">
       {{ form.hidden_tag() }}
-      <h1 align='center' style="font-family: Monospace; color: darkslategray; font-size: 35px;">
+      <h1 align='center' style="font-family: Monospace; color: black; font-size: 35px;">
         Please Create your Account
       </h1>
       <br>
@@ -28,7 +37,7 @@
       {{ form.password2(class="form-control", placeholder="Confirm Password") }}
 
       <br>
-      {{ form.recaptcha }}
+        {{ form.recaptcha }}
       <br>
 
       {{ form.submit(class="btn btn-lg btn-block btn-dark") }}

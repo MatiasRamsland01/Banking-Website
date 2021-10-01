@@ -2,11 +2,20 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}Home{% endblock %}
 {% block body %}
-<body class="text-center">
+<body class="text-center" style="margin-top: 100; margin-right: 100;">
+  <style>
+    input{
+      width: 40% !important;
+      margin: auto;
+    }
+    text{
+      margin: auto;
+    }
+  </style>
   <div class="container">
-    <form method="POST" class="form-register" style="color:darkslategray">
+    <form method="POST" class="form-register" style="color:black">
       {{ form.hidden_tag() }}
-      <h1 align='center' style="font-family: Monospace; color: darkslategray; font-size: 35px;">
+      <h1 style="font-family: Monospace; color: black; font-size: 35px; margin: auto;">
         Login
       </h1>
       <br>
