@@ -9,6 +9,8 @@ from website.db import User, init_db
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
+from . import login_manager
+from flask_login import login_required, logout_user, current_user, login_user
 
 auth = Blueprint('auth', __name__)
 
@@ -42,16 +44,19 @@ def sign_up():
 
 @auth.route('/homelogin', methods=['GET', 'POST'])
 def home_login():
-    return render_template('homelogin.html')
+    return render_template('homelogin.html', current_user=current_user.username)
 
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-  form = LoginForm()
-  if form.validate_on_submit():  
-    logEmail = form.email.data
-    logPassword = form.password.data
-    return redirect(url_for('auth.home_login'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and user.check_password(password=form.password.data):
+            login_user(user)
+            return redirect(url_for('auth.home_login'))
+
+    return render_template('login.html', form=form)
 
 
 @auth.route('/two_factor_setup')
@@ -67,3 +72,10 @@ def transaction():
         return redirect(url_for('views.home'))
 
     return render_template('transaction.html', form=form)
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Check if user is logged-in on every page load."""
+    if user_id is not None:
+        return User.query.get(user_id)
+    return None

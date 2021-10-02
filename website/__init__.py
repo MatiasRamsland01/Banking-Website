@@ -4,8 +4,10 @@ from flask import Flask, flash
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 from flask_recaptcha import ReCaptcha
+from flask_login import LoginManager
 
 db = SQLAlchemy()
+login_manager = LoginManager()
 
 def create_app():
   app = Flask(__name__)
@@ -29,6 +31,7 @@ def create_app():
   
   db.init_app(app)
   app.cli.add_command(init_db_command)
+  login_manager.init_app(app)
 
   from .views import views
   from .auth import auth
