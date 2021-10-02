@@ -47,7 +47,6 @@ def create_app():
 
 
 def init_db():
-    db.drop_all()
     db.create_all()
 
 
