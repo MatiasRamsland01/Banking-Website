@@ -34,17 +34,23 @@ def sign_up():
             flash("Account already created!", category='error')
         else:
             firstName = form.nameFirst.data
-            lastName = form.nameLast.data
+            lastName = form.nameLast.data # Value unused
             email = form.email.data
             password1 = form.password1.data
+            hashedPassword = generate_password_hash(password1, method="sha256")
             password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
-            db.session.add(User(username=firstName, email=email, password=password1))
+            db.session.add(User(username=firstName, email=email, password=hashedPassword))
             db.session.commit()
             flash('Account Created', category='success')
             session['user'] = email
-            # print(User.query.filter_by(username=form.nameFirst.data).first().password)
-            return redirect(url_for('auth.two_factor_view', email=email))
 
+            ##### Print statements to test values in database, comment away if not needed#########
+            print("Username: ", User.query.filter_by(username=form.nameFirst.data).first().username)
+            print("Email: ", User.query.filter_by(username=form.nameFirst.data).first().email)
+            print("Password: ", User.query.filter_by(username=form.nameFirst.data).first().password)
+            ######################################################################################
+
+            return redirect(url_for('auth.two_factor_view', email=email))
     return render_template('signup.html', form=form)
 
 
@@ -58,10 +64,10 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.check_password(password=form.password.data):
+        if user is not None and check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('auth.home_login'))
-
+    flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
 
@@ -70,7 +76,7 @@ def two_factor_view():
     try:
         email = request.args['email']
     except KeyError:
-        flash("You don't hav access to this page", category='error')
+        flash("You don't have access to this page", category='error')
         return redirect(url_for('auth.sign_up'))
     secret = pyotp.random_base32()
     intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name='BankDat250')
