@@ -35,10 +35,22 @@ def create_app():
     QRcode(app)
     db.init_app(app)
     app.cli.add_command(init_db_command)
-    login_manager.init_app(app)
 
     from .views import views
     from .auth import auth
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = "You need to log in to access this page!"
+    login_manager.login_message_category = 'error'
+    login_manager.init_app(app)
+
+    from .db import User
+
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
+    
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')

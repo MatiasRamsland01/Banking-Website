@@ -39,10 +39,12 @@ def sign_up():
             password1 = form.password1.data
             hashedPassword = generate_password_hash(password1, method="sha256")
             password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
-            db.session.add(User(username=firstName, email=email, password=hashedPassword))
+            user = User(username=firstName, email=email, password=hashedPassword)
+            db.session.add(user)
             db.session.commit()
             flash('Account Created', category='success')
             session['user'] = email
+            login_user(user)
 
             ##### Print statements to test values in database, comment away if not needed#########
             print("Username: ", User.query.filter_by(username=form.nameFirst.data).first().username)
@@ -55,6 +57,7 @@ def sign_up():
 
 
 @auth.route('/homelogin', methods=['GET', 'POST'])
+@login_required
 def home_login():
     return render_template('homelogin.html', current_user=current_user.username)
 
@@ -67,7 +70,7 @@ def login():
         if user is not None and check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('auth.home_login'))
-    flash("Email or password does not match!", category="error")
+        flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
 
@@ -99,6 +102,7 @@ def two_factor_setup():
 
 
 @auth.route('/transaction', methods=['GET', 'POST'])
+@login_required
 def transaction():
     form = TransactionForm()
     if form.validate_on_submit():
@@ -108,9 +112,18 @@ def transaction():
 
     return render_template('transaction.html', form=form)
 
+@auth.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
+
+### Don't think this is necessary for our soloution with login users
+"""
 @login_manager.user_loader
 def load_user(user_id):
     # Check if user is logged-in on every page load - didn't work with it yet
     if user_id is not None:
         return User.query.get(user_id)
     return None
+"""
