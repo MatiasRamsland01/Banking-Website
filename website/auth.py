@@ -68,7 +68,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and check_password_hash(user.password, form.password.data):
             login_user(user)
-            return redirect(url_for('auth.home_login'))
+            return redirect(url_for('auth.home_login', username=current_user.username))
     flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
