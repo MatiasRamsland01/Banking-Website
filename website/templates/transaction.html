@@ -18,7 +18,11 @@
       {{ form.to.label() }}
       {{ form.to(class="form-control", placeholder="To which account?") }}
 
-      
+      {{ form.kid.label() }}
+      {{ form.kid(class="form-control", placeholder="KID number (optional)") }}
+
+      {{ form.message.label() }}
+      {{ form.message(class="form-control", placeholder="Message to reciver") }}
 
       <br>
 

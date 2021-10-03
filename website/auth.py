@@ -45,6 +45,7 @@ def sign_up():
             flash('Account Created', category='success')
             session['user'] = email
             login_user(user)
+            session['logged_in']=True
 
             ##### Print statements to test values in database, comment away if not needed#########
             print("Username: ", User.query.filter_by(username=form.nameFirst.data).first().username)
@@ -69,6 +70,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and check_password_hash(user.password, form.password.data):
             login_user(user)
+            session['logged_in']=True
             return redirect(url_for('auth.home_login'))
         flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
@@ -116,6 +118,7 @@ def transaction():
 @login_required
 def logout():
     logout_user()
+    session['logged_in']=False
     return redirect(url_for('auth.login'))
 
 ### Don't think this is necessary for our soloution with login users
