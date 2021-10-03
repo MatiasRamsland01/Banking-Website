@@ -43,6 +43,7 @@ def sign_up():
             db.session.commit()
             flash('Account Created', category='success')
             session['user'] = email
+            session.permanent = True
 
             ##### Print statements to test values in database, comment away if not needed#########
             print("Username: ", User.query.filter_by(username=form.nameFirst.data).first().username)
@@ -54,8 +55,9 @@ def sign_up():
     return render_template('signup.html', form=form)
 
 
-@auth.route('/homelogin', methods=['GET', 'POST'])
-def home_login():
+@auth.route('/<username>', methods=['POST', "GET"])
+def home_login(username):
+    flash(f"You have been logged in, {username}", "info")
     return render_template('homelogin.html', current_user=current_user.username)
 
 
@@ -70,6 +72,11 @@ def login():
     flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
+@auth.route("/logout")
+def logout():
+    session.pop("user", None)
+    flash("You have been logget out!", "info")
+    return redirect(url_for("views.home"))
 
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
