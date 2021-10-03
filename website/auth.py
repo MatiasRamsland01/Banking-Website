@@ -89,21 +89,6 @@ def two_factor_view():
     intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name='BankDat250')
     session['secret'] = secret
     return render_template('two-factor-setup.html', qr_link = intizalize )
-    
-
-@auth.route('/two_factor_setup', methods=['POST'])
-def two_factor_setup():
-    otp = int(request.form.get("otp"))
-    if pyotp.TOTP(session['secret']).verify(otp):
-        flash("The TOTP 2FA token is valid", "success")
-        print("sucess")
-        return redirect(url_for("home_login"))
-    else: 
-        flash("The TOTP 2FA token is valid", "success")
-        print("fail")
-        return redirect(url_for("login"))
-    
-
 
 @auth.route('/transaction', methods=['GET', 'POST'])
 def transaction():
