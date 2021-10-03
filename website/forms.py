@@ -2,6 +2,7 @@ from itertools import count
 from flask_wtf import FlaskForm, recaptcha
 from flask_wtf.recaptcha.fields import RecaptchaField
 from flask_wtf.recaptcha.validators import Recaptcha
+from sqlalchemy.sql.expression import label
 from wtforms import StringField, PasswordField, SubmitField, IntegerField
 from wtforms import validators
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
@@ -76,4 +77,6 @@ class TransactionForm(FlaskForm):
                                                                           validators.NumberRange(min=1, max=10,
                                                                                                  message="THe amount must be between 0 and ")])  # Max need to change
     to = StringField(label='Username', validators=[DataRequired()])
+    kid = StringField(label='Username')
+    message = StringField(label='Message')
     submit = SubmitField(label='Transfer Money')
