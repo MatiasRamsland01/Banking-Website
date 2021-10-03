@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 <!--Takes the code from base but overwrites it with the code you type in here-->
+{% block logout %}
+        <a class="nav-item nav-link float-right" id="home" href="/logout" >Logout</a>
+{% endblock %}
 {% block title %}<h1> Home </h1>{% endblock %}
 {% block body %}
 
