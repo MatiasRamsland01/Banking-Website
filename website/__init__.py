@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_recaptcha import ReCaptcha
 from flask_qrcode import QRcode
 from flask_login import LoginManager
-
+from datetime import timedelta
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -30,6 +30,7 @@ def create_app():
     app.config['RECAPTCHA_ENABLED'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=2)
 
     ReCaptcha(app)
     QRcode(app)
