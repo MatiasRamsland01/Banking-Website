@@ -69,7 +69,8 @@ def login():
         if user is not None and check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('auth.home_login', username=current_user.username))
-    flash("Email or password does not match!", category="error")
+        else:
+            flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
 @auth.route("/logout")
