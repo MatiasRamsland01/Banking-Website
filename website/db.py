@@ -5,17 +5,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # main.get_app()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
 class User(UserMixin, db.Model):
-    id = db.Column("id", db.Integer, primary_key=True)
-    username = db.Column("username", db.String(30), unique=True, nullable=False)
-    email = db.Column("email", db.String(120), unique=True, nullable=False)
-    password = db.Column("password", db.String(100), unique=False, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column( db.String(30), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(100), unique=False, nullable=False)
     # TODO Might be temporary, we probably dont want to store money with user info.
-    money = db.Column("money", db.String(40), unique=False, nullable=True)  # db.Numeric(16, True)
+    money = db.Column(db.String(40), unique=False, nullable=True)  # db.Numeric(16, True)
 
     def __repr__(self):
         return '<User %r>' % self.username
