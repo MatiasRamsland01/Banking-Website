@@ -80,3 +80,7 @@ class TransactionForm(FlaskForm):
     kid = StringField(label='Username')
     message = StringField(label='Message')
     submit = SubmitField(label='Transfer Money')
+
+class VerifyForm(FlaskForm):
+    OTP = StringField(label="Your one time password", validators=[DataRequired()])
+    submit = SubmitField(label="Verify")

@@ -8,7 +8,7 @@ from sqlalchemy import literal
 from website import db
 from website.db import User, init_db
 from flask_wtf.recaptcha.validators import Recaptcha
-from website.forms import RegisterForm, LoginForm, TransactionForm
+from website.forms import RegisterForm, LoginForm, TransactionForm, VerifyForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import pyotp
 import os
@@ -72,10 +72,17 @@ def login():
         if user is not None and check_password_hash(user.password, form.password.data):
             login_user(user)
             session['logged_in']=True
-            return redirect(url_for('auth.home_login'))
+            return redirect(url_for('auth.verify'))
         flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
+@login_required
+@auth.route('/verify', methods=['GET', 'POST'])
+def verify():
+    form = VerifyForm()
+    if form.validate_on_submit():
+        return redirect(url_for('auth.home_login'))
+    return render_template('verify.html', form=form)
 
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
