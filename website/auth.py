@@ -28,12 +28,12 @@ def sign_up():
 
         # END
         # Correct input, now check database
-        user_name = db.session.query(User).filter(User.username == form.nameFirst.data)
-        user_email = db.session.query(User).filter(User.email == form.email.data)
 
-        if db.session.query(literal(True)).filter(user_name.exists()).scalar():  # TODO TEMP username as firstName
+        user_name = User.query.filter_by(username = form.nameFirst.data).first()
+        user_email = User.query.filter_by(email = form.email.data).first()
+        if user_name:
             flash("Username taken!", category='error')
-        elif db.session.query(literal(True)).filter(user_email.exists()).scalar():
+        elif user_email:
             flash("Email taken!", category='error')
         else:
             firstName = form.nameFirst.data
