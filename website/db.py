@@ -33,7 +33,6 @@ class User(UserMixin, db.Model):
 
 
 def init_db():
-    db.drop_all()
     db.create_all()
 
     # admin = User(username='admin', email='admin@example.com', password='Test123#')
