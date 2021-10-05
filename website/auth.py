@@ -4,7 +4,8 @@ from flask import session
 from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
-from sqlalchemy import literal
+from sqlalchemy import literal, update
+import sqlalchemy
 from website import db
 from website.db import User, init_db
 from flask_wtf.recaptcha.validators import Recaptcha
@@ -24,7 +25,7 @@ def sign_up():
     if form.validate_on_submit():
 
         # TODO TEMP Testing
-        init_db()
+        #init_db()
 
         # END
         # Correct input, now check database
@@ -39,7 +40,8 @@ def sign_up():
             password1 = form.password1.data
             hashedPassword = generate_password_hash(password1, method="sha256")
             password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
-            user = User(username=firstName, email=email, password=hashedPassword)
+            secret = pyotp.random_base32()
+            user = User(username=firstName, email=email, password=hashedPassword, token=secret)
             db.session.add(user)
             db.session.commit()
             flash('Account Created', category='success')
@@ -54,7 +56,7 @@ def sign_up():
             print("Password: ", User.query.filter_by(username=form.nameFirst.data).first().password)
             ######################################################################################
 
-            return redirect(url_for('auth.two_factor_view', email=email))
+            return redirect(url_for('auth.two_factor_view', email=email, secret=secret))
     return render_template('signup.html', form=form)
 
 
@@ -70,29 +72,55 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and check_password_hash(user.password, form.password.data):
-            login_user(user)
-            session['logged_in']=True
-            return redirect(url_for('auth.verify'))
+            return redirect(url_for('auth.verify', username=form.email.data))
         flash("Email or password does not match!", category="error")
     return render_template('login.html', form=form)
 
 @login_required
 @auth.route('/verify', methods=['GET', 'POST'])
 def verify():
+    try:
+        username = request.args['username']
+    except:
+        flash("Something went wrong", category='error')
+    user = User.query.filter_by(email=username).first()
     form = VerifyForm()
     if form.validate_on_submit():
-        return redirect(url_for('auth.home_login'))
+        otp = form.OTP.data
+        secret = user.token
+        print(otp)
+        print(secret)
+        if pyotp.TOTP(secret).verify(otp) and user is not None:
+            login_user(user)
+            session['logged_in']=True
+            return redirect(url_for('auth.home_login'))
+        else:
+            flash("Wrong OTP, please try again")
     return render_template('verify.html', form=form)
 
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
     try:
         email = request.args['email']
+        secret = request.args['secret']
     except KeyError:
         flash("You don't have access to this page", category='error')
         return redirect(url_for('auth.sign_up'))
-    secret = pyotp.random_base32()
     intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name='BankDat250')
+    print(secret)
+    #stmt = (
+    #    update(User).
+    #    where(User.email == email).
+    #    values(token=secret)
+    #)
+    #db.session.execute(stmt)
+    
+    
+    #update = db.session.query(User)\
+    #    .filter(User.email==email)\
+    #    .update({User.token: secret})
+    #db.execute(update)
+    #sqlalchemy.update()
     session['secret'] = secret
     return render_template('two-factor-setup.html', qr_link = intizalize )
 

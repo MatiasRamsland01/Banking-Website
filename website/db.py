@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), unique=False, nullable=False)
     # TODO Might be temporary, we probably dont want to store money with user info.
     money = db.Column(db.String(40), unique=False, nullable=True)  # db.Numeric(16, True)
+    token = db.Column(db.String(120), nullable=False)
 
     def __repr__(self):
         return '<User %r>' % self.username
