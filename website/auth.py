@@ -29,13 +29,17 @@ def sign_up():
         # END
         # Correct input, now check database
 
+        success = True
+
         user_name = User.query.filter_by(username = form.nameFirst.data).first()
         user_email = User.query.filter_by(email = form.email.data).first()
         if user_name:
             flash("Username taken!", category='error')
-        elif user_email:
+            success = False
+        if user_email:
             flash("Email taken!", category='error')
-        else:
+            success = False
+        if success:
             firstName = form.nameFirst.data
             lastName = form.nameLast.data # Value unused
             email = form.email.data
