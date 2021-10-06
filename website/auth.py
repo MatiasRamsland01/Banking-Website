@@ -31,7 +31,7 @@ def sign_up():
 
         success = True
 
-        user_name = User.query.filter_by(username = form.nameFirst.data).first()
+        user_name = User.query.filter_by(username = form.username.data).first()
         user_email = User.query.filter_by(email = form.email.data).first()
         if user_name:
             flash("Username taken!", category='error')
@@ -40,13 +40,12 @@ def sign_up():
             flash("Email taken!", category='error')
             success = False
         if success:
-            firstName = form.nameFirst.data
-            lastName = form.nameLast.data # Value unused
+            userName = form.username.data
             email = form.email.data
             password1 = form.password1.data
             hashedPassword = generate_password_hash(password1, method="sha256")
             password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
-            user = User(username=firstName, email=email, password=hashedPassword)
+            user = User(username=userName, email=email, password=hashedPassword)
             db.session.add(user)
             db.session.commit()
             flash('Account Created', category='success')
@@ -56,9 +55,9 @@ def sign_up():
             session['logged_in']=True
 
             ##### Print statements to test values in database, comment away if not needed#########
-            print("Username: ", User.query.filter_by(username=form.nameFirst.data).first().username)
-            print("Email: ", User.query.filter_by(username=form.nameFirst.data).first().email)
-            print("Password: ", User.query.filter_by(username=form.nameFirst.data).first().password)
+            print("Username: ", User.query.filter_by(username=form.username.data).first().username)
+            print("Email: ", User.query.filter_by(username=form.username.data).first().email)
+            print("Password: ", User.query.filter_by(username=form.username.data).first().password)
             ######################################################################################
 
             return redirect(url_for('auth.two_factor_view', email=email))
