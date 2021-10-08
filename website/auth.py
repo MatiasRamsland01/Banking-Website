@@ -1,5 +1,8 @@
 from os import error
 import re
+import flask
+import datetime
+import flask_login
 from flask import session
 from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
@@ -17,9 +20,19 @@ from flask_login import login_required, logout_user, current_user, login_user
 
 auth = Blueprint('auth', __name__)
 
+#Timeout user when inactive in 10 min
+@auth.before_request
+def before_request():
+    flask.session.permanent = True
+    current_app.permanent_session_lifetime = datetime.timedelta(minutes=10)
+    flask.session.modified = True
+    flask.g.user = flask_login.current_user
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
+    if current_user.is_authenticated:
+        flash("You are already logged in")
+        return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
 
@@ -72,6 +85,9 @@ def home_login():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        flash("You are already logged in")
+        return redirect(url_for('auth.home_login'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()

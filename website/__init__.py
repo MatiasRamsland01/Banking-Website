@@ -7,13 +7,16 @@ from flask_recaptcha import ReCaptcha
 from flask_qrcode import QRcode
 from flask_login import LoginManager
 from datetime import timedelta
-
+from flask_wtf.csrf import CSRFProtect
 db = SQLAlchemy()
 login_manager = LoginManager()
 
 
 def create_app():
     app = Flask(__name__)
+
+    csrf = CSRFProtect()
+    csrf.init_app(app)
 
     db_url = os.environ.get("DATABASE_URL")
 

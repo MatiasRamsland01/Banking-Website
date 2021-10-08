@@ -5,6 +5,7 @@
 <body class="text-center">
   <div class="container">
     <form method="POST" class="form-register" style="color:white">
+      {{ form.csrf_token }}
       {{ form.hidden_tag() }}
       <h1 align='center' style="font-family: Monospace; color: #FAF5EF; font-size: 35px;">
         Please choose amount and to which account you would like to transfer to
