@@ -8,8 +8,7 @@ from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 from sqlalchemy import literal
-from website import db
-from website.db import User, init_db
+from website.db import User, init_db, db
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,6 +19,7 @@ from flask_login import login_required, logout_user, current_user, login_user
 
 auth = Blueprint('auth', __name__)
 
+
 #Timeout user when inactive in 10 min
 @auth.before_request
 def before_request():
@@ -27,6 +27,7 @@ def before_request():
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=10)
     flask.session.modified = True
     flask.g.user = flask_login.current_user
+
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
@@ -64,8 +65,6 @@ def sign_up():
             flash('Account Created', category='success')
             session['user'] = email
             session.permanent = True
-            login_user(user)
-            session['logged_in']=True
 
             ##### Print statements to test values in database, comment away if not needed#########
             print("Username: ", User.query.filter_by(username=form.username.data).first().username)
@@ -90,12 +89,15 @@ def login():
         return redirect(url_for('auth.home_login'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and check_password_hash(user.password, form.password.data):
-            login_user(user)
-            session['logged_in']=True
-            return redirect(url_for('auth.home_login'))
-        flash("Email or password does not match!", category="error")
+        try:
+            user = User.query.filter_by(email=form.email.data).first()
+            if user is not None and check_password_hash(user.password, form.password.data):
+                login_user(user)
+                session['logged_in']=True
+                return redirect(url_for('auth.home_login'))
+            flash("Email or password does not match!", category="error")
+        except:
+            flash("Something went wrong. Please try again", category="error")
     return render_template('login.html', form=form)
 
 

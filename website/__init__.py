@@ -53,7 +53,10 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(id):
-        return User.query.get(int(id))
+        try: 
+            return User.query.get(int(id))
+        except:
+            return None
     
 
     app.register_blueprint(views, url_prefix='/')
