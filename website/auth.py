@@ -118,12 +118,13 @@ def transaction():
         to_user_name = form.to_user_name.data
         message = form.message.data
 
+        ATM_transaction = False # TODO, if an ATM Transaction, then we dont need & shouldnt have both from & to
         success = True
 
         # Check if money amount is legal (between 1-200000)
         if amount < 1 or amount > 200000:
             success = False
-            flash("Money amount has to be a value between 1 and 200'000")
+            flash("Money amount has to be a value between 1 and 200'000", category="error")
             #return render_template('transaction.html', form=form)
 
         # From ID and To ID exist
@@ -131,31 +132,39 @@ def transaction():
         queried_to_user = User.query.filter_by(username=from_user_name).first()
         if not queried_from_user:
             success = False
-            flash(f"User with username {from_user_name} doesn't exist")
+            flash(f"User with username {from_user_name} doesn't exist", category="error")
             #return render_template('transaction.html', form=form)
         if not queried_to_user:
             success = False
-            flash(f"User with username {to_user_name} doesn't exist")
+            flash(f"User with username {to_user_name} doesn't exist", category="error")
             #return render_template('transaction.html', form=form)
 
         # Trying to send money to himself
         if queried_from_user and current_user.username == queried_to_user.username:
             success = False
-            flash("Can't send money to yourself")
+            flash("Can't send money to yourself", category="error")
 
         # TODO Has enough money
+        amount_in_database = queried_from_user.get_money()
+        if amount <= amount_in_database:
+            success = False
+            flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}")
 
         # Is logged in on "from ID"
-        if success and (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
+        if queried_from_user and queried_to_user and \
+                (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
             success = False
             flash("Can't transfer money from an account you don't own")
 
         if not success:
-            flash("Unsuccessful transaction")
-            return render_template('transaction.html', form=form) # TODO Maybe just refresh the site with old values?
+            flash("Unsuccessful transaction", category="error")
+            return render_template('transaction.html', form=form)
 
-        # TODO If everything is correct, register a transaction, and add it to the database, update saldo if it's on the screen
-        newTransaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name, message=message)
+        # TODO If everything is correct, register a transaction, and add it to the database
+        #  Update (calculate) saldo if it's on the screen
+        new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name, message=message)
+        db.session.add(new_transaction)
+        db.session.commit()
 
         return redirect(url_for('views.home'))
 
