@@ -16,14 +16,14 @@
       {{ form.amount.label() }}
       {{ form.amount(class="form-control", placeholder="Amount") }}
 
-      {{ form.to.label() }}
-      {{ form.to(class="form-control", placeholder="To which account?") }}
+      {{ form.from_user_name.label() }}
+      {{ form.from_user_name(class="form-control", placeholder="From which account? (Username)") }}
 
-      {{ form.kid.label() }}
-      {{ form.kid(class="form-control", placeholder="KID number (optional)") }}
+      {{ form.to_user_name.label() }}
+      {{ form.to_user_name(class="form-control", placeholder="To which account?") }}
 
       {{ form.message.label() }}
-      {{ form.message(class="form-control", placeholder="Message to reciver") }}
+      {{ form.message(class="form-control", placeholder="Message to receiver") }}
 
       <br>
 

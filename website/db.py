@@ -31,10 +31,10 @@ class User(UserMixin, db.Model):
 
 class Transaction(db.Model):
     transaction_id = db.Column(db.Integer, primary_key = True)
-    # Out Id & Money can be null because we might put in money through an ATM
-    out_id = db.Column(db.Integer, nullable = True)#TODO ForeignKey?
+    # Out Id & Money can be null because we might put in (or take out) money through an ATM
+    from_user_id = db.Column(db.Integer, nullable = True)#TODO ForeignKey?
     out_money = db.Column(db.String(40), nullable = True)
-    in_id = db.Column(db.Integer)#TODO ForeignKey?
+    to_user_id = db.Column(db.Integer)#TODO ForeignKey?
     in_money = db.Column(db.String(40))
     message = db.Column(db.String(120))
     # TimeStamp?

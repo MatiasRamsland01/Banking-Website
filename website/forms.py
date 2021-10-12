@@ -63,9 +63,9 @@ class LoginForm(FlaskForm):
 
 class TransactionForm(FlaskForm):
     amount = IntegerField(label='Choose your desired amount', validators=[DataRequired(),
-                                                                          validators.NumberRange(min=1, max=10,
-                                                                                                 message="THe amount must be between 0 and ")])  # Max need to change
-    to = StringField(label='Username', validators=[DataRequired()])
-    kid = StringField(label='Username')
+                                                                          validators.NumberRange(min=1, max=200000,
+                                                                                                 message="Money amount has to be a value between 1 and 200'000")])
+    from_user_name = StringField(label='Username')
+    to_user_name = StringField(label='Username')
     message = StringField(label='Message')
     submit = SubmitField(label='Transfer Money')

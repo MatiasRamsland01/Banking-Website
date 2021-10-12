@@ -8,7 +8,7 @@ from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 from sqlalchemy import literal
-from website.db import User, init_db, db
+from website.db import User, init_db, db, Transaction
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -36,15 +36,10 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
-
-        # TODO TEMP Testing
         init_db()
 
-        # END
         # Correct input, now check database
-
         success = True
-
         user_name = User.query.filter_by(username = form.username.data).first()
         user_email = User.query.filter_by(email = form.email.data).first()
         if user_name:
@@ -119,7 +114,49 @@ def transaction():
     form = TransactionForm()
     if form.validate_on_submit():
         amount = form.amount.data
-        to = form.amount.data
+        from_user_name = form.from_user_name.data
+        to_user_name = form.to_user_name.data
+        message = form.message.data
+
+        success = True
+
+        # Check if money amount is legal (between 1-200000)
+        if amount < 1 or amount > 200000:
+            success = False
+            flash("Money amount has to be a value between 1 and 200'000")
+            #return render_template('transaction.html', form=form)
+
+        # From ID and To ID exist
+        queried_from_user = User.query.filter_by(username = from_user_name).first()
+        queried_to_user = User.query.filter_by(username=from_user_name).first()
+        if not queried_from_user:
+            success = False
+            flash(f"User with username {from_user_name} doesn't exist")
+            #return render_template('transaction.html', form=form)
+        if not queried_to_user:
+            success = False
+            flash(f"User with username {to_user_name} doesn't exist")
+            #return render_template('transaction.html', form=form)
+
+        # Trying to send money to himself
+        if queried_from_user and current_user.username == queried_to_user.username:
+            success = False
+            flash("Can't send money to yourself")
+
+        # TODO Has enough money
+
+        # Is logged in on "from ID"
+        if success and (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
+            success = False
+            flash("Can't transfer money from an account you don't own")
+
+        if not success:
+            flash("Unsuccessful transaction")
+            return render_template('transaction.html', form=form) # TODO Maybe just refresh the site with old values?
+
+        # TODO If everything is correct, register a transaction, and add it to the database, update saldo if it's on the screen
+        newTransaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name, message=message)
+
         return redirect(url_for('views.home'))
 
     return render_template('transaction.html', form=form)
