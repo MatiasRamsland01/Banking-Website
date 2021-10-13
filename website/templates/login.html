@@ -12,7 +12,7 @@
       margin: auto;
     }
   </style>
-  <div class="container">
+  <div class="container" style="text-align: center;">
     <form method="POST" class="form-register" style="color:black">
       {{ form.csrf_token }}
       {{ form.hidden_tag() }}
@@ -28,8 +28,19 @@
       {{ form.password.label() }}
       {{ form.password(class="form-control", placeholder="Password") }}
 
+      
+
       <br>
       {{ form.recaptcha }}
+      <style>
+        .text-center {
+            text-align: center;
+        }
+    
+        .g-recaptcha {
+            display: inline-block;
+        }
+    </style>
       <br>
 
       {{ form.submit(class="btn btn-lg btn-block btn-dark") }}
