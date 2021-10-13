@@ -20,11 +20,11 @@ from flask_login import login_required, logout_user, current_user, login_user
 auth = Blueprint('auth', __name__)
 
 
-#Timeout user when inactive in 10 min
+#Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
     flask.session.permanent = True
-    current_app.permanent_session_lifetime = datetime.timedelta(minutes=10)
+    current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
     flask.session.modified = True
     flask.g.user = flask_login.current_user
 

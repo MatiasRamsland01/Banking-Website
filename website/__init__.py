@@ -8,12 +8,28 @@ from flask_qrcode import QRcode
 from flask_login import LoginManager
 from datetime import timedelta
 from flask_wtf.csrf import CSRFProtect
+from flask_talisman import Talisman
+
 db = SQLAlchemy()
 login_manager = LoginManager()
 
 
 def create_app():
     app = Flask(__name__)
+    
+    csp = {
+    'default-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',
+        'stackpath.bootstrapcdn.com',
+        'code.jquery.com',
+        'cdn.jsdelivr.net',
+        'https://www.google.com/recaptcha/',
+        'https://www.gstatic.com/recaptcha/',
+        ]
+    }
+    talisman = Talisman(app, content_security_policy=csp)
+    
 
     csrf = CSRFProtect()
     csrf.init_app(app)
