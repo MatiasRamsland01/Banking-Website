@@ -3,16 +3,16 @@
 {% block logout %}
         <a class="nav-item nav-link float-right" id="home" href="/logout" >Logout</a>
 {% endblock %}
-{% block title %}<h1> Home </h1>{% endblock %}
+{% block title %}Home{% endblock %}
 {% block body %}
 
-<h1 style="color: darkslategray;">
-    This is the home page, {{ current_user }}!
-  </h1>
+<h1 style="color:white; text-align: center;">
+    Velkommen, {{ current_user }}!
+</h1>
   
-  <div class="bank-accounts" style="width: 50%; height: auto;">
+  <div class="col-sm-12" style="background-color: darkslategray; opacity: 60%;">
    <form>
-      <p>
+      <p style="color: white">
           <label>Account n: </label> <label> PENGER HER </label>
       </p>
   </form>
