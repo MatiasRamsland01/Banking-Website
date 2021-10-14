@@ -1,6 +1,9 @@
+import decimal
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # main.get_app()
@@ -30,7 +33,7 @@ class User(UserMixin, db.Model):
             return True
 
     def get_money(self):
-        return 0 #db. # TODO
+        return get_money_from_user(self.username)
 
 
 class Transaction(db.Model):
@@ -41,10 +44,40 @@ class Transaction(db.Model):
     to_user_id = db.Column(db.Integer)  # TODO ForeignKey?
     in_money = db.Column(db.String(40))
     message = db.Column(db.String(120))
+
     # TimeStamp?
+
+    def contains_user(self, username):
+        return username != "" and (self.from_user_id == username or self.to_user_id == username)
+
+    def get_out_money_decimal(self):
+        return decimal.Decimal(self.out_money)
+
+    def get_in_money_decimal(self):
+        return decimal.Decimal(self.in_money)
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
+
+
+def get_money_from_user(username):
+    money = 0
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        print(f"Couldn't find user with username {username}")
+        return money
+
+    # transactions = Transaction.query.filter(Transaction.contains_user(username=username)).all()
+    queryTest = Transaction.query.filter(or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
+    for transaction in queryTest:
+        # If from_user_id; substract money
+        if transaction.from_user_id == username:
+            money -= transaction.get_out_money_decimal()
+        # If to_user_id; add money
+        elif transaction.to_user_id == username:
+            money += transaction.get_in_money_decimal()
+
+    return money
 
 
 def init_db():

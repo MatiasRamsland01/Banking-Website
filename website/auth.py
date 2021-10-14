@@ -40,12 +40,12 @@ def sign_up():
 
         # Correct input, now check database
         success = True
-        user_name = User.query.filter_by(username = form.username.data).first()
-        user_email = User.query.filter_by(email = form.email.data).first()
-        if user_name:
+        user_by_username = User.query.filter_by(username = form.username.data).first()
+        user_by_email = User.query.filter_by(email = form.email.data).first()
+        if user_by_username:
             flash("Username taken!", category='error')
             success = False
-        if user_email:
+        if user_by_email:
             flash("Email taken!", category='error')
             success = False
         if success:
@@ -62,9 +62,9 @@ def sign_up():
             session.permanent = True
 
             ##### Print statements to test values in database, comment away if not needed#########
-            print("Username: ", User.query.filter_by(username=form.username.data).first().username)
-            print("Email: ", User.query.filter_by(username=form.username.data).first().email)
-            print("Password: ", User.query.filter_by(username=form.username.data).first().password)
+            #print("Username: ", User.query.filter_by(username=form.username.data).first().username)
+            #print("Email: ", User.query.filter_by(username=form.username.data).first().email)
+            #print("Password: ", User.query.filter_by(username=form.username.data).first().password)
             ######################################################################################
 
             return redirect(url_for('auth.two_factor_view', email=email))
@@ -129,7 +129,7 @@ def transaction():
 
         # From ID and To ID exist
         queried_from_user = User.query.filter_by(username = from_user_name).first()
-        queried_to_user = User.query.filter_by(username=from_user_name).first()
+        queried_to_user = User.query.filter_by(username=to_user_name).first()
         if not queried_from_user:
             success = False
             flash(f"User with username {from_user_name} doesn't exist", category="error")
@@ -144,9 +144,10 @@ def transaction():
             success = False
             flash("Can't send money to yourself", category="error")
 
-        # TODO Has enough money
-        amount_in_database = queried_from_user.get_money()
-        if amount <= amount_in_database:
+        # TODO Finish has enough money
+        amount_in_database:int = queried_from_user.get_money()
+        flash("Money " + str(amount_in_database))
+        if amount >= amount_in_database:
             success = False
             flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}")
 
@@ -154,7 +155,7 @@ def transaction():
         if queried_from_user and queried_to_user and \
                 (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
             success = False
-            flash("Can't transfer money from an account you don't own")
+            flash("Can't transfer money from an account you don't own", category="error")
 
         if not success:
             flash("Unsuccessful transaction", category="error")
