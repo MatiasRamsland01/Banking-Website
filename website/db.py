@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), unique=False, nullable=False)
+    saldo = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -62,7 +63,7 @@ class Transaction(db.Model):
 
 def get_money_from_user(username):
     money = 0
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username = username).first()
     if not user:
         print(f"Couldn't find user with username {username}")
         return money

@@ -8,7 +8,7 @@ from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 from sqlalchemy import literal
-from website.db import User, init_db, db, Transaction
+from website.db import User, init_db, db, Transaction, get_money_from_user
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -16,6 +16,7 @@ import pyotp
 import os
 from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
+import random
 
 auth = Blueprint('auth', __name__)
 
@@ -53,8 +54,11 @@ def sign_up():
             email = form.email.data
             password1 = form.password1.data
             hashedPassword = generate_password_hash(password1, method="sha256")
-            password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
-            user = User(username=userName, email=email, password=hashedPassword)
+
+            #Chooses a random value from 1 to 1 000 000
+            money = random.randint(1, 1000000)
+
+            user = User(username=userName, email=email, password=hashedPassword, saldo=money)
             db.session.add(user)
             db.session.commit()
             flash('Account Created', category='success')
@@ -112,6 +116,7 @@ def two_factor_view():
 @login_required
 def transaction():
     form = TransactionForm()
+    
     if form.validate_on_submit():
         amount = form.amount.data
         from_user_name = form.from_user_name.data
@@ -121,8 +126,8 @@ def transaction():
         ATM_transaction = False # TODO, if an ATM Transaction, then we dont need & shouldnt have both from & to
         success = True
 
-        # Check if money amount is legal (between 1-200000)
-        if amount < 1 or amount > 200000:
+        # Check if money amount is legal (between 1-20000000)
+        if amount < 1 or amount > 20000000:
             success = False
             flash("Money amount has to be a value between 1 and 200'000", category="error")
             #return render_template('transaction.html', form=form)
@@ -145,9 +150,8 @@ def transaction():
             flash("Can't send money to yourself", category="error")
 
         # TODO Finish has enough money
-        amount_in_database:int = queried_from_user.get_money()
-        flash("Money " + str(amount_in_database))
-        if amount >= amount_in_database:
+        amount_in_database:int = queried_from_user.saldo
+        if amount > amount_in_database:
             success = False
             flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}")
 
@@ -161,11 +165,19 @@ def transaction():
             flash("Unsuccessful transaction", category="error")
             return render_template('transaction.html', form=form)
 
-        # TODO If everything is correct, register a transaction, and add it to the database
+        
+       
         #  Update (calculate) saldo if it's on the screen
+        
+
+        #If everything is correct, register a transaction, and add it to the database
         new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name, message=message)
+        
         db.session.add(new_transaction)
         db.session.commit()
+        queried_from_user.saldo = get_money_from_user(queried_from_user)
+        queried_to_user.saldo = get_money_from_user(queried_to_user)
+        
 
         return redirect(url_for('views.home'))
 
