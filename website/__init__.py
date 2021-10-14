@@ -26,8 +26,13 @@ def create_app():
         'cdn.jsdelivr.net',
         'https://www.google.com/recaptcha/',
         'https://www.gstatic.com/recaptcha/',
-        ]
+        ],
+    'img-src': ['\'self\'', '*', 'data:']
+    
+    
+    
     }
+    
     talisman = Talisman(app, content_security_policy=csp)
     
 
