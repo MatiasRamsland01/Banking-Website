@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 <!--Takes the code from base but overwrites it with the code you type in here-->
+
+=======
+{% block logout %}
+        <a class="nav-item nav-link float-right" id="home" href="/logout" >Logout</a>
+{% endblock %}
+
 {% block title %}Home{% endblock %}
 {% block body %}
 <div style="
@@ -15,4 +21,19 @@
   <button class="btn btn-lg btn-block btn-dark" onclick="window.location.href='/transaction'">Build Wealth!</button>
 </div>
 
-{% endblock %}
+
+<h1 style="color:white; text-align: center;">
+    Velkommen, {{ current_user }}!
+</h1>
+  
+  <div class="col-sm-12" style="background-color: darkslategray; opacity: 60%;">
+   <form>
+      <p style="color: white">
+          <label>Account n: </label> <label> PENGER HER </label>
+      </p>
+  </form>
+  </div>
+
+  {% endblock %}
+  
+
