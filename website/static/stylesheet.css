@@ -85,6 +85,18 @@
   margin: 0;
 
 }
+.logopic{
+  grid-column: 2/4;
+  grid-row: 2;
+  width: 340px;
+  height: 200px;
+  left: 125px;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  margin: 0;
+
+}
 
 .moneypic{
   width: 340px;
