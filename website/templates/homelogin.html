@@ -18,7 +18,10 @@
   <div class="col-sm-12" style="background-color: darkslategray; opacity: 60%;">
    <form>
       <p style="color: white">
-          <label>Account n: </label> <label> PENGER HER </label>
+          <label>Account n: </label>  <br><label> Saldo: {{ saldo }} </label>
+          <a href="/add_money">
+              <input type="button" value="Add money" />
+          </a>
       </p>
   </form>
   </div>
@@ -33,7 +36,7 @@
           og kalle et hjem. Vi har alltid oppdatert teknologi til sikkerhet og vi fokuserer alltid på kundene! Sett opp din egen bank hos Bank A idag! 
       </p> 
       </div>
-      <img src="{{url_for('static', filename='Diverse_smiles.jpeg')}}" style="width: 62%; opacity: 70%; float: right;">
+      <!--<img src="{{url_for('static', filename='Diverse_smiles.jpeg')}}" style="width: 62%; opacity: 70%; float: right;">-->
   </div>
 
 
