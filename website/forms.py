@@ -69,3 +69,11 @@ class TransactionForm(FlaskForm):
     to_user_name = StringField(label='Username')
     message = StringField(label='Message')
     submit = SubmitField(label='Transfer Money')
+
+class AddMoneyForm(FlaskForm):
+    cardholder = StringField(label='Full name on credit card')
+    cardnumber = StringField(label='Credit card number')
+    amount = IntegerField(label='Choose amount to top up your bank account', validators=[DataRequired(),
+                                                                                         validators.NumberRange(min=1, max=200000,
+                                                                                                        message="Money amount has to be a value between 1 and 200'000")])
+    submit = SubmitField(label='Top up account')
