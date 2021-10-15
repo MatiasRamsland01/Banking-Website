@@ -50,6 +50,7 @@
   border: 3px solid black;
 }
 
+
 .loan{
   grid-column: 2/4;
   grid-row: 1;
@@ -88,9 +89,10 @@
 .logopic{
   grid-column: 2/4;
   grid-row: 2;
-  width: 340px;
-  height: 200px;
-  left: 125px;
+  width: 500px;
+  height: 500px;
+  left: 0px;
+  top: 0px;
   position: relative;
   display: inline-block;
   overflow: hidden;
