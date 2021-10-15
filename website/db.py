@@ -58,7 +58,17 @@ class Transaction(db.Model):
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
+    
 
+class AddMoney(db.Model):
+    add_money_id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Integer, nullable=False)
+    cardholder = db.Column(db.String(40), nullable=False)
+    cardnumber = db.Column(db.Integer, nullable=False)
+
+    def get_amount(self):
+        return decimal.Decimal(self.amount)
+    
 
 def get_money_from_user(username):
     money = 0
@@ -76,6 +86,10 @@ def get_money_from_user(username):
         # If to_user_id; add money
         elif transaction.to_user_id == username:
             money += transaction.get_in_money_decimal()
+     
+    amounts = AddMoney.query
+    for each_topup in amounts:
+       money += each_topup.get_amount()
 
     return money
 
