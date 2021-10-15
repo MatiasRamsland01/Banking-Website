@@ -8,12 +8,13 @@ from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 from sqlalchemy import literal
-from website.db import User, init_db, db, Transaction
+from website.db import User, init_db, db, Transaction, AddMoney
 from flask_wtf.recaptcha.validators import Recaptcha
-from website.forms import RegisterForm, LoginForm, TransactionForm
+from website.forms import RegisterForm, LoginForm, TransactionForm, AddMoneyForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import pyotp
 import os
+import math
 from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
 
@@ -74,7 +75,37 @@ def sign_up():
 @auth.route('/homelogin', methods=['GET', 'POST'])
 @login_required
 def home_login():
-    return render_template('homelogin.html', current_user=current_user.username)
+    queried_from_user = User.query.filter_by(username=current_user.username).first()
+    amount_in_database: int = queried_from_user.get_money()
+    return render_template('homelogin.html', current_user=current_user.username, saldo = amount_in_database)
+
+
+@auth.route('/add_money', methods=['GET', 'POST'])
+@login_required
+def add_money():
+    form = AddMoneyForm()
+    if form.validate_on_submit():
+        init_db()
+        amount = form.amount.data
+        cardholder = form.cardholder.data
+        cardnumber = form.cardnumber.data
+        succes = True
+
+        if cardnumber != math.nan:
+            succes = False
+            flash('Invalid cardnumber. Must contain only digits', category='error')
+
+        if amount<1 or amount>200000:
+            succes = False
+            flash('Amount needs to be between 1 and 200 000', category='error')
+
+        if succes == True:
+            new_topup = AddMoney(amount=amount, cardholder=cardholder, cardnumber=cardnumber)
+            db.session.add(new_topup)
+            db.session.commit()
+            return redirect(url_for('auth.home_login'))
+
+    return render_template('add_money.html', form=form)
 
 
 @auth.route('/login', methods=['GET', 'POST'])
