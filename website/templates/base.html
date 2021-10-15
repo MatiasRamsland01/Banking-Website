@@ -37,15 +37,19 @@
     <div class="collapse navbar-collapse" id="navbar" style="height: 50%;">
       <div class="navbar-nav" style="height: 50%;">
         {% if session['logged_in'] == True %}
-        <a class="nav-item nav-link" id="homelogin" href="/homelogin">Home</a>
-        <a class="nav-item nav-link" id="transaction" href="/transaction">Transaction</a>
-        <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+        <a class="nav-item nav-link" id="homelogin" href="/homelogin" style="color: #FF7F50; font-size: 25px;">Home</a>
+        <a class="nav-item nav-link" id="transaction" href="/transaction" style="color: #FF7F50; font-size: 25px;">Transaction</a>
+        <a class="nav-item nav-link" id="logout" href="/logout" style="color: #FF7F50; font-size: 25px;">Logout</a>
         {% else %}
-        <a class="nav-item nav-link" id="home" href="/">Home</a>
-        <a class="nav-item nav-link" id="login" href="/login">Login</a>
-        <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+        <a class="nav-item nav-link" id="home" href="/" style="color: #FF7F50; font-size: 25px;">Home</a>
+        <a class="nav-item nav-link" id="login" href="/login" style="color: #FF7F50; font-size: 25px;">Login</a>
+        <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color: #FF7F50; font-size: 25px;">Sign Up</a>
         {% endif %}
       </div>
+      <a href="/">
+        <img src="{{url_for('static', filename='logosmall.png')}}" style="width: 200px; height: 67px;">
+      </a>
+      
     </div>
   </nav>
 
