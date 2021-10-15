@@ -80,7 +80,7 @@ def home_login():
     return render_template('homelogin.html', current_user=current_user.username, saldo = amount_in_database)
 
 
-@auth.route('/add_money', methods=['GET', 'POST'])
+@auth.route('/atm', methods=['GET', 'POST'])
 @login_required
 def add_money():
     form = AddMoneyForm()
@@ -91,7 +91,7 @@ def add_money():
         cardnumber = form.cardnumber.data
         succes = True
 
-        if cardnumber != math.nan:
+        if cardnumber == math.nan:
             succes = False
             flash('Invalid cardnumber. Must contain only digits', category='error')
 
