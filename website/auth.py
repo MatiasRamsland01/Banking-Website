@@ -98,6 +98,7 @@ def verify():
             flash("Wrong OTP, please try again")
     return render_template('verify.html', form=form)
 
+# TODO Make user not be able to view this page again and not display secret in session variable (not safe)!
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
     try:
