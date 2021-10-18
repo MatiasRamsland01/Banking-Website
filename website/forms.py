@@ -70,7 +70,7 @@ class TransactionForm(FlaskForm):
     message = StringField(label='Message')
     submit = SubmitField(label='Transfer Money')
 
-class AddMoneyForm(FlaskForm):
+class ATMForm(FlaskForm):
     cardholder = StringField(label='Full name on credit card', validators=[DataRequired()])
     cardnumber = IntegerField(label='Credit card number', validators=[DataRequired()])
     amount = IntegerField(label='Choose amount to top up your bank account', validators=[DataRequired(),

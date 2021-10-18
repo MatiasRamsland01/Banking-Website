@@ -77,6 +77,10 @@ def get_money_from_user(username):
         print(f"Couldn't find user with username {username}")
         return money
 
+    return money
+    #db.session.query(Transaction).delete()
+    #db.session.commit()
+
     # transactions = Transaction.query.filter(Transaction.contains_user(username=username)).all()
     queryTest = Transaction.query.filter(or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
     for transaction in queryTest:
@@ -87,9 +91,9 @@ def get_money_from_user(username):
         elif transaction.to_user_id == username:
             money += transaction.get_in_money_decimal()
      
-    amounts = AddMoney.query
-    for each_topup in amounts:
-       money += each_topup.get_amount()
+    #amounts = AddMoney.query
+    #for each_topup in amounts:
+    #   money += each_topup.get_amount()
 
     return money
 
