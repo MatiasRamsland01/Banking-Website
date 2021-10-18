@@ -51,9 +51,13 @@ class Transaction(db.Model):
         return username != "" and (self.from_user_id == username or self.to_user_id == username)
 
     def get_out_money_decimal(self):
+        if self.out_money is None:
+            return 0
         return decimal.Decimal(self.out_money)
 
     def get_in_money_decimal(self):
+        if self.in_money is None:
+            return 0
         return decimal.Decimal(self.in_money)
 
     def __eq__(self, other):
