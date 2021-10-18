@@ -1,6 +1,6 @@
 import decimal
 
-from flask import Flask
+from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import or_
@@ -58,17 +58,7 @@ class Transaction(db.Model):
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
-    
 
-class AddMoney(db.Model):
-    add_money_id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Integer, nullable=False)
-    cardholder = db.Column(db.String(40), nullable=False)
-    cardnumber = db.Column(db.Integer, nullable=False)
-
-    def get_amount(self):
-        return decimal.Decimal(self.amount)
-    
 
 def get_money_from_user(username):
     money = 0
@@ -90,6 +80,7 @@ def get_money_from_user(username):
     #amounts = AddMoney.query
     #for each_topup in amounts:
     #   money += each_topup.get_amount()
+    flash(str(money))
 
     return money
 

@@ -8,7 +8,7 @@ from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect
 from flask.helpers import url_for
 from sqlalchemy import literal
-from website.db import User, init_db, db, Transaction, AddMoney
+from website.db import User, init_db, db, Transaction
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -77,12 +77,12 @@ def sign_up():
 def home_login():
     queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()
-    return render_template('homelogin.html', current_user=current_user.username)#, saldo=amount_in_database)
+    return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database)
 
 
 @auth.route('/atm', methods=['GET', 'POST'])
 @login_required
-def add_money():
+def atm_transaction():
     form = ATMForm()
     if form.validate_on_submit():
         take_out_money = True  # TODO PutInMoney logic through "ATM"
@@ -92,7 +92,7 @@ def add_money():
 
         # TODO Query user
 
-        #if cardnumber == math.nan:
+        # if cardnumber == math.nan:
         #    success = False
         #    flash('Invalid cardnumber. Must contain only digits', category='error')
 
@@ -100,10 +100,9 @@ def add_money():
             success = False
             flash('Amount needs to be between 1 and 200 000', category='error')
 
-        if success == True:
-            #new_topup = AddMoney(amount=amount, cardholder=cardholder, cardnumber=cardnumber)
-            transaction = Transaction(username = username, amount = amount)
-            #db.session.add(new_topup)
+        if success:
+            new_transaction = Transaction(to_user_id=username, in_money=amount)
+            db.session.add(new_transaction)
             db.session.commit()
             return redirect(url_for('auth.home_login'))
 

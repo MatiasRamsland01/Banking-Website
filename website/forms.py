@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 class RegisterForm(FlaskForm):
     username = StringField(label='Username:', validators=[DataRequired(), Length(min=2, max=30,
-                                                                                    message="Username must be between 2 and 30 characters!")])
+                                                                                 message="Username must be between 2 and 30 characters!")])
 
     email = StringField(label='Email:', validators=[Email()])
     password1 = PasswordField(label='Password:', validators=[DataRequired(), Length(min=7, max=100,
@@ -27,11 +27,11 @@ class RegisterForm(FlaskForm):
         message = "You can't use special characters in your name"
         # Might be a whacky soloution but works for now
         for letter in username.data:
-            if ord(letter) >= 65 and ord(letter) <= 90 or ord(letter) >= 97 and ord(letter) <= 122 or ord(letter) >= 48 and ord(letter) <= 57:
+            if ord(letter) >= 65 and ord(letter) <= 90 or ord(letter) >= 97 and ord(letter) <= 122 or ord(
+                    letter) >= 48 and ord(letter) <= 57:
                 counter += 1
         if counter != len(username.data):
             raise ValidationError(message)
-
 
     # Checks if password contains digits, small and big letters.
     def validate_password1(self, password1):
@@ -70,10 +70,11 @@ class TransactionForm(FlaskForm):
     message = StringField(label='Message')
     submit = SubmitField(label='Transfer Money')
 
+
 class ATMForm(FlaskForm):
-    cardholder = StringField(label='Full name on credit card', validators=[DataRequired()])
-    cardnumber = IntegerField(label='Credit card number', validators=[DataRequired()])
+    username = StringField(label='Username', validators=[DataRequired()])
     amount = IntegerField(label='Choose amount to top up your bank account', validators=[DataRequired(),
-                                                                                         validators.NumberRange(min=1, max=200000,
-                                                                                                        message="Money amount has to be a value between 1 and 200'000")])
-    submit = SubmitField(label='Top up account')
+                                                                                         validators.NumberRange(min=1,
+                                                                                                                max=200000,
+                                                                                                                message="Money amount has to be a value between 1 and 200'000")])
+    submit = SubmitField(label='Transfer money')
