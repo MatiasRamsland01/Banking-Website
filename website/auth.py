@@ -92,7 +92,7 @@ def atm_transaction():
 
         if amount < 1 or amount > 10_000:
             success = False
-            flash('Amount needs to be between 1 and 200 000', category='error')
+            flash('Amount needs to be between 1 and 10 000', category='error')
 
         user = User.query.filter_by(username=form.username.data).first()
         if not user:
@@ -160,7 +160,7 @@ def transaction():
         # Check if money amount is legal (between 1-200000)
         if amount < 1 or amount > 500_000:
             success = False
-            flash("Money amount has to be a value between 1 and 200'000", category="error")
+            flash("Money amount has to be a value between 1 and 500'000", category="error")
             # return render_template('transaction.html', form=form)
 
         # From ID and To ID exist

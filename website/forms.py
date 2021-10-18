@@ -63,8 +63,8 @@ class LoginForm(FlaskForm):
 
 class TransactionForm(FlaskForm):
     amount = IntegerField(label='Choose your desired amount', validators=[DataRequired(),
-                                                                          validators.NumberRange(min=1, max=200000,
-                                                                                                 message="Money amount has to be a value between 1 and 200'000")])
+                                                                          validators.NumberRange(min=1, max=500000,
+                                                                                                 message="Money amount has to be a value between 1 and 500'000")])
     from_user_name = StringField(label='Username')
     to_user_name = StringField(label='Username')
     message = StringField(label='Message')
@@ -75,6 +75,6 @@ class ATMForm(FlaskForm):
     username = StringField(label='Username', validators=[DataRequired()])
     amount = IntegerField(label='Choose amount to top up your bank account', validators=[DataRequired(),
                                                                                          validators.NumberRange(min=1,
-                                                                                                                max=200000,
-                                                                                                                message="Money amount has to be a value between 1 and 200'000")])
+                                                                                                                max=10000,
+                                                                                                                message="Money amount has to be a value between 1 and 10'000")])
     submit = SubmitField(label='Transfer money')
