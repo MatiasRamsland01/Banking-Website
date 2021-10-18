@@ -90,15 +90,18 @@ def atm_transaction():
         username = form.username.data
         success = True
 
-        # TODO Query user
-
-        # if cardnumber == math.nan:
-        #    success = False
-        #    flash('Invalid cardnumber. Must contain only digits', category='error')
-
-        if amount < 1 or amount > 200000:
+        if amount < 1 or amount > 10_000:
             success = False
             flash('Amount needs to be between 1 and 200 000', category='error')
+
+        user = User.query.filter_by(username=form.username.data).first()
+        if not user:
+            success = False
+            flash(f"User with username {username} doesn't exist", category="error")
+
+        if user and current_user.id != user.id:
+            success = False
+            flash("Can't transfer money from an account you don't own", category="error")
 
         if success:
             new_transaction = Transaction(to_user_id=username, in_money=amount)
@@ -155,7 +158,7 @@ def transaction():
         success = True
 
         # Check if money amount is legal (between 1-200000)
-        if amount < 1 or amount > 200000:
+        if amount < 1 or amount > 500_000:
             success = False
             flash("Money amount has to be a value between 1 and 200'000", category="error")
             # return render_template('transaction.html', form=form)

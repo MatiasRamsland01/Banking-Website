@@ -76,11 +76,6 @@ def get_money_from_user(username):
         # If to_user_id; add money
         elif transaction.to_user_id == username:
             money += transaction.get_in_money_decimal()
-     
-    #amounts = AddMoney.query
-    #for each_topup in amounts:
-    #   money += each_topup.get_amount()
-    flash(str(money))
 
     return money
 
