@@ -71,10 +71,10 @@ def get_money_from_user(username):
     queryTest = Transaction.query.filter(or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
     for transaction in queryTest:
         # If from_user_id; substract money
-        if transaction.from_user_id == username:
+        if transaction.from_user_id and transaction.from_user_id == username:
             money -= transaction.get_out_money_decimal()
         # If to_user_id; add money
-        elif transaction.to_user_id == username:
+        elif transaction.to_user_id and transaction.to_user_id == username:
             money += transaction.get_in_money_decimal()
 
     return money
