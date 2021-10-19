@@ -11,12 +11,14 @@ from sqlalchemy import literal
 from website.db import User, init_db, db, Transaction
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
-from werkzeug.security import generate_password_hash, check_password_hash
+#from werkzeug.security import generate_password_hash, check_password_hash
+from hashlib import sha256
 import pyotp
 import os
 import math
 from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
+from passlib.hash import argon2
 
 auth = Blueprint('auth', __name__)
 
@@ -52,8 +54,9 @@ def sign_up():
         if success:
             userName = form.username.data
             email = form.email.data
+            #hashedEmail = email
             password1 = form.password1.data
-            hashedPassword = generate_password_hash(password1, method="sha256")
+            hashedPassword = argon2.hash(password1)
             password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
             user = User(username=userName, email=email, password=hashedPassword)
             db.session.add(user)
@@ -121,7 +124,8 @@ def login():
     if form.validate_on_submit():
         try:
             user = User.query.filter_by(email=form.email.data).first()
-            if user is not None and check_password_hash(user.password, form.password.data):
+            # argon2 has form of argon2.verify(input, hashed_value)
+            if user is not None and argon2.verify(form.password.data, user.password):
                 login_user(user)
                 session['logged_in'] = True
                 return redirect(url_for('auth.home_login'))
