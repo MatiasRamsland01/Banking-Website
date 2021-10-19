@@ -241,6 +241,7 @@ def validate_password1(password):
         smallLetter = 0
         number = 0
         illegal = 0
+        sum = 0
         for letter in password:
             try: 
                 if ord(letter) >= 48 and ord(letter) <= 57:
@@ -251,17 +252,19 @@ def validate_password1(password):
                     bigLetter += 1
                 else:
                     illegal += 1
+                sum += 1
+                
             except:
                 return False
 
         # Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
-        if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0:
+        if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0 or sum < 7 or sum > 200:
             return False
         return True
             
 
 def validate_username(username):
-    if len(username) < 2:
+    if len(username) < 2 or len(username) > 50:
         return False
         
     for letter in username:
@@ -290,7 +293,7 @@ def validate_int(integer):
 
 
 def validate_email(email):
-    if len(email) < 3:
+    if len(email) < 3 or len(email) > 50:
         return False
         
     check = 0
