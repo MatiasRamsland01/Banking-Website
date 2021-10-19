@@ -33,9 +33,8 @@ def create_app():
     
     }
     
-    talisman = Talisman(app, content_security_policy=csp)
+    Talisman(app, content_security_policy=csp)
     
-
     csrf = CSRFProtect()
     csrf.init_app(app)
 
