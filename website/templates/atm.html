@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 <!--Takes the code from base but overwrites it with the code you type in here-->
-{% block title %}Transaction{% endblock %}
+
+=======
+{% block logout %}
+        <a class="nav-item nav-link float-right" id="home" href="/logout" >Logout</a>
+{% endblock %}
+
+{% block title %}Add money{% endblock %}
 {% block body %}
 <body class="text-center">
   <div class="container">
@@ -8,7 +14,7 @@
       {{ form.csrf_token }}
       {{ form.hidden_tag() }}
       <h1 align='center' >
-        Please choose amount and to which account you would like to transfer to
+        ATM
       </h1>
       <br>
       <br>
@@ -16,14 +22,8 @@
       {{ form.amount.label() }}
       {{ form.amount(class="form-control", placeholder="Amount") }}
 
-      {{ form.from_user_name.label() }}
-      {{ form.from_user_name(class="form-control", placeholder="From which account? (Username)") }}
-
-      {{ form.to_user_name.label() }}
-      {{ form.to_user_name(class="form-control", placeholder="To which account?") }}
-
-      {{ form.message.label() }}
-      {{ form.message(class="form-control", placeholder="Message to receiver") }}
+      {{ form.username.label() }}
+      {{ form.username(class="form-control", placeholder="Name, which stays on credit card") }}
   
       {{ form.OTP.label() }}
       {{ form.OTP(class="form-control", placeholder="OTP") }}
@@ -38,5 +38,4 @@
 {% endfor %}
   </div>
 </body>
-
 {% endblock %}

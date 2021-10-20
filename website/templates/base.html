@@ -20,7 +20,7 @@
 </head>
 <body>
   <!--Example on using bootstrap to create a navbar. Front-end programmers can modify this.-->
-  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2B3856;">
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #303030;">
     <button
       class="navbar-toggler"
       type="button"
@@ -31,13 +31,25 @@
     </button>
 
     <!-- Puts the logo in the middle of the navbar!-->
-    <img src="{{url_for('static', filename='Logo.png')}}" style="height: 48px; border-radius: 50%; overflow: hidden; margin-top: -6px; position: absolute;left: calc((100% - 96px)/2)" >
     
-    <div class="collapse navbar-collapse" id="navbar">
-      <div class="navbar-nav">
+      <img src="{{url_for('static', filename='Logo1.png')}}" style="
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      right: -9999px;
+      bottom: -9999px;
+      margin: auto;
+      width: 140px;
+      height: 140px;      
+      ">
+    
+    
+    <div class="collapse navbar-collapse" id="navbar" style="height: 50%;">
+      <div class="navbar-nav" style="height: 50%;">
         {% if session['logged_in'] == True %}
         <a class="nav-item nav-link" id="homelogin" href="/homelogin">Home</a>
         <a class="nav-item nav-link" id="transaction" href="/transaction">Transaction</a>
+        <a class="nav-item nav-link" id="atm" href="/atm">ATM</a>
         <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
         {% else %}
         <a class="nav-item nav-link" id="home" href="/">Home</a>
@@ -52,10 +64,7 @@
 
 
 <div style="margin: 0; padding: 0;min-height: 100vh;
-background: #108dc7;  /* fallback for old browsers */
-background: -webkit-linear-gradient(to bottom, #ef8e38, #108dc7);  /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to bottom, #ef8e38, #108dc7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-">
+background: #FFFDE4">
 {% with messages = get_flashed_messages(with_categories=true) %} {% if
 messages %} {% for category, message in messages %} {% if category ==
 'error' %}
