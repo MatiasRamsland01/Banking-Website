@@ -71,9 +71,9 @@ def get_money_from_user(username):
         print(f"Couldn't find user with username {username}")
         return money
 
-    # transactions = Transaction.query.filter(Transaction.contains_user(username=username)).all()
-    queryTest = Transaction.query.filter(or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
-    for transaction in queryTest:
+    transactions = Transaction.query.filter(
+        or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
+    for transaction in transactions:
         # If from_user_id; substract money
         if transaction.from_user_id and transaction.from_user_id == username:
             money -= transaction.get_out_money_decimal()

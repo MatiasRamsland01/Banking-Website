@@ -14,7 +14,7 @@ from sqlalchemy.sql.expression import false
 from website.db import User, init_db, db, Transaction
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
-#from werkzeug.security import generate_password_hash, check_password_hash
+# from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import sha256
 import pyotp
 import os
@@ -25,30 +25,31 @@ from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from flask import request
 
-
 from passlib.hash import argon2
 
 auth = Blueprint('auth', __name__)
 
-#When the user limit of 60 request within a minute this error handler occur
+
+# When the user limit of 60 request within a minute this error handler occur
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):
     logout_user()
     session['logged_in'] = False
     return make_response(
-            jsonify(error="Ratelimit exceeded %s" % e.description+". Our BOT killer detected unusual manny request. Please slow down or turn of your BOT!")
-            , 429
+        jsonify(
+            error="Ratelimit exceeded %s" % e.description + ". Our BOT killer detected unusual manny request. Please slow down or turn of your BOT!")
+        , 429
     )
-    
+
 
 # Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
-    
     flask.session.permanent = True
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
     flask.session.modified = True
     flask.g.user = flask_login.current_user
+
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
@@ -58,7 +59,8 @@ def sign_up():
     form = RegisterForm()
     if form.validate_on_submit():
         init_db()
-        if validate_password1(form.password1.data) and validate_username(form.username.data) and validate_email(form.username.data):
+        if validate_password1(form.password1.data) and validate_username(form.username.data) and validate_email(
+                form.username.data):
 
             # Correct input, now check database
             success = True
@@ -110,7 +112,6 @@ def atm_transaction():
     if form.validate_on_submit():
         if validate_int(form.amount.data) and validate_username(form.username.data):
             take_out_money = True  # TODO PutInMoney logic through "ATM"
-
 
             amount = form.amount.data
             username = form.username.data
@@ -181,7 +182,8 @@ def two_factor_view():
 def transaction():
     form = TransactionForm()
     if form.validate_on_submit():
-        if validate_username(form.from_user_name.data) and validate_username(form.to_user_name.data) and validate_string(form.message.data) and validate_int(form.amount.data):
+        if validate_username(form.from_user_name.data) and validate_username(
+                form.to_user_name.data) and validate_string(form.message.data) and validate_int(form.amount.data):
             amount = form.amount.data
             from_user_name = form.from_user_name.data
             to_user_name = form.to_user_name.data
@@ -213,9 +215,8 @@ def transaction():
                 success = False
                 flash("Can't send money to yourself", category="error")
 
-            # TODO Finish has enough money
             amount_in_database: int = queried_from_user.get_money()
-            flash("Money " + str(amount_in_database))
+            # flash("Money " + str(amount_in_database))
             if amount >= amount_in_database:
                 success = False
                 flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}")
@@ -233,7 +234,7 @@ def transaction():
             # TODO If everything is correct, register a transaction, and add it to the database
             #  Update (calculate) saldo if it's on the screen
             new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name,
-                                        message=message)
+                                          in_money=amount, message=message)
             db.session.add(new_transaction)
             db.session.commit()
 
@@ -254,44 +255,44 @@ def logout():
 
 
 def validate_password1(password):
-        bigLetter = 0
-        smallLetter = 0
-        number = 0
-        illegal = 0
-        sum = 0
-        for letter in password:
-            try: 
-                if ord(letter) >= 48 and ord(letter) <= 57:
-                    number += 1
-                elif ord(letter) >= 97 and ord(letter) <= 122:
-                    smallLetter += 1
-                elif ord(letter) >= 65 and ord(letter) <= 90:
-                    bigLetter += 1
-                else:
-                    illegal += 1
-                sum += 1
-                
-            except:
-                return False
+    bigLetter = 0
+    smallLetter = 0
+    number = 0
+    illegal = 0
+    sum = 0
+    for letter in password:
+        try:
+            if ord(letter) >= 48 and ord(letter) <= 57:
+                number += 1
+            elif ord(letter) >= 97 and ord(letter) <= 122:
+                smallLetter += 1
+            elif ord(letter) >= 65 and ord(letter) <= 90:
+                bigLetter += 1
+            else:
+                illegal += 1
+            sum += 1
 
-        # Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
-        if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0 or sum < 7 or sum > 200:
+        except:
             return False
-        return True
-            
+
+    # Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
+    if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0 or sum < 7 or sum > 200:
+        return False
+    return True
+
 
 def validate_username(username):
     if len(username) < 2 or len(username) > 50:
         return False
-        
+
     for letter in username:
         try:
             ord(letter)
         except:
             return False
     return True
-    
-            
+
+
 def validate_string(string):
     for letter in string:
         try:
@@ -299,20 +300,18 @@ def validate_string(string):
         except:
             return False
     return True
-    
+
 
 def validate_int(integer):
-    
-    if isinstance(integer, int) == False: 
+    if isinstance(integer, int) == False:
         return False
     return True
-    
 
 
 def validate_email(email):
     if len(email) < 3 or len(email) > 50:
         return False
-        
+
     check = 0
     for letter in email:
         try:
@@ -323,11 +322,6 @@ def validate_email(email):
         except:
             return False
     return True
-    
-            
-    
-        
-        
 
 
 ### Don't think this is necessary for our soloution with login users
