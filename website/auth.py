@@ -2,10 +2,11 @@ from os import error
 import re
 import flask
 import datetime
+import flask_limiter
 import flask_login
 from flask import session
 from flask import current_app
-from flask import Blueprint, render_template, request, flash, redirect
+from flask import Blueprint, render_template, request, flash, redirect, abort, make_response
 from flask.helpers import url_for
 from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
@@ -20,18 +21,32 @@ import math
 import re
 from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
+from flask import jsonify
+from flask import request
+
+
 
 auth = Blueprint('auth', __name__)
 
+#When the user limit of 60 request within a minute this error handler occur
+@auth.app_errorhandler(429)
+def ratelimit_handler(e):
+    logout_user()
+    session['logged_in'] = False
+    return make_response(
+            jsonify(error="Ratelimit exceeded %s" % e.description+". Our BOT killer detected unusual manny request. Please slow down or turn of your BOT!")
+            , 429
+    )
+    
 
 # Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
+    
     flask.session.permanent = True
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
     flask.session.modified = True
     flask.g.user = flask_login.current_user
-
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():

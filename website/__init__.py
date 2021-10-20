@@ -1,4 +1,5 @@
 import os
+import re
 import click
 from flask import Flask, flash
 from flask.cli import with_appcontext
@@ -8,7 +9,10 @@ from flask_qrcode import QRcode
 from flask_login import LoginManager
 from datetime import timedelta
 from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
+from werkzeug.exceptions import _RetryAfter
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -37,7 +41,6 @@ def create_app():
     
     csrf = CSRFProtect()
     csrf.init_app(app)
-
     db_url = os.environ.get("DATABASE_URL")
 
     if db_url is None:
@@ -69,6 +72,12 @@ def create_app():
     login_manager.login_message_category = 'error'
     login_manager.init_app(app)
 
+    limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    application_limits=["60 per minute",]
+    )
+
     from .db import User
 
     @login_manager.user_loader
@@ -83,6 +92,7 @@ def create_app():
     app.register_blueprint(auth, url_prefix='/')
 
     return app
+
 
 
 def init_db():
