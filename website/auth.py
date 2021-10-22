@@ -217,7 +217,7 @@ def transaction():
 
             amount_in_database: int = queried_from_user.get_money()
             # flash("Money " + str(amount_in_database))
-            if amount >= amount_in_database:
+            if amount > amount_in_database:
                 success = False
                 flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}")
 
