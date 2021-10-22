@@ -110,6 +110,9 @@ def home_login():
 def atm_transaction():
     form = ATMForm()
     if form.validate_on_submit():
+        #if form.username.data[0] == ";": #"Encrypted *data* will flash when someone tries to sql inject"
+        #    flash("Random encrypted bs")
+        #    return redirect(url_for('views.home'))
         if validate_int(form.amount.data) and validate_username(form.username.data):
             take_out_money = True  # TODO PutInMoney logic through "ATM"
 
