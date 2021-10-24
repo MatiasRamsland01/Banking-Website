@@ -69,28 +69,28 @@ class Transaction(db.Model):
 
 def get_money_from_user(username):
     money = 0
-    transactions = []
+    transactionstext = []
     user = User.query.filter_by(username=username).first()
     if not user:
         print(f"Couldn't find user with username {username}")
         return money
 
-    # transactions = Transaction.query.filter(Transaction.contains_user(username=username)).all()
-    queryTest = Transaction.query.filter(or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
-    for transaction in queryTest:
+    transactions = Transaction.query.filter(
+        or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
+    for transaction in transactions:
         # If from_user_id; substract money
         if transaction.from_user_id and transaction.from_user_id == username:
-            transactions.append(f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message} \n")
+            transactionstext.append(f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message} \n")
             money -= transaction.get_out_money_decimal()
         # If to_user_id; add money
         elif transaction.to_user_id and transaction.to_user_id == username:
             if transaction.from_user_id == None:
-                transactions.append(f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. \n")
+                transactionstext.append(f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. \n")
             else:
-                transactions.append(f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message} \n")
+                transactionstext.append(f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message} \n")
             money += transaction.get_in_money_decimal()
 
-    return money, transactions
+    return money, transactionstext
 
 
 def init_db():
