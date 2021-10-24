@@ -32,8 +32,10 @@ logo{
     height: 300px;
     overflow: hidden;
   }
+
   
-  img{
+  
+  .img{
     position: absolute;
     top: -9999px;
     left: -9999px;

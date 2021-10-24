@@ -32,6 +32,7 @@ class User(UserMixin, db.Model):
         if self.password == password:
             return True
 
+
     def get_money(self):
         return get_money_from_user(self.username)
 
@@ -46,6 +47,8 @@ class Transaction(db.Model):
     message = db.Column(db.String(120))
 
     # TimeStamp?
+
+     
 
     def contains_user(self, username):
         return username != "" and (self.from_user_id == username or self.to_user_id == username)
@@ -66,6 +69,7 @@ class Transaction(db.Model):
 
 def get_money_from_user(username):
     money = 0
+    transactions = []
     user = User.query.filter_by(username=username).first()
     if not user:
         print(f"Couldn't find user with username {username}")
@@ -76,12 +80,17 @@ def get_money_from_user(username):
     for transaction in queryTest:
         # If from_user_id; substract money
         if transaction.from_user_id and transaction.from_user_id == username:
+            transactions.append(f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message} \n")
             money -= transaction.get_out_money_decimal()
         # If to_user_id; add money
         elif transaction.to_user_id and transaction.to_user_id == username:
+            if transaction.from_user_id == None:
+                transactions.append(f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. \n")
+            else:
+                transactions.append(f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message} \n")
             money += transaction.get_in_money_decimal()
 
-    return money
+    return money, transactions
 
 
 def init_db():

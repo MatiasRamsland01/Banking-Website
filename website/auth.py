@@ -76,8 +76,9 @@ def sign_up():
 @login_required
 def home_login():
     queried_from_user = User.query.filter_by(username=current_user.username).first()
-    amount_in_database: int = queried_from_user.get_money()
-    return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database)
+    amount_in_database: int = queried_from_user.get_money()[0]
+    transactions = queried_from_user.get_money()[1]
+    return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database, transactions=transactions)
 
 
 @auth.route('/atm', methods=['GET', 'POST'])
@@ -181,7 +182,7 @@ def transaction():
             flash("Can't send money to yourself", category="error")
 
         # TODO Finish has enough money
-        amount_in_database: int = queried_from_user.get_money()
+        amount_in_database: int = queried_from_user.get_money()[0]
         flash("Money " + str(amount_in_database))
         if amount >= amount_in_database:
             success = False

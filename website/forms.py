@@ -68,6 +68,7 @@ class TransactionForm(FlaskForm):
     from_user_name = StringField(label='Username')
     to_user_name = StringField(label='Username')
     message = StringField(label='Message')
+    recaptcha = RecaptchaField()
     submit = SubmitField(label='Transfer Money')
 
 
@@ -77,4 +78,5 @@ class ATMForm(FlaskForm):
                                                                                          validators.NumberRange(min=1,
                                                                                                                 max=10000,
                                                                                                                 message="Money amount has to be a value between 1 and 10'000")])
+    recaptcha = RecaptchaField()
     submit = SubmitField(label='Transfer money')

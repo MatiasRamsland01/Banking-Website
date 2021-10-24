@@ -26,6 +26,17 @@
       {{ form.message(class="form-control", placeholder="Message to receiver") }}
 
       <br>
+      {{ form.recaptcha }}
+      <style>
+        .text-center {
+            text-align: center;
+        }
+    
+        .g-recaptcha {
+            display: inline-block;
+        }
+    </style>
+      <br>
 
       {{ form.submit(class="btn btn-lg btn-block btn-dark") }}
     </form>

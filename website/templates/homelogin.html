@@ -26,6 +26,17 @@
   </form>
   </div>
 </div>
+<br>
+  <div class="col-sm-5" style=" margin: auto; text-align: center; background-color: #FF7F50; opacity: 60%;">
+      <h3 style="color: white; opacity: 100%;">Transaction History:</h3>
+      <br>
+      {% for transaction in transactions %}
+      <p2 style="color: white; opacity: 100%;">{{ transaction }}</p2>
+      <br>
+      {% endfor %}
+  </div>
+    <img class="homeloginpic" src="{{url_for('static', filename='man.png')}}" style="position: relative; width: 600px; height: 550px; top: 25px; left: 50px;">
+</div> 
 
   {% endblock %}
   

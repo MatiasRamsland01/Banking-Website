@@ -26,6 +26,18 @@
       {{ form.username(class="form-control", placeholder="Name, which stays on credit card") }}
 
       <br>
+      {{ form.recaptcha }}
+      <style>
+        .text-center {
+            text-align: center;
+        }
+    
+        .g-recaptcha {
+            display: inline-block;
+        }
+    </style>
+      <br>
+
 
       {{ form.submit(class="btn btn-lg btn-block btn-dark") }}
     </form>
