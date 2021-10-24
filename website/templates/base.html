@@ -32,31 +32,25 @@
 
     <!-- Puts the logo in the middle of the navbar!-->
     
-      <img src="{{url_for('static', filename='Logo1.png')}}" style="
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-      right: -9999px;
-      bottom: -9999px;
-      margin: auto;
-      width: 140px;
-      height: 140px;      
-      ">
     
     
     <div class="collapse navbar-collapse" id="navbar" style="height: 50%;">
       <div class="navbar-nav" style="height: 50%;">
         {% if session['logged_in'] == True %}
-        <a class="nav-item nav-link" id="homelogin" href="/homelogin">Home</a>
-        <a class="nav-item nav-link" id="transaction" href="/transaction">Transaction</a>
-        <a class="nav-item nav-link" id="atm" href="/atm">ATM</a>
-        <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+        <a class="nav-item nav-link" id="homelogin" href="/homelogin" style="color: #FF7F50; font-size: 20px;">Home</a>
+        <a class="nav-item nav-link" id="transaction" href="/transaction" style="color: #FF7F50; font-size: 20px;">Transaction</a>
+        <a class="nav-item nav-link" id="ATM" href="/atm" style="color: #FF7F50; font-size: 20px;">ATM</a>
+        <a class="nav-item nav-link" id="logout" href="/logout" style="color: #FF7F50; font-size: 20px;">Logout</a>
         {% else %}
-        <a class="nav-item nav-link" id="home" href="/">Home</a>
-        <a class="nav-item nav-link" id="login" href="/login">Login</a>
-        <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+        <a class="nav-item nav-link" id="home" href="/" style="color: #FF7F50; font-size: 20px;">Home</a>
+        <a class="nav-item nav-link" id="login" href="/login" style="color: #FF7F50; font-size: 20px;">Login</a>
+        <a class="nav-item nav-link" id="signUp" href="/sign-up" style="color: #FF7F50; font-size: 20px;">Sign Up</a>
         {% endif %}
       </div>
+      <a href="/">
+        <img src="{{url_for('static', filename='logosmall.png')}}" style="width: 200px; height: 67px;">
+      </a>
+      
     </div>
   </nav>
 
@@ -83,11 +77,11 @@ messages %} {% for category, message in messages %} {% if category ==
 </div>
   {% endif %} {% endfor %} {% endif %} {% endwith %}
     
-  <div class="container">
+  
     {% block body %}
     
     {% endblock %} <!--This is where you edit the body in each template-->
-    </div>
+  
 </div>
 
   <!-- Links to scripts so that we import javascript functions and don't have to write javascript and CSS. Search bootstrap on google for info-->
