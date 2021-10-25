@@ -1,1 +1,1 @@
-web: gunicorn main:appdat250bank
+web: gunicorn main:app
