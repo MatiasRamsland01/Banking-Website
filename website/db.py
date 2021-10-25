@@ -8,7 +8,6 @@ from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # main.get_app()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 
 
