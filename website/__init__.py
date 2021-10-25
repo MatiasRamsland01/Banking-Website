@@ -22,8 +22,7 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-    uri = os.getenv("DATABASE_URL")  # or other relevant config var
-    app.config['SQLALCHEMY_DATABASE_URI'] = uri
+    
     csp = {
     'default-src': [
         '\'self\'',
