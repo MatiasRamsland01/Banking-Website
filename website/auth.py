@@ -357,7 +357,7 @@ def validate_password1(password):
             return False
 
     # Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
-    if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0 or sum < 7 or sum > 200:
+    if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0 or sum < 11 or sum > 200:
         return False
     return True
 
