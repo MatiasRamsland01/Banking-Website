@@ -8,6 +8,5 @@ views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
-    #init_db()
-    #session['logged_in'] = False
+   
     return render_template("home.html")
