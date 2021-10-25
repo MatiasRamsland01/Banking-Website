@@ -2,7 +2,7 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}Two factor verification setup{% endblock %}
 {% block body %}
-<div>
+<div style="margin:auto">
   <h1>Setup Two Step Verification</h1>
 <div class="form-group">
   <p1>Quick setup guide to enable 2FA on your account</p1>
@@ -13,11 +13,12 @@
     <li>Finished? Go to <a type="link" href="/login">Log in!</a> </li>
     <li><a style="color: red;font-size: 20px;">You will not be able to scan this a second time!</a></li>
   </ul>
+<img src="{{ qrcode(qr_link) }}" alt="qr-kode">
+
  
 </div>
 
 </div>
-<img src="{{ qrcode(qr_link) }}" alt="qr-kode">
 
 
 

@@ -1,6 +1,7 @@
 from os import error
 import re
 import flask
+import logging
 import datetime
 import flask_limiter
 import flask_login
@@ -27,12 +28,22 @@ from flask import request
 
 from passlib.hash import argon2
 
+from blinker import Namespace
+my_signals = Namespace()
+
+
 auth = Blueprint('auth', __name__)
 
+
+def add_user():
+    # add user code here
+    user_added = my_signals.signal('user-added')
 
 # When the user limit of 60 request within a minute this error handler occur
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):
+    message = "Request Limit: User: "+current_user.username+". Time: "+str(datetime.datetime.now())
+    current_app.logger.info(message)
     logout_user()
     session['logged_in'] = False
     return make_response(
@@ -45,6 +56,22 @@ def ratelimit_handler(e):
 # Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
+
+    log_level = logging.INFO
+    for handler in current_app.logger.handlers:
+        current_app.logger.removeHandler(handler)
+    root = os.path.dirname(os.path.abspath(__file__))
+    logdir = os.path.join(root, 'logs')
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    log_file = os.path.join(logdir, 'app.log')
+    handler = logging.FileHandler(log_file)
+    handler.setLevel(log_level)
+    current_app.logger.addHandler(handler)
+ 
+    current_app.logger.setLevel(log_level)
+
+
     flask.session.permanent = True
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
     flask.session.modified = True
@@ -84,6 +111,8 @@ def sign_up():
                 flash('Account Created', category='success')
                 session['user'] = email
                 session.permanent = True
+                message = "Sign-up: User: "+userName+". Status sucess. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
 
                 ##### Print statements to test values in database, comment away if not needed#########
                 # print("Username: ", User.query.filter_by(username=form.username.data).first().username)
@@ -93,6 +122,8 @@ def sign_up():
 
                 return redirect(url_for('auth.two_factor_view', email=email))
             else:
+                message = "Sign-up: User: "+form.username.data+". Status fail. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
                 return redirect(url_for('views.home'))
     return render_template('signup.html', form=form)
 
@@ -138,9 +169,18 @@ def atm_transaction():
                 new_transaction = Transaction(to_user_id=username, in_money=amount)
                 db.session.add(new_transaction)
                 db.session.commit()
+                message = "ATM deposit: User: "+username+". Status: Sucess. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
                 return redirect(url_for('auth.home_login'))
+            else:
+                message = "ATM deposit: User: "+username+". Status: Fail. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
+                return redirect(url_for('auth.atm_transaction'))
+                
         else:
             flash("Invalid request", category='error')
+            message = "ATM deposit: User: Invalid Input. Status: Fail. Time: "+str(datetime.datetime.now())
+            current_app.logger.info(message)
             return redirect(url_for('views.home'))
 
     return render_template('atm.html', form=form)
@@ -159,12 +199,23 @@ def login():
                 if user is not None and argon2.verify(form.password.data, user.password):
                     login_user(user)
                     session['logged_in'] = True
+                    message = "Log-in: User: "+user.username+"Status: Sucess. Time: "+str(datetime.datetime.now())
+                    current_app.logger.info(message)
+
                     return redirect(url_for('auth.home_login'))
                 flash("Email or password does not match!", category="error")
+                message = "Log-in: User: "+form.email.data+". Status: Failed. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
             except:
+                message = "Log-in: User: "+form.email.data+". Status: Failed. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
+
+                
                 flash("Something went wrong. Please try again", category="error")
         else:
             flash("Invalid request", category='error')
+            message = "Log-in: User: Invalid Input. Status: Fail. Time: "+str(datetime.datetime.now())
+            current_app.logger.info(message)
     return render_template('login.html', form=form)
 
 
@@ -174,6 +225,8 @@ def two_factor_view():
         email = request.args['email']
     except KeyError:
         flash("You don't have access to this page", category='error')
+        message = "2FA view: User: Unknown. Status: Failed. Time: "+str(datetime.datetime.now())
+        current_app.logger.info(message)
         return redirect(url_for('auth.sign_up'))
     secret = pyotp.random_base32()
     intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name='BankA250')
@@ -223,16 +276,19 @@ def transaction():
             # flash("Money " + str(amount_in_database))
             if amount > amount_in_database:
                 success = False
-                flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}")
+                flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}", category='error')
 
             # Is logged in on "from ID"
             if queried_from_user and queried_to_user and \
                     (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
                 success = False
+                
                 flash("Can't transfer money from an account you don't own", category="error")
 
             if not success:
                 flash("Unsuccessful transaction", category="error")
+                message = "Transaction: UserFrom-UserTo: "+queried_from_user.username+" "+queried_to_user.username+". Status: Fail. Time: "+str(datetime.datetime.now())
+                current_app.logger.info(message)
                 return render_template('transaction.html', form=form)
 
             # TODO If everything is correct, register a transaction, and add it to the database
@@ -241,6 +297,8 @@ def transaction():
                                           in_money=amount, message=message)
             db.session.add(new_transaction)
             db.session.commit()
+            message = "Transaction: UserFrom-UserTo: "+queried_from_user.username+"-"+queried_to_user.username+". Status: Sucess. Time: "+str(datetime.datetime.now())
+            current_app.logger.info(message)
 
             return redirect(url_for('views.home'))
         else:
@@ -253,6 +311,8 @@ def transaction():
 @auth.route('/logout')
 @login_required
 def logout():
+    message = "Logout: User: "+current_user.username+". Status: Sucess. Time: "+str(datetime.datetime.now())
+    current_app.logger.info(message)
     logout_user()
     session['logged_in'] = False
     return redirect(url_for('auth.login'))
