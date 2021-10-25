@@ -31,10 +31,7 @@ def create_app():
         'https://www.google.com/recaptcha/',
         'https://www.gstatic.com/recaptcha/',
         ],
-    'img-src': ['\'self\'', '*', 'data:']
-    
-    
-    
+    'img-src': ['\'self\'', '*', 'data:']    
     }
     
     Talisman(app, content_security_policy=csp)

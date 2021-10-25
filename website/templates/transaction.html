@@ -33,7 +33,9 @@
       {{ form.to_user_name(class="form-control", placeholder="To which account?") }}
       {{ form.message.label() }}
       {{ form.message(class="form-control", placeholder="Message to receiver") }}
-
+  
+      {{ form.OTP.label() }}
+      {{ form.OTP(class="form-control", placeholder="OTP") }}
       <br>
       {{ form.recaptcha }}
       <style>

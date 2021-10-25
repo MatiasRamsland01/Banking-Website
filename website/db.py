@@ -4,6 +4,7 @@ from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import or_
+from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # main.get_app()
@@ -16,6 +17,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), unique=False, nullable=False)
+    token = db.Column(db.String(150), nullable=False)
+    FA = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
         return '<User %r>' % self.username

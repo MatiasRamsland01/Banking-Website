@@ -105,10 +105,14 @@ def sign_up():
                 password1 = form.password1.data
                 hashedPassword = argon2.hash(password1)
                 password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
-                user = User(username=userName, email=email, password=hashedPassword)
+                secret = pyotp.random_base32()
+                user = User(username=userName, email=email, password=hashedPassword, token=secret, FA=False)
                 db.session.add(user)
                 db.session.commit()
                 flash('Account Created', category='success')
+                login_user(user)
+                session['logged_in']=True
+
                 session['user'] = email
                 session.permanent = True
                 message = "Sign-up: User: "+userName+". Status sucess. Time: "+str(datetime.datetime.now())
@@ -120,7 +124,7 @@ def sign_up():
                 # print("Password: ", User.query.filter_by(username=form.username.data).first().password)
                 ######################################################################################
 
-                return redirect(url_for('auth.two_factor_view', email=email))
+                return redirect(url_for('auth.two_factor_view'))
             else:
                 message = "Sign-up: User: "+form.username.data+". Status fail. Time: "+str(datetime.datetime.now())
                 current_app.logger.info(message)
@@ -165,6 +169,11 @@ def atm_transaction():
                 success = False
                 flash("Can't transfer money from an account you don't own", category="error")
 
+            otp = form.OTP.data
+            if pyotp.TOTP(user.token).verify(otp) == False:
+                success = False
+                flash("Invalid OTP", category='error')
+            
             if success:
                 new_transaction = Transaction(to_user_id=username, in_money=amount)
                 db.session.add(new_transaction)
@@ -196,15 +205,17 @@ def login():
         if validate_password1(form.password.data) and validate_username(form.email.data):
             try:
                 user = User.query.filter_by(email=form.email.data).first()
-                if user is not None and argon2.verify(form.password.data, user.password):
+                otp = form.OTP.data
+                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp):
                     login_user(user)
-                    session['logged_in'] = True
+                    user.FA = True
+                    db.session.commit()
+                    session['logged_in']=True
                     message = "Log-in: User: "+user.username+"Status: Sucess. Time: "+str(datetime.datetime.now())
                     current_app.logger.info(message)
-
                     return redirect(url_for('auth.home_login'))
-                flash("Email or password does not match!", category="error")
-                message = "Log-in: User: "+form.email.data+". Status: Failed. Time: "+str(datetime.datetime.now())
+                flash("Email, Password or OTP does not match!", category="error")
+                message = "Log-in: User: "+user.username+"Status: Fail. Time: "+str(datetime.datetime.now())
                 current_app.logger.info(message)
             except:
                 message = "Log-in: User: "+form.email.data+". Status: Failed. Time: "+str(datetime.datetime.now())
@@ -219,19 +230,18 @@ def login():
     return render_template('login.html', form=form)
 
 
+
+# TODO Make user not be able to view this page again and not display secret in session variable (not safe)!
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
     try:
-        email = request.args['email']
-    except KeyError:
-        flash("You don't have access to this page", category='error')
-        message = "2FA view: User: Unknown. Status: Failed. Time: "+str(datetime.datetime.now())
-        current_app.logger.info(message)
-        return redirect(url_for('auth.sign_up'))
-    secret = pyotp.random_base32()
-    intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name='BankA250')
-    session['secret'] = secret
-    return render_template('two-factor-setup.html', qr_link=intizalize)
+        secret = current_user.token
+        if current_user.FA:
+            return redirect(url_for('auth.home_login'))
+        intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=current_user.email, issuer_name='BankA250')
+        return render_template('two-factor-setup.html', qr_link=intizalize)
+    except:
+        return redirect(url_for("views.home"))
 
 
 @auth.route('/transaction', methods=['GET', 'POST'])
@@ -284,12 +294,18 @@ def transaction():
                 success = False
                 
                 flash("Can't transfer money from an account you don't own", category="error")
+            
+            otp = form.OTP.data
+            if pyotp.TOTP(queried_from_user.token).verify(otp) == False:
+                success = False
+                flash("Invalid OTP", category='error')
 
             if not success:
                 flash("Unsuccessful transaction", category="error")
                 message = "Transaction: UserFrom-UserTo: "+queried_from_user.username+" "+queried_to_user.username+". Status: Fail. Time: "+str(datetime.datetime.now())
                 current_app.logger.info(message)
                 return render_template('transaction.html', form=form)
+
 
             # TODO If everything is correct, register a transaction, and add it to the database
             #  Update (calculate) saldo if it's on the screen
@@ -315,6 +331,7 @@ def logout():
     current_app.logger.info(message)
     logout_user()
     session['logged_in'] = False
+    session.clear()
     return redirect(url_for('auth.login'))
 
 
