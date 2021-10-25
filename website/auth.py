@@ -29,8 +29,8 @@ from flask import request
 from passlib.hash import argon2
 
 from blinker import Namespace
-my_signals = Namespace()
 
+my_signals = Namespace()
 
 auth = Blueprint('auth', __name__)
 
@@ -39,10 +39,11 @@ def add_user():
     # add user code here
     user_added = my_signals.signal('user-added')
 
+
 # When the user limit of 60 request within a minute this error handler occur
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):
-    message = "Request Limit: User: "+current_user.username+". Time: "+str(datetime.datetime.now())
+    message = "Request Limit: User: " + current_user.username + ". Time: " + str(datetime.datetime.now())
     current_app.logger.info(message)
     logout_user()
     session['logged_in'] = False
@@ -56,7 +57,6 @@ def ratelimit_handler(e):
 # Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
-
     log_level = logging.INFO
     for handler in current_app.logger.handlers:
         current_app.logger.removeHandler(handler)
@@ -68,9 +68,8 @@ def before_request():
     handler = logging.FileHandler(log_file)
     handler.setLevel(log_level)
     current_app.logger.addHandler(handler)
- 
-    current_app.logger.setLevel(log_level)
 
+    current_app.logger.setLevel(log_level)
 
     flask.session.permanent = True
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
@@ -85,9 +84,9 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
-        init_db()
-        if validate_password1(form.password1.data) and validate_username(form.username.data) and validate_email(
-                form.username.data):
+        init_db()  # TODO Don't init database on sign-up, but on server/app start
+        if validate_password(form.password1.data) and validate_username(form.username.data) \
+                and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
             # Correct input, now check database
             success = True
@@ -104,18 +103,17 @@ def sign_up():
                 email = form.email.data
                 password1 = form.password1.data
                 hashedPassword = argon2.hash(password1)
-                password2 = form.password2.data  # Prob redundant, unless we don't validate password in "form.validate_on_submit"
                 secret = pyotp.random_base32()
                 user = User(username=userName, email=email, password=hashedPassword, token=secret, FA=False)
                 db.session.add(user)
                 db.session.commit()
                 flash('Account Created', category='success')
                 login_user(user)
-                session['logged_in']=True
+                session['logged_in'] = True
 
                 session['user'] = email
                 session.permanent = True
-                message = "Sign-up: User: "+userName+". Status sucess. Time: "+str(datetime.datetime.now())
+                message = "Sign-up: User: " + userName + ". Status sucess. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
 
                 ##### Print statements to test values in database, comment away if not needed#########
@@ -126,9 +124,10 @@ def sign_up():
 
                 return redirect(url_for('auth.two_factor_view'))
             else:
-                message = "Sign-up: User: "+form.username.data+". Status fail. Time: "+str(datetime.datetime.now())
+                message = "Sign-up: User: " + form.username.data + ". Status fail. Time: " + str(
+                    datetime.datetime.now())
                 current_app.logger.info(message)
-                return redirect(url_for('views.home'))
+                return render_template('signup.html', form=form)
     return render_template('signup.html', form=form)
 
 
@@ -138,7 +137,8 @@ def home_login():
     queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
-    return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database, transactions=transactions)
+    return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database,
+                           transactions=transactions)
 
 
 @auth.route('/atm', methods=['GET', 'POST'])
@@ -146,7 +146,7 @@ def home_login():
 def atm_transaction():
     form = ATMForm()
     if form.validate_on_submit():
-        #if form.username.data[0] == ";": #"Encrypted *data* will flash when someone tries to sql inject"
+        # if form.username.data[0] == ";": #"Encrypted *data* will flash when someone tries to sql inject"
         #    flash("Random encrypted bs")
         #    return redirect(url_for('views.home'))
         if validate_int(form.amount.data) and validate_username(form.username.data):
@@ -173,22 +173,22 @@ def atm_transaction():
             if pyotp.TOTP(user.token).verify(otp) == False:
                 success = False
                 flash("Invalid OTP", category='error')
-            
+
             if success:
                 new_transaction = Transaction(to_user_id=username, in_money=amount)
                 db.session.add(new_transaction)
                 db.session.commit()
-                message = "ATM deposit: User: "+username+". Status: Sucess. Time: "+str(datetime.datetime.now())
+                message = "ATM deposit: User: " + username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
                 return redirect(url_for('auth.home_login'))
             else:
-                message = "ATM deposit: User: "+username+". Status: Fail. Time: "+str(datetime.datetime.now())
+                message = "ATM deposit: User: " + username + ". Status: Fail. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
                 return redirect(url_for('auth.atm_transaction'))
-                
+
         else:
             flash("Invalid request", category='error')
-            message = "ATM deposit: User: Invalid Input. Status: Fail. Time: "+str(datetime.datetime.now())
+            message = "ATM deposit: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
             current_app.logger.info(message)
             return redirect(url_for('views.home'))
 
@@ -202,33 +202,32 @@ def login():
         return redirect(url_for('auth.home_login'))
     form = LoginForm()
     if form.validate_on_submit():
-        if validate_password1(form.password.data) and validate_username(form.email.data):
+        if validate_password(form.password.data) and validate_email(form.email.data):
             try:
                 user = User.query.filter_by(email=form.email.data).first()
                 otp = form.OTP.data
-                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp):
+                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
+                        user.token).verify(otp):
                     login_user(user)
                     user.FA = True
                     db.session.commit()
-                    session['logged_in']=True
-                    message = "Log-in: User: "+user.username+"Status: Sucess. Time: "+str(datetime.datetime.now())
+                    session['logged_in'] = True
+                    message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
                     current_app.logger.info(message)
                     return redirect(url_for('auth.home_login'))
                 flash("Email, Password or OTP does not match!", category="error")
-                message = "Log-in: User: "+user.username+"Status: Fail. Time: "+str(datetime.datetime.now())
+                message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
             except:
-                message = "Log-in: User: "+form.email.data+". Status: Failed. Time: "+str(datetime.datetime.now())
+                message = "Log-in: User: " + form.email.data + ". Status: Failed. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
 
-                
                 flash("Something went wrong. Please try again", category="error")
         else:
             flash("Invalid request", category='error')
-            message = "Log-in: User: Invalid Input. Status: Fail. Time: "+str(datetime.datetime.now())
+            message = "Log-in: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
             current_app.logger.info(message)
     return render_template('login.html', form=form)
-
 
 
 # TODO Make user not be able to view this page again and not display secret in session variable (not safe)!
@@ -286,15 +285,16 @@ def transaction():
             # flash("Money " + str(amount_in_database))
             if amount > amount_in_database:
                 success = False
-                flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}", category='error')
+                flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}",
+                      category='error')
 
             # Is logged in on "from ID"
             if queried_from_user and queried_to_user and \
                     (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
                 success = False
-                
+
                 flash("Can't transfer money from an account you don't own", category="error")
-            
+
             otp = form.OTP.data
             if pyotp.TOTP(queried_from_user.token).verify(otp) == False:
                 success = False
@@ -302,10 +302,10 @@ def transaction():
 
             if not success:
                 flash("Unsuccessful transaction", category="error")
-                message = "Transaction: UserFrom-UserTo: "+queried_from_user.username+" "+queried_to_user.username+". Status: Fail. Time: "+str(datetime.datetime.now())
+                message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + " " + queried_to_user.username + ". Status: Fail. Time: " + str(
+                    datetime.datetime.now())
                 current_app.logger.info(message)
                 return render_template('transaction.html', form=form)
-
 
             # TODO If everything is correct, register a transaction, and add it to the database
             #  Update (calculate) saldo if it's on the screen
@@ -313,7 +313,8 @@ def transaction():
                                           in_money=amount, message=message)
             db.session.add(new_transaction)
             db.session.commit()
-            message = "Transaction: UserFrom-UserTo: "+queried_from_user.username+"-"+queried_to_user.username+". Status: Sucess. Time: "+str(datetime.datetime.now())
+            message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + "-" + queried_to_user.username + ". Status: Sucess. Time: " + str(
+                datetime.datetime.now())
             current_app.logger.info(message)
 
             return redirect(url_for('views.home'))
@@ -327,7 +328,7 @@ def transaction():
 @auth.route('/logout')
 @login_required
 def logout():
-    message = "Logout: User: "+current_user.username+". Status: Sucess. Time: "+str(datetime.datetime.now())
+    message = "Logout: User: " + current_user.username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
     current_app.logger.info(message)
     logout_user()
     session['logged_in'] = False
@@ -335,7 +336,7 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
-def validate_password1(password):
+def validate_password(password):
     bigLetter = 0
     smallLetter = 0
     number = 0
@@ -364,14 +365,14 @@ def validate_password1(password):
 
 def validate_username(username):
     if len(username) < 2 or len(username) > 50:
+        flash("Username must be longer than one character, and shorter than fifty", category='error')
         return False
 
-    for letter in username:
-        try:
-            ord(letter)
-        except:
-            return False
-    return True
+    # If only contains small and big letters
+    if re.search("^[a-zA-Z0-9s]+$", username):
+        return True
+    flash("Username can only contain letters and numbers", category='error')
+    return False
 
 
 def validate_string(string):
@@ -391,6 +392,7 @@ def validate_int(integer):
 
 def validate_email(email):
     if len(email) < 3 or len(email) > 50:
+        flash("Email must be longer than two character, and shorter than fifty", category='error')
         return False
 
     check = 0
@@ -401,6 +403,7 @@ def validate_email(email):
                 check += 1
 
         except:
+            flash("Email must consists of legal characters", category='error')
             return False
     return True
 
