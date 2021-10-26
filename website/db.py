@@ -14,11 +14,14 @@ from cryptography.fernet import Fernet
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
-uri = os.getenv("DATABASE_URL")  # or other relevant config var
-if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
-    uri = uri.replace("postgres://", "postgresql://", 1)
-current_app.config['SQLALCHEMY_DATABASE_URI'] = uri
-db = SQLAlchemy(current_app)
+
+
+with current_app.app_context():
+    uri = os.getenv("DATABASE_URL")  # or other relevant config var
+    if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
+        uri = uri.replace("postgres://", "postgresql://", 1)
+    current_app.config['SQLALCHEMY_DATABASE_URI'] = uri
+    db = SQLAlchemy(current_app)
 
 
 
