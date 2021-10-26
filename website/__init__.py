@@ -73,8 +73,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=2)
 ReCaptcha(app)
 QRcode(app)
 
-from .views import views
-from .auth import auth
+from website.views import views
+from website.auth import auth
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
