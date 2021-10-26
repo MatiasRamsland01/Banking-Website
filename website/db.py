@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import psycopg2
 from website import db
 
-app = Flask(__name__)  # main.get_app()
+  # main.get_app()
 
 
 
