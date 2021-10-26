@@ -3,7 +3,6 @@ import re
 import flask
 import logging
 import datetime
-import flask_limiter
 import flask_login
 from flask import session
 from flask import current_app
@@ -12,7 +11,8 @@ from flask.helpers import url_for
 from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
-from website.db import User, init_db, db, Transaction
+from werkzeug.local import LocalProxy
+from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -25,9 +25,7 @@ from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from flask import request
-
 from passlib.hash import argon2
-
 from blinker import Namespace
 
 my_signals = Namespace()
@@ -76,6 +74,10 @@ def before_request():
     flask.session.modified = True
     flask.g.user = flask_login.current_user
 
+def FinnHash(string):
+    encoded = string.encode()
+    theHash = sha256(encoded).hexdigest()
+    return theHash
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
@@ -91,7 +93,7 @@ def sign_up():
             # Correct input, now check database
             success = True
             user_by_username = User.query.filter_by(username=form.username.data).first()
-            user_by_email = User.query.filter_by(email=form.email.data).first()
+            user_by_email = User.query.filter_by(email=FinnHash(form.email.data)).first()
             if user_by_username:
                 flash("Username taken!", category='error')
                 success = False
@@ -99,8 +101,11 @@ def sign_up():
                 flash("Email taken!", category='error')
                 success = False
             if success:
+                # Sha256 needs a string that is encoded to bytes, hexdigest shows the hexadecimal form of the hash
                 userName = form.username.data
+                # encUsername = EncryptMsg(userName)
                 email = form.email.data
+                hashedEmail = FinnHash(email)
                 password1 = form.password1.data
                 hashedPassword = argon2.hash(password1)
                 secret = pyotp.random_base32()
@@ -120,11 +125,11 @@ def sign_up():
                 message = "Sign-up: User: " + userName + ". Status sucess. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
 
-                ##### Print statements to test values in database, comment away if not needed#########
+                #### Print statements to test values in database, comment away if not needed#########
                 # print("Username: ", User.query.filter_by(username=form.username.data).first().username)
                 # print("Email: ", User.query.filter_by(username=form.username.data).first().email)
                 # print("Password: ", User.query.filter_by(username=form.username.data).first().password)
-                ######################################################################################
+                #####################################################################################
 
                 return redirect(url_for('auth.two_factor_view'))
             else:
@@ -164,7 +169,7 @@ def atm_transaction():
                 success = False
                 flash('Amount needs to be between 1 and 10 000', category='error')
 
-            user = User.query.filter_by(username=form.username.data).first()
+            user = User.query.filter_by(username=username).first()
             if not user:
                 success = False
                 flash(f"User with username {username} doesn't exist", category="error")
@@ -179,7 +184,7 @@ def atm_transaction():
                 flash("Invalid OTP", category='error')
 
             if success:
-                new_transaction = Transaction(to_user_id=username, in_money=amount)
+                new_transaction = Transaction(to_user_id=username, in_money=EncryptMsg(amount))
                 db.session.add(new_transaction)
                 db.session.commit()
                 message = "ATM deposit: User: " + username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
@@ -208,7 +213,8 @@ def login():
     if form.validate_on_submit():
         if validate_password(form.password.data) and validate_email(form.email.data):
             try:
-                user = User.query.filter_by(email=form.email.data).first()
+                hashedEmail = FinnHash(form.email.data)
+                user = User.query.filter_by(email=hashedEmail).first()
                 otp = form.OTP.data
                 if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
                         user.token).verify(otp):
@@ -313,8 +319,8 @@ def transaction():
 
             # TODO If everything is correct, register a transaction, and add it to the database
             #  Update (calculate) saldo if it's on the screen
-            new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name,
-                                          in_money=amount, message=message)
+            new_transaction = Transaction(out_money=EncryptMsg(amount), from_user_id=from_user_name, to_user_id=to_user_name,
+                                          in_money=EncryptMsg(amount), message=message)
             db.session.add(new_transaction)
             db.session.commit()
             message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + "-" + queried_to_user.username + ". Status: Sucess. Time: " + str(
