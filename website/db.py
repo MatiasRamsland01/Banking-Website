@@ -125,5 +125,4 @@ def get_money_from_user(username):
     return money, transactionstext
 
 
-def init_db():
-    db.create_all()
+

@@ -13,7 +13,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 from werkzeug.exceptions import _RetryAfter
-from website.db import User
+#from website.db import User
 from website.views import views
 from website.auth import auth
 
@@ -91,12 +91,12 @@ application_limits=["60 per minute",]
 )
 
 
-@login_manager.user_loader
-def load_user(id):
-    try: 
-        return User.query.get(int(id))
-    except:
-        return None
+#@login_manager.user_loader
+#def load_user(id):
+#    try: 
+#        return User.query.get(int(id))
+#    except:
+#        return None
 
 
 app.register_blueprint(views, url_prefix='/')
