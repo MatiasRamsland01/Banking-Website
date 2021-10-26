@@ -18,7 +18,6 @@ from website.db import db
 
 
 
-#db = SQLAlchemy()
 login_manager = LoginManager()
 
 
