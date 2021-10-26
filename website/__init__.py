@@ -24,11 +24,7 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__)
     
-    uri = os.getenv("DATABASE_URL")  # or other relevant config var
-    if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
-        uri = uri.replace("postgres://", "postgresql://", 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = uri
-    db = SQLAlchemy(app)
+    
     
 
     csp = {
@@ -49,7 +45,7 @@ def create_app():
     csrf = CSRFProtect()
     csrf.init_app(app)
     
-    """
+    
     db_url = os.environ.get("DATABASE_URL")
     if db_url is None:
         # default to a sqlite database in the instance folder
@@ -57,8 +53,8 @@ def create_app():
         db_url = f"sqlite:///{db_path}"
         # ensure the instance folder exists
         os.makedirs(app.instance_path, exist_ok=True)
-    """
-    #app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     
     app.config['SECRET_KEY'] = 'bd5049afa301c7c5d709f821'
     app.config['RECAPTCHA_PUBLIC_KEY'] = '6LeJKpYcAAAAAK9NxeH7cNAPl9BWMQk16hkMdpFy'

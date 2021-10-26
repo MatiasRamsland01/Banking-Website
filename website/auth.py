@@ -209,10 +209,10 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if validate_password(form.password.data) and validate_email(form.email.data):
-            try:
+            
                 user = User.query.filter_by(email=form.email.data).first()
                 otp = form.OTP.data
-                if user is not None and argon2.verify(user.password, form.password.data) and pyotp.TOTP(
+                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
                         user.token).verify(otp):
                     login_user(user)
                     user.FA = True
@@ -224,9 +224,9 @@ def login():
                 flash("Email, Password or OTP does not match!", category="error")
                 message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
-            except:
-                message = "Log-in: User: " + form.email.data + ". Status: Failed. Time: " + str(datetime.datetime.now())
-                current_app.logger.info(message)
+            
+                #message = "Log-in: User: " + form.email.data + ". Status: Failed. Time: " + str(datetime.datetime.now())
+                #current_app.logger.info(message)
 
                 flash("Something went wrong. Please try again", category="error")
         else:
@@ -323,7 +323,7 @@ def transaction():
                 datetime.datetime.now())
             current_app.logger.info(message)
 
-            return redirect(url_for('views.home'))
+            return redirect(url_for('auth.home_login'))
         else:
             flash("Invalid request", category='error')
             return redirect(url_for('auth.home_login'))
