@@ -13,12 +13,13 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 from werkzeug.exceptions import _RetryAfter
-from website.db import db
 
 
 
 
 login_manager = LoginManager()
+app = Flask(__name__)
+db = SQLAlchemy(app)
 
 
 def create_app():
@@ -28,6 +29,9 @@ def create_app():
     if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
         uri = uri.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
+    db = SQLAlchemy(app)
+
 
     
 
