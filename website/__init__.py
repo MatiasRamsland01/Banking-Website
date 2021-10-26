@@ -71,7 +71,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=2)
 
 ReCaptcha(app)
 QRcode(app)
-db.init_app(app)
+#db.init_app(app)
 #app.cli.add_command(init_db_command)
 
 from .views import views
