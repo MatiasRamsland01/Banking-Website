@@ -93,7 +93,7 @@ def sign_up():
             # Correct input, now check database
             success = True
             user_by_username = User.query.filter_by(username=form.username.data).first()
-            user_by_email = User.query.filter_by(email=FinnHash(form.email.data)).first()
+            user_by_email = User.query.filter_by(email=form.email.data).first()
             if user_by_username:
                 flash("Username taken!", category='error')
                 success = False
@@ -105,7 +105,7 @@ def sign_up():
                 userName = form.username.data
                 # encUsername = EncryptMsg(userName)
                 email = form.email.data
-                hashedEmail = FinnHash(email)
+                # hashedEmail = FinnHash(email)
                 password1 = form.password1.data
                 hashedPassword = argon2.hash(password1)
                 secret = pyotp.random_base32()
@@ -117,7 +117,7 @@ def sign_up():
                 login_user(user)
                 session['logged_in'] = True
 
-                new_transaction = Transaction(to_user_id=userName, in_money=0)
+                new_transaction = Transaction(to_user_id=userName, in_money=EncryptMsg(0))
                 db.session.add(new_transaction)
                 db.session.commit()
 
