@@ -105,11 +105,14 @@ def sign_up():
                 hashedPassword = argon2.hash(password1)
                 secret = pyotp.random_base32()
                 user = User(username=userName, email=email, password=hashedPassword, token=secret, FA=False)
+                atmDeposit = Transaction(to_user_id=userName, in_money=1000)
                 db.session.add(user)
+                db.session.add(atmDeposit)
                 db.session.commit()
                 flash('Account Created', category='success')
                 login_user(user)
                 session['logged_in'] = True
+
 
                 session['user'] = email
                 session.permanent = True
