@@ -26,6 +26,7 @@ from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from flask import request
 from passlib.hash import argon2
+
 from blinker import Namespace
 
 my_signals = Namespace()
@@ -93,7 +94,7 @@ def sign_up():
             # Correct input, now check database
             success = True
             user_by_username = User.query.filter_by(username=form.username.data).first()
-            user_by_email = User.query.filter_by(email=FinnHash(form.email.data)).first()
+            user_by_email = User.query.filter_by(email=form.email.data).first()
             if user_by_username:
                 flash("Username taken!", category='error')
                 success = False
@@ -105,7 +106,7 @@ def sign_up():
                 userName = form.username.data
                 # encUsername = EncryptMsg(userName)
                 email = form.email.data
-                hashedEmail = FinnHash(email)
+                # hashedEmail = FinnHash(email)
                 password1 = form.password1.data
                 hashedPassword = argon2.hash(password1)
                 secret = pyotp.random_base32()
@@ -116,10 +117,6 @@ def sign_up():
                 flash('Account Created', category='success')
                 login_user(user)
                 session['logged_in'] = True
-
-                
-
-
                 session['user'] = email
                 session.permanent = True
                 message = "Sign-up: User: " + userName + ". Status sucess. Time: " + str(datetime.datetime.now())
