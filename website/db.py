@@ -20,8 +20,7 @@ if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start wit
     uri = uri.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
-engine = create_engine(uri)
-Base.metadata.create_all(engine)
+
 
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
