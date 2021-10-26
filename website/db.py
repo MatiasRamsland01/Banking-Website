@@ -1,6 +1,4 @@
 import decimal
-import os
-
 
 from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -10,10 +8,6 @@ from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # main.get_app()
-uri = os.getenv("DATABASE_URL")  # or other relevant config var
-if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
-    uri = uri.replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
 
 
