@@ -66,7 +66,7 @@ def create_app():
     ReCaptcha(app)
     QRcode(app)
     db.init_app(app)
-    app.cli.add_command(init_db_command)
+    #app.cli.add_command(init_db_command)
 
     from .views import views
     from .auth import auth
