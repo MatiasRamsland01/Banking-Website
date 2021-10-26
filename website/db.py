@@ -5,11 +5,29 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)  # main.get_app()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 
+encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
+Encrypter = Fernet(encKey)
+
+def EncryptMsg(string):
+    try:
+        encoded = string.encode()
+        encMsg = Encrypter.encrypt(encoded)
+    except AttributeError:
+        nyString = str(string)
+        nyEncoded = nyString.encode()
+        encMsg = Encrypter.encrypt(nyEncoded)
+    return encMsg
+
+def DecryptMsg(encString):
+    decMsg = Encrypter.decrypt(encString)
+    decoded = decMsg.decode()
+    return decoded
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -53,12 +71,12 @@ class Transaction(db.Model):
     def get_out_money_decimal(self):
         if self.out_money is None:
             return 0
-        return decimal.Decimal(self.out_money)
+        return decimal.Decimal(DecryptMsg(self.out_money))
 
     def get_in_money_decimal(self):
         if self.in_money is None:
             return 0
-        return decimal.Decimal(self.in_money)
+        return decimal.Decimal(DecryptMsg(self.in_money))   
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
@@ -71,7 +89,7 @@ def get_money_from_user(username):
         print(f"Couldn't find user with username {username}")
         return money
 
-    transactions = Transaction.query.filter(
+    transactions = Transaction.query.filter(    
         or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
     for transaction in transactions:
         # If from_user_id; substract money
