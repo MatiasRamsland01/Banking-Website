@@ -13,13 +13,13 @@ from cryptography.fernet import Fernet
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 import psycopg2
-from website import app
+from website import db
+
 
   # main.get_app()
 
 
 
-db= SQLAlchemy(app)
 
 
 
@@ -41,7 +41,7 @@ def DecryptMsg(encString):
     decoded = decMsg.decode()
     return decoded
 
-class User(UserMixin, db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
