@@ -14,7 +14,7 @@ from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
 from website.db import User, Transaction, EncryptMsg, DecryptMsg
-from website import db, init_db
+from website import db
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -88,7 +88,6 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
-        init_db()  # TODO Don't init database on sign-up, but on server/app start
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
