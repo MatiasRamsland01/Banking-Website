@@ -60,7 +60,7 @@ class User(UserMixin, db.Model):
         return get_money_from_user(self.username)
 
 
-class Transaction(db.Model):
+class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
     # Out Id & Money can be null because we might put in (or take out) money through an ATM
     from_user_id = db.Column(db.Integer, nullable=True)  # TODO ForeignKey?
