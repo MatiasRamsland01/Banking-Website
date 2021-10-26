@@ -13,11 +13,12 @@ from cryptography.fernet import Fernet
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 import psycopg2
+from website import db
 Base = declarative_base()
 
 app = Flask(__name__)  # main.get_app()
 
-db = SQLAlchemy(app)
+
 
 
 
