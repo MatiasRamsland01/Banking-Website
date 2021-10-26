@@ -18,8 +18,7 @@ from werkzeug.exceptions import _RetryAfter
 
 
 login_manager = LoginManager()
-app = Flask(__name__)
-db = SQLAlchemy(app)
+
 
 
 def create_app():
@@ -30,7 +29,6 @@ def create_app():
         uri = uri.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
-    db = SQLAlchemy(app)
 
 
     
