@@ -22,11 +22,7 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-    uri = os.getenv("DATABASE_URL")  # or other relevant config var
-    if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
-        uri = uri.replace("postgres://", "postgresql://", 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = uri
-    db = SQLAlchemy(app)
+    
     csp = {
     'default-src': [
         '\'self\'',
@@ -57,7 +53,6 @@ def create_app():
     app.config['RECAPTCHA_PUBLIC_KEY'] = '6LeJKpYcAAAAAK9NxeH7cNAPl9BWMQk16hkMdpFy'
     app.config['RECAPTCHA_PRIVATE_KEY'] = '6LeJKpYcAAAAAIK7he7W0f490MZ-t_V_8cDYFDCK'
     app.config['RECAPTCHA_ENABLED'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=2)
 
@@ -67,7 +62,7 @@ def create_app():
     app.cli.add_command(init_db_command)
 
     from .views import views
-    from .auth import auth
+    from .auth import auth 
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
