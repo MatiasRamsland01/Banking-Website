@@ -4,6 +4,7 @@ import flask
 import logging
 import datetime
 import flask_login
+import time
 from flask import session
 from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect, abort, make_response
@@ -239,6 +240,7 @@ def login():
 # TODO Make user not be able to view this page again and not display secret in session variable (not safe)!
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
+    time.sleep(1)
     try:
         secret = current_user.token
         if current_user.FA:
