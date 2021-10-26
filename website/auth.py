@@ -112,9 +112,7 @@ def sign_up():
                 login_user(user)
                 session['logged_in'] = True
 
-                new_transaction = Transaction(to_user_id=userName, in_money=0)
-                db.session.add(new_transaction)
-                db.session.commit()
+                
 
 
                 session['user'] = email
