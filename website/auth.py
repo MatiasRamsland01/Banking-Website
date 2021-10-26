@@ -26,6 +26,7 @@ from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from flask import request
 from passlib.hash import argon2
+
 from blinker import Namespace
 
 my_signals = Namespace()
@@ -116,12 +117,6 @@ def sign_up():
                 flash('Account Created', category='success')
                 login_user(user)
                 session['logged_in'] = True
-
-                new_transaction = Transaction(to_user_id=userName, in_money=EncryptMsg(0))
-                db.session.add(new_transaction)
-                db.session.commit()
-
-
                 session['user'] = email
                 session.permanent = True
                 message = "Sign-up: User: " + userName + ". Status sucess. Time: " + str(datetime.datetime.now())
