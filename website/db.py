@@ -10,8 +10,7 @@ from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)  # main.get_app()
-uri = os.getenv("DATABASE_URL")  # or other relevant config var
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
 db = SQLAlchemy(app)
 
 
