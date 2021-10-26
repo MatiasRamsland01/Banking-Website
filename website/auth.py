@@ -210,10 +210,9 @@ def login():
     if form.validate_on_submit():
         if validate_password(form.password.data) and validate_email(form.email.data):
             try:
-                hashedEmail = FinnHash(form.email.data)
-                user = User.query.filter_by(email=hashedEmail).first()
+                user = User.query.filter_by(email=form.email.data).first()
                 otp = form.OTP.data
-                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
+                if user is not None and argon2.verify(user.password, form.password.data) and pyotp.TOTP(
                         user.token).verify(otp):
                     login_user(user)
                     user.FA = True
