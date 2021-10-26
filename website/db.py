@@ -4,6 +4,7 @@ import os
 
 from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
+
 from flask_login import UserMixin
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
