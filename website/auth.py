@@ -213,7 +213,7 @@ def login():
             try:
                 user = User.query.filter_by(email=form.email.data).first()
                 otp = form.OTP.data
-                if user is not None and argon2.verify(user.password, form.password.data) and pyotp.TOTP(
+                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
                         user.token).verify(otp):
                     login_user(user)
                     user.FA = True
@@ -240,7 +240,7 @@ def login():
 # TODO Make user not be able to view this page again and not display secret in session variable (not safe)!
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
-    time.sleep(1)
+    time.sleep(0.5)
     try:
         secret = current_user.token
         if current_user.FA:
