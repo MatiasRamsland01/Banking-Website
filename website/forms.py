@@ -14,8 +14,8 @@ class RegisterForm(FlaskForm):
                                                                                  message="Username must be between 2 and 30 characters!")])
 
     email = StringField(label='Email:', validators=[Email()])
-    password1 = PasswordField(label='Password:', validators=[DataRequired(), Length(min=7, max=100,
-                                                                                    message="Password must be between 7 and 100 characters!")])
+    password1 = PasswordField(label='Password:', validators=[DataRequired(), Length(min=12, max=100,
+                                                                                    message="Password must be between 12 and 100 characters!")])
     password2 = PasswordField(label='Confirm Password',
                               validators=[DataRequired(), EqualTo('password1', message="Passwords don't match!")])
     recaptcha = RecaptchaField()
@@ -55,9 +55,11 @@ class RegisterForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField(label='Email', validators=[Email()])
-    password = PasswordField(label='Password', validators=[DataRequired(), Length(min=7, max=100,
+    password = PasswordField(label='Password', validators=[DataRequired(), Length(min=1, max=100,
                                                                                   message="Password must be between 7 and 100 characters!")])
+    OTP = StringField(label="Your one time password", validators=[DataRequired()])
     recaptcha = RecaptchaField()
+
     submit = SubmitField(label='Log in')
 
 
@@ -68,6 +70,8 @@ class TransactionForm(FlaskForm):
     from_user_name = StringField(label='Username')
     to_user_name = StringField(label='Username')
     message = StringField(label='Message')
+    recaptcha = RecaptchaField()
+    OTP = StringField(label="Your one time password", validators=[DataRequired()])
     submit = SubmitField(label='Transfer Money')
 
 
@@ -77,4 +81,6 @@ class ATMForm(FlaskForm):
                                                                                          validators.NumberRange(min=1,
                                                                                                                 max=10000,
                                                                                                                 message="Money amount has to be a value between 1 and 10'000")])
+    recaptcha = RecaptchaField()
+    OTP = StringField(label="Your one time password", validators=[DataRequired()])
     submit = SubmitField(label='Transfer money')

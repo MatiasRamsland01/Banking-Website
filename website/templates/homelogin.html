@@ -11,21 +11,31 @@
 
 
 
-<h1 style="color:black; text-align: center;">
-    Velkommen, {{ current_user }}!
+<h1 style="text-align: center;">
+    Hello, {{ current_user }}! Nice too see you!
 </h1>
   
-  <div class="col-sm-12" style="background-color: darkslategray; opacity: 60%;">
-   <form>
-      <p style="color: white">
-          <label>Account n: </label>  <br><label> Saldo: {{ saldo }}kr </label>
-          <a href="/atm">
-              <input type="button" value="Add money" />
-          </a>
-      </p>
-  </form>
+<div class="col-sm-12" style="background-color: darkslategray; opacity: 60%;">
+    <form>
+       <p style="color: white">
+           <label>Account: </label>  <br><label> Saldo: {{ saldo }}kr </label>
+           <a href="/atm">
+               <input type="button" value="Add money" />
+           </a>
+       </p>
+   </form>
+   </div>
+<br>
+  <div class="col-sm-5" style=" margin: auto; text-align: center; background-color: #FF7F50; opacity: 60%;">
+      <h3 style="color: white; opacity: 100%;">Transaction History:</h3>
+      <br>
+      {% for transaction in transactions %}
+      <p2 style="color: white; opacity: 100%;">{{ transaction }}</p2>
+      <br>
+      {% endfor %}
   </div>
-</div>
+    <img class="homeloginpic" src="{{url_for('static', filename='man.png')}}" style="position: relative; width: 600px; height: 550px; top: 25px; left: 50px;">
+</div> 
 
   {% endblock %}
   

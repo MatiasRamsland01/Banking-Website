@@ -2,14 +2,25 @@
 <!--Takes the code from base but overwrites it with the code you type in here-->
 {% block title %}Transaction{% endblock %}
 {% block body %}
+
+<style>
+  input{
+    width: 40% !important;
+    margin: auto;
+  }
+  text{
+    margin: auto;
+  }
+</style>
+
 <body class="text-center">
   <div class="container">
     <form method="POST" class="form-register">
       {{ form.csrf_token }}
       {{ form.hidden_tag() }}
-      <h1 align='center' >
-        Please choose amount and to which account you would like to transfer to
-      </h1>
+      <h3 align='center' >
+        Please fill out the requirements to make a transaction
+      </h3>
       <br>
       <br>
 
@@ -18,13 +29,24 @@
 
       {{ form.from_user_name.label() }}
       {{ form.from_user_name(class="form-control", placeholder="From which account? (Username)") }}
-
       {{ form.to_user_name.label() }}
       {{ form.to_user_name(class="form-control", placeholder="To which account?") }}
-
       {{ form.message.label() }}
       {{ form.message(class="form-control", placeholder="Message to receiver") }}
-
+  
+      {{ form.OTP.label() }}
+      {{ form.OTP(class="form-control", placeholder="OTP") }}
+      <br>
+      {{ form.recaptcha }}
+      <style>
+        .text-center {
+            text-align: center;
+        }
+    
+        .g-recaptcha {
+            display: inline-block;
+        }
+    </style>
       <br>
 
       {{ form.submit(class="btn btn-lg btn-block btn-dark") }}

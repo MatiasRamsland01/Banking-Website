@@ -28,7 +28,10 @@
       {{ form.password.label() }}
       {{ form.password(class="form-control", placeholder="Password") }}
 
-      
+      <br>
+      {{ form.OTP.label() }}
+      {{ form.OTP(class="form-control", placeholder="OTP") }}
+
 
       <br>
       {{ form.recaptcha }}
@@ -50,7 +53,8 @@
     {{ ', '.join(errors) }}
   </p1>
 {% endfor %}
-<a href="/sign-up">Don't have an account? Register here!</a>
+<br>
+<a href="/sign-up" style="color: #FF7F50;">Don't have an account? Register here!</a>
   </div>
 </body>
 {% endblock %}
