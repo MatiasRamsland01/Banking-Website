@@ -14,8 +14,6 @@ from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 from werkzeug.exceptions import _RetryAfter
 from website.db import db
-import psycopg2
-
 
 
 
@@ -26,10 +24,7 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-    DATABASE_URL = os.environ['DATABASE_URL']
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-    db = SQLAlchemy(app)
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    
     
 
     

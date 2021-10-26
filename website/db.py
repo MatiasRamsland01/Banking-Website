@@ -12,14 +12,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
+import psycopg2
 Base = declarative_base()
 
 app = Flask(__name__)  # main.get_app()
-
-#uri = os.getenv("DATABASE_URL")  # or other relevant config var
-#if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
-#    uri = uri.replace("postgres://", "postgresql://", 1)
+uri = os.getenv("DATABASE_URL")  # or other relevant config var
+if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
+    uri = uri.replace("postgres://", "postgresql://", 1)
+DATABASE_URL = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
 
