@@ -12,6 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
+import sqlalchemy
 from werkzeug.exceptions import _RetryAfter
 
 
@@ -28,6 +29,7 @@ def create_app():
     if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
         uri = uri.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = uri
+    SQLAlchemy()
 
 
 
@@ -72,7 +74,7 @@ def create_app():
     ReCaptcha(app)
     QRcode(app)
     db.init_app(app)
-    app.cli.add_command(init_db_command)
+    #app.cli.add_command(init_db_command)
 
     from .views import views
     from .auth import auth
@@ -106,13 +108,13 @@ def create_app():
 
 
 
-def init_db():
-    db.create_all()
+#def init_db():
+#    db.create_all()
 
 
-@click.command("init-db")
-@with_appcontext
-def init_db_command():
-    """Clear existing data and create new tables."""
-    init_db()
-    click.echo("Initialized the database.")
+#@click.command("init-db")
+#@with_appcontext
+#def init_db_command():
+#    """Clear existing data and create new tables."""
+#    init_db()
+#    click.echo("Initialized the database.")
