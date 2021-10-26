@@ -13,6 +13,9 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 from werkzeug.exceptions import _RetryAfter
+from website.db import User
+from website.views import views
+from website.auth import auth
 
 
 
@@ -73,8 +76,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=2)
 ReCaptcha(app)
 QRcode(app)
 
-from website.views import views
-from website.auth import auth
+
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -88,7 +90,6 @@ key_func=get_remote_address,
 application_limits=["60 per minute",]
 )
 
-from .db import User
 
 @login_manager.user_loader
 def load_user(id):
@@ -108,9 +109,3 @@ def init_db():
     db.create_all()
 
 
-@click.command("init-db")
-@with_appcontext
-def init_db_command():
-    """Clear existing data and create new tables."""
-    init_db()
-    click.echo("Initialized the database.")
