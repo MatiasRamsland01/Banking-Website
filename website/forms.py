@@ -15,7 +15,7 @@ class RegisterForm(FlaskForm):
 
     email = StringField(label='Email:', validators=[Email()])
     password1 = PasswordField(label='Password:', validators=[DataRequired(), Length(min=6, max=100,
-                                                                                    message="Password must be between 12 and 100 characters!")])
+                                                                                    message="Password must be between 6 and 100 characters!")])
     password2 = PasswordField(label='Confirm Password',
                               validators=[DataRequired(), EqualTo('password1', message="Passwords don't match!")])
     recaptcha = RecaptchaField()
