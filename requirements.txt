@@ -34,6 +34,7 @@ MarkupSafe==2.0.1
 onetimepass==1.0.1
 passlib==1.7.4
 Pillow==8.3.2
+psycopg2-binary==2.9.1
 pycparser==2.20
 pyOpenSSL==21.0.0
 pyotp==2.6.0
