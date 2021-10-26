@@ -40,11 +40,10 @@ def create_app():
     
     csrf = CSRFProtect()
     csrf.init_app(app)
-    
-
-    """
     db_url = os.environ.get("DATABASE_URL")
 
+
+    """
     if db_url is None:
         # default to a sqlite database in the instance folder
         db_path = os.path.join(app.instance_path, "flaskr.sqlite")
