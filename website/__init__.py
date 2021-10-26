@@ -106,8 +106,8 @@ app.register_blueprint(auth, url_prefix='/')
 
 
 
-#def init_db():
-#    db.create_all()
+def init_db():
+    db.create_all()
 
 
 #@click.command("init-db")
