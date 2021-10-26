@@ -59,6 +59,8 @@ def create_app():
 
     ReCaptcha(app)
     QRcode(app)
+    db.init_app(app)
+    app.cli.add_command(init_db_command)
 
     from .views import views
     from .auth import auth
@@ -92,4 +94,13 @@ def create_app():
 
 
 
+def init_db():
+    db.create_all()
 
+
+@click.command("init-db")
+@with_appcontext
+def init_db_command():
+    """Clear existing data and create new tables."""
+    init_db()
+    click.echo("Initialized the database.")

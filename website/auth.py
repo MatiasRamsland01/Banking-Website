@@ -84,6 +84,7 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
+        init_db()  # TODO Don't init database on sign-up, but on server/app start
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
