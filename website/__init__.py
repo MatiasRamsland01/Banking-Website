@@ -42,12 +42,15 @@ def create_app():
     csrf.init_app(app)
     db_url = os.environ.get("DATABASE_URL")
 
+
+    """
     if db_url is None:
         # default to a sqlite database in the instance folder
         db_path = os.path.join(app.instance_path, "flaskr.sqlite")
         db_url = f"sqlite:///{db_path}"
         # ensure the instance folder exists
         os.makedirs(app.instance_path, exist_ok=True)
+    """
 
     app.config['SECRET_KEY'] = 'bd5049afa301c7c5d709f821'
     app.config['RECAPTCHA_PUBLIC_KEY'] = '6LeJKpYcAAAAAK9NxeH7cNAPl9BWMQk16hkMdpFy'
