@@ -325,7 +325,7 @@ def transaction():
                 datetime.datetime.now())
             current_app.logger.info(message)
 
-            return redirect(url_for('views.home'))
+            return redirect(url_for('auth.home_login'))
         else:
             flash("Invalid request", category='error')
             return redirect(url_for('auth.home_login'))
