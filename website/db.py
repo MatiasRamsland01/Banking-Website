@@ -10,10 +10,19 @@ from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
 
 app = Flask(__name__)  # main.get_app()
-
+uri = os.getenv("DATABASE_URL")  # or other relevant config var
+if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
+    uri = uri.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 db = SQLAlchemy(app)
+engine = create_engine(uri)
+Base.metadata.create_all(engine)
+
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)
@@ -33,7 +42,7 @@ def DecryptMsg(encString):
     decoded = decMsg.decode()
     return decoded
 
-class User(UserMixin, db.Model):
+class User(UserMixin, Base):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -61,7 +70,7 @@ class User(UserMixin, db.Model):
         return get_money_from_user(self.username)
 
 
-class Transaction(UserMixin, db.Model):
+class Transaction(UserMixin, Base):
     transaction_id = db.Column(db.Integer, primary_key=True)
     # Out Id & Money can be null because we might put in (or take out) money through an ATM
     from_user_id = db.Column(db.Integer, nullable=True)  # TODO ForeignKey?
