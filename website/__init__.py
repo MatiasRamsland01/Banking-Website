@@ -17,7 +17,6 @@ from werkzeug.exceptions import _RetryAfter
 
 
 
-db = SQLAlchemy()
 login_manager = LoginManager()
 
 
