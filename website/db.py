@@ -4,8 +4,7 @@ import os
 
 from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask import current_app
-
+from website import app
 from flask_login import UserMixin
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
@@ -16,12 +15,12 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 
-with current_app.app_context():
+with app.app_context():
     uri = os.getenv("DATABASE_URL")  # or other relevant config var
     if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
         uri = uri.replace("postgres://", "postgresql://", 1)
-    current_app.config['SQLALCHEMY_DATABASE_URI'] = uri
-    db = SQLAlchemy(current_app)
+    app.config['SQLALCHEMY_DATABASE_URI'] = uri
+    db = SQLAlchemy(app)
 
 
 
