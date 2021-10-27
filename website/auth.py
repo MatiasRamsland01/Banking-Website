@@ -142,7 +142,7 @@ def sign_up():
 @login_required
 def home_login():
     init_db()
-    queried_from_user = User.query.filter_by(username=current_user.username).first()
+    queried_from_user = db.User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
     return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database,
