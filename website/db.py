@@ -9,11 +9,10 @@ from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
-
+from main import db
 
 app = Flask(__name__)  # main.get_app()
 
-db = SQLAlchemy(app)
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)
