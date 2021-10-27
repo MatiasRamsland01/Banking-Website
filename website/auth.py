@@ -32,7 +32,10 @@ def add_user():
 # When the user limit of 60 request within a minute this error handler occur
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):
-    message = "Request Limit: User: " + current_user.username + ". Time: " + str(datetime.datetime.now())
+    try:
+        message = "Request Limit: User: " + current_user.username + ". Time: " + str(datetime.datetime.now())
+    except:
+        message = "Request Limit: User: None . Time: " + str(datetime.datetime.now())
     db.session.add(Logs(log=message))
     db.session.commit()
     logout_user()
@@ -44,15 +47,20 @@ def ratelimit_handler(e):
     )
 
 
+@auth.errorhandler(Exception)          
+def basic_error(e): 
+    flash("Something went wrong", category='error')
+    return redirect(url_for('auth.home_login'))
+
 # Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
-    
-
     flask.session.permanent = True
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
     flask.session.modified = True
     flask.g.user = flask_login.current_user
+
+
 
 def FinnHash(string):
     encoded = string.encode()
@@ -75,7 +83,7 @@ def sign_up():
             user_by_username = User.query.filter_by(username=form.username.data).first()
             user_by_email = User.query.filter_by(email=form.email.data).first()
             if user_by_username:
-                flash("Username taken!", category='error')
+                flash("Username  taken!", category='error')
                 success = False
             if user_by_email:
                 flash("Email taken!", category='error')
