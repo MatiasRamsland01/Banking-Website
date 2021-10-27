@@ -31,11 +31,11 @@ uri = os.getenv("DATABASE_URL")  # or other relevant config var
 if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
     uri = uri.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
-engine = create_engine('postgres://buqhzjmcawhhfr:8f73741c058148e9b4a76c518a97ba058e185b906befd7c04da8be64550352a6@ec2-63-33-14-215.eu-west-1.compute.amazonaws.com:5432/dftbvhkp89or2n')
-
+db_string = 'postgres://buqhzjmcawhhfr:8f73741c058148e9b4a76c518a97ba058e185b906befd7c04da8be64550352a6@ec2-63-33-14-215.eu-west-1.compute.amazonaws.com:5432/dftbvhkp89or2n'
 DATABASE_URL = os.environ['DATABASE_URL'] #From heroku postgresql documentation
 conn = psycopg2.connect(DATABASE_URL, sslmode='require') #From heroku postgresql documentation
 db = SQLAlchemy(app)
+db.create_engine(db_string)
 
 
 csp = {
