@@ -75,8 +75,8 @@ QRcode(app)
 #db.init_app(app)
 #app.cli.add_command(init_db_command)
 
-from .views import views
-from .auth import auth
+from website.views import views
+from website.auth import auth
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
