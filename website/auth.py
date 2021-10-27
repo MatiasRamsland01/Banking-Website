@@ -14,7 +14,8 @@ from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
 from website.db import User, Transaction, EncryptMsg, DecryptMsg
-from website import db, init_db
+from website import db
+from website import init_db
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
