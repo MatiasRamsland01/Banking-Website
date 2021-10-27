@@ -171,7 +171,7 @@ def atm_transaction():
                 flash("Invalid OTP", category='error')
 
             if success:
-                new_transaction = Transaction(to_user_id=username, in_money=EncryptMsg(amount))
+                new_transaction = Transaction(to_user_id=username, in_money=amount)
                 db.session.add(new_transaction)
                 db.session.commit()
                 message = "ATM deposit: User: " + username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
@@ -310,8 +310,8 @@ def transaction():
 
             # TODO If everything is correct, register a transaction, and add it to the database
             #  Update (calculate) saldo if it's on the screen
-            new_transaction = Transaction(out_money=EncryptMsg(amount), from_user_id=from_user_name, to_user_id=to_user_name,
-                                          in_money=EncryptMsg(amount), message=message)
+            new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name,
+                                          in_money=amount, message=message)
             db.session.add(new_transaction)
             db.session.commit()
             message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + "-" + queried_to_user.username + ". Status: Sucess. Time: " + str(
