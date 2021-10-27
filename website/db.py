@@ -4,7 +4,7 @@ import os
 
 from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
-from website import db, login_manager
+from website import db
 from flask_login import UserMixin
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
@@ -19,12 +19,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 
-@login_manager.user_loader
-def load_user(id):
-    try: 
-        return User.query.get(int(id))
-    except:
-        return None
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)

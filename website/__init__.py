@@ -97,6 +97,15 @@ login_manager.login_view = 'auth.login'
 login_manager.login_message = "You need to log in to access this page!"
 login_manager.login_message_category = 'error'
 
+from website.db import User
+@login_manager.user_loader
+def load_user(id):
+    try: 
+        return User.query.get(int(id))
+    except:
+        return None
+
+
 def init_db():
     db.create_all()
 
