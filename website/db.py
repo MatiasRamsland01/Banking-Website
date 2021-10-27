@@ -82,12 +82,12 @@ class Transaction(UserMixin, db.Model):
     def get_out_money_decimal(self):
         if self.out_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(bytes(self.out_money)))
+        return decimal.Decimal(DecryptMsg(bytes(self.out_money, encoding='utf8')))
 
     def get_in_money_decimal(self):
         if self.in_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(bytes(self.in_money)))   
+        return decimal.Decimal(DecryptMsg(bytes(self.in_money, encoding='utf8')))   
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
