@@ -1,0 +1,213 @@
+\documentclass[11pt,a4]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[norsk]{babel}
+%\renewcommand{\rmdefault}{cmss}    %forandrer font til times roma
+\usepackage{verbatim,amsmath}
+\usepackage{enumerate}
+\usepackage{fancyhdr,fancyvrb}
+\usepackage{graphicx,color,boxedminipage}
+\usepackage{ragged2e,colortbl,appendix}
+\usepackage{here,hyperref,multirow,pdfpages}
+\usepackage[font=small,labelfont=bf]{caption}
+
+\usepackage{xcolor}
+\usepackage{lipsum,todonotes} 
+
+% viser til figurer ligger 
+%\usepackage[../FigurerFraProsjektene/DiverseFigurer/, 
+%../FigurerFraProsjektene/MineFunksjoner/,
+%../FigurerFraProsjektene/Prosjekt01_NumeriskIntegrasjon/,
+%../FigurerFraProsjektene/Prosjekt02_Filtrering/,
+%../FigurerFraProsjektene/Prosjekt03_Derivasjon/,
+%../FigurerFraProsjektene/Prosjekt04_ManuellKjoring/,
+%../FigurerFraProsjektene/Prosjekt05_Navn/,
+%../FigurerFraProsjektene/Prosjekt06_Navn/,
+%../FigurerFraProsjektene/Prosjekt07_Navn/,
+%../FigurerFraProsjektene/Prosjekt08_Navn/,
+%../FigurerFraProsjektene/Prosjekt09_navn/,
+%../FigurerFraProsjektene/Prosjekt10_Navn/,
+%../RapportData/Funksjoner/,
+%]{figurepath} 
+
+% Her utvider du med nye mapper
+
+
+% inkludering av kode 
+\usepackage{listings}
+%\usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+% for å kunne skrive norske kommentarer i Matlab og vises i listingspakken
+%\lstset{inputencoding=ansinew}
+
+\lstset{language=Matlab,%
+    %basicstyle=\color{red},
+    inputencoding=ansinew,
+    breaklines=true,%
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},%
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},%
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},%
+    showstringspaces=false,%without this there will be a symbol in the places where there is a space
+    numbers=left,%
+    numberstyle={\tiny \color{black}},% size of the numbers
+    numbersep=9pt, % this defines how far the numbers are from the text
+    emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+    %emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+
+\definecolor{darkgreen}{rgb}{0.0, 0.6, 0.0}
+\definecolor{darkred}{rgb}{0.6, 0.0, 0.0}
+\definecolor{gray}{rgb}{0.6, 0.6, 0.6}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+
+
+% kan definere bredere tekstbredde og -høyde 
+\textwidth135mm
+\textheight195mm
+\parindent0mm  % ingen innrykk ved begynnelsen av avsnitt
+
+\setlength{\marginparwidth}{3cm}
+
+\DeclareUnicodeCharacter{2212}{-}
+
+\begin{document}
+\setlength{\parskip}{0.5cm}   % denne lager 5mm avstand ved avsnitt
+\selectlanguage{norsk}
+
+% topptekst
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+\rhead{}
+\chead{}
+\cfoot{\bfseries\thepage}
+\lfoot{}
+\rfoot{}
+
+
+\renewcommand{\lstlistingname}{Kode}% Listing -> Kode
+
+
+% forsidetabell
+\begin{table}[hb]
+	\centering
+              \begin{tabular}{|l|lll|}\hline
+                \multicolumn{4}{|l|}{\hspace*{130mm}}\\
+                \multicolumn{4}{|l|}{DAT250 TODO}\\[-7mm]
+              %\multicolumn{4}{|r|}{\scalebox{0.4}{\includegraphics{uis_nor_black}}}\\[15mm]
+                \multicolumn{4}{|c|}{\Huge \bf PROSJEKT - HØSTEN 2021
+                }\\[5mm]\hline
+                & & &  \\[-3mm]
+                Prosjekt- & \multicolumn{3}{|l|}{Bank Dat250;} \\
+                oppgaven & \multicolumn{3}{|l|}{}\\[2mm]\hline
+                \multicolumn{4}{c}{}\\[5mm]\hline
+                & & &  \\[-3mm]
+                Gruppenavn? & \multicolumn{3}{|l|}{\color{red}{AlphaBank?}} \\[2mm]\hline
+                & & &\\[-3mm]
+                Gruppens  & Navn &  Studentnummer & \\
+                medlemmer  &   &   &  \\[2mm]
+                & --- & ---     &  \\[6mm]
+                & Jakub Mroz  & 260703       & \\[6mm]
+                & Lukasz Pietkiewicz & 253469 & \\[20mm]
+                 \hline
+              \end{tabular}
+\end{table}
+
+
+% ingen sidetall på forsiden
+\thispagestyle{empty}
+
+\newpage
+
+% romerske tall før kap.1
+\pagenumbering{roman} 
+  
+% Innholdsfortegnelse
+% Første linje legger selve innholdsfortegnelsen inn i
+% innholdsfortegnelsen. Dette må gjøres manuelt på de kapitlene
+% uten nummer
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}Innhold} 
+\tableofcontents
+
+\newpage
+
+
+%\input{sammendrag.tex}
+
+% Siden sammendraget er uten kapittelnummer, legges dette manuelt inn
+% i innholdsfortegnelsen
+\addcontentsline{toc}{chapter}{\protect\numberline{}Sammendrag}
+
+\newpage
+
+
+% start vanlig nummering
+% Side 1 skal ALLTID være der hvor kapittel 1 starter
+\pagenumbering{arabic}
+
+% rett høyre- og venstremarg
+\justifying
+
+% ingen innrykk ved nytt avsnitt
+\setlength{\parindent}{0em} 
+
+%\input{kap1_integrasjon.tex}
+%\input{kap2_filtrering.tex}
+%\input{kap3_derivasjon.tex}
+%\input{kap4_manuell_kjoring.tex}
+%\input{kap5_automatisk_kjoring.tex}
+%\input{kap6_rekkefølge_int_dev.tex}
+%\input{kap7_rekkefolge_int_dev.tex}
+%\input{kap8_kreativ_komponist.tex}
+%\input{kap9_automatisk_kjoring_pid.tex}
+%\input{kap10_beregning_hastighet.tex}
+%\input{konklusjon.tex}
+
+
+% Første linje er bibliografistilen, her finner flere varianter som du
+% prøve. Andre linje er selve filen med dine referanser. Siste linje
+% legger bibliografi inn i innholdsfortegnelsen. 
+
+\bibliographystyle{plain}
+%\bibliography{referanser.bib}
+\addcontentsline{toc}{chapter}{Bibliografi} 
+
+\appendix
+
+\addcontentsline{toc}{chapter}{Vedlegg}
+\renewcommand{\appendixname}{Vedlegg}
+\renewcommand{\appendixpagename}{Vedlegg}
+
+
+
+\chapter{Timelister}\label{ch:vedlegg_A}
+
+
+%\chapter{Programlisting egendefinerte funksjoner}\label{ch:vedlegg_B}
+%\section{Derivation.m}
+%\lstinputlisting{Derivation.m}
+%\section{EulerForward.m}
+%\lstinputlisting{EulerForward.m}
+%\section{FIR\_filter.m}
+%\lstinputlisting{FIR_filter.m}
+%\section{IIR\_filter.m}
+%\lstinputlisting{IIR_filter.m}
+%\section{Trapes.m}
+%\lstinputlisting{Trapes.m}
+
+%\chapter{Programlisting prosjekt 01}\label{ch:vedlegg_C}
+%\section{P01\_F4\_MathCalculations.m}
+%\lstinputlisting{P01_F4_MathCalculations.m}
+
+%\chapter{Programlisting prosjekt 02}\label{ch:vedlegg_D}
+%\section{P02\_F4\_MathCalculations.m}
+%\lstinputlisting{P02_F4_MathCalculations.m}
+
+\end{document}
+
+
