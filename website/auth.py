@@ -216,7 +216,7 @@ def login():
                     db.session.commit()
                     return redirect(url_for('auth.home_login'))
                 flash("Email, Password or OTP does not match!", category="error")
-                message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
+                message = "Log-in: User: None: Status: Fail. Time: " + str(datetime.datetime.now())
                 db.session.add(Logs(log=message))
                 db.session.commit()
             
