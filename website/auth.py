@@ -47,11 +47,12 @@ def ratelimit_handler(e):
         , 429
     )
 
-
+"""
 @auth.errorhandler(Exception)          
 def basic_error(e): 
     flash("Something went wrong", category='error')
     return redirect(url_for('auth.home_login'))
+"""
 
 # Timeout user when inactive in 5 min
 @auth.before_request
