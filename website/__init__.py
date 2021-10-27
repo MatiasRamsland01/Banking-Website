@@ -118,5 +118,3 @@ def load_user(id):
 #    click.echo("Initialized the database.")
 
 
-def init_db():
-    db.create_all()
