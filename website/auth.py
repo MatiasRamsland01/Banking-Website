@@ -262,6 +262,8 @@ def transaction():
             if amount < 1 or amount > 500_000:
                 success = False
                 flash("Money amount has to be a value between 1 and 500'000", category="error")
+                return redirect(url_for('auth.transaction'))
+
                 # return render_template('transaction.html', form=form)
 
             # From ID and To ID exist
@@ -270,16 +272,22 @@ def transaction():
             if not queried_from_user:
                 success = False
                 flash(f"User with username {from_user_name} doesn't exist", category="error")
+                return redirect(url_for('auth.transaction'))
+
                 # return render_template('transaction.html', form=form)
             if not queried_to_user:
                 success = False
                 flash(f"User with username {to_user_name} doesn't exist", category="error")
+                return redirect(url_for('auth.transaction'))
+
                 # return render_template('transaction.html', form=form)
 
             # Trying to send money to himself
             if queried_from_user and current_user.username == queried_to_user.username:
                 success = False
                 flash("Can't send money to yourself", category="error")
+                return redirect(url_for('auth.transaction'))
+
 
             amount_in_database: int = queried_from_user.get_money()[0]
             # flash("Money " + str(amount_in_database))
@@ -287,18 +295,23 @@ def transaction():
                 success = False
                 flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}",
                       category='error')
+                return redirect(url_for('auth.transaction'))
+                
 
             # Is logged in on "from ID"
             if queried_from_user and queried_to_user and \
                     (current_user.id != queried_from_user.id or current_user.username != queried_from_user.username):
                 success = False
-
                 flash("Can't transfer money from an account you don't own", category="error")
+                return redirect(url_for('auth.transaction'))
+
 
             otp = form.OTP.data
             if pyotp.TOTP(queried_from_user.token).verify(otp) == False:
                 success = False
                 flash("Invalid OTP", category='error')
+                return redirect(url_for('auth.transaction'))
+
 
             if not success:
                 flash("Unsuccessful transaction", category="error")
