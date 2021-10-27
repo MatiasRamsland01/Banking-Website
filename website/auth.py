@@ -1,3 +1,4 @@
+from website import db
 from os import error
 import re
 import flask
@@ -7,7 +8,7 @@ from flask import session
 from flask import current_app
 from flask import Blueprint, render_template, request, flash, redirect, make_response
 from flask.helpers import url_for
-from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg, Logs
+from website.db import User, Transaction, EncryptMsg, DecryptMsg, Logs
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 from hashlib import sha256
 import pyotp
@@ -74,7 +75,6 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
-        init_db()  # TODO Don't init database on sign-up, but on server/app start
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
