@@ -23,7 +23,6 @@ import pyotp
 import os
 import math
 import re
-from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from flask import request
