@@ -61,7 +61,7 @@ class User(UserMixin, db.Model):
 
 class Logs(db.Model):
     log_id = db.Column(db.Integer, primary_key=True)
-    log = db.Column(db.String(40))
+    log = db.Column(db.Text)
 
 class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
