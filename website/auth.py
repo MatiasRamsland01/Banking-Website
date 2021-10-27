@@ -142,7 +142,7 @@ def sign_up():
 @login_required
 def home_login():
     init_db()
-    queried_from_user = db.User.query.filter_by(username=current_user.username).first()
+    queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
     return render_template('homelogin.html', current_user=current_user.username, saldo=amount_in_database,
@@ -188,7 +188,7 @@ def atm_transaction():
                 db.session.commit()
                 message = "ATM deposit: User: " + username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
-                return redirect(url_for('auth.home_login'))
+                return redirect(url_for('views.home'))
             else:
                 message = "ATM deposit: User: " + username + ". Status: Fail. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
@@ -329,7 +329,7 @@ def transaction():
             return redirect(url_for('auth.home_login'))
         else:
             flash("Invalid request", category='error')
-            return redirect(url_for('auth.home_login'))
+            return redirect(url_for('views.home'))
 
     return render_template('transaction.html', form=form)
 
