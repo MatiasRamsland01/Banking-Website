@@ -32,6 +32,8 @@ if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start wit
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 
 db = SQLAlchemy(app)
+def init_db():
+    db.create_all()
 
 
 csp = {

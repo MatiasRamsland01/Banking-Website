@@ -123,7 +123,6 @@ def get_money_from_user(username):
 
 
 
-def init_db():
-    db.create_all()
+
 
 
