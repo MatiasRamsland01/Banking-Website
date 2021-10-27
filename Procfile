@@ -1,1 +1,1 @@
-web: gunicorn main:app
+web: python -c "from website import init_db; init_db()"; gunicorn main:app
