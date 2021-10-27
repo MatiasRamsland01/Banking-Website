@@ -3,7 +3,7 @@ import decimal
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+import datetime
 from flask_login import UserMixin
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
@@ -106,14 +106,14 @@ def get_money_from_user(username):
     for transaction in transactions:
         # If from_user_id; substract money
         if transaction.from_user_id and transaction.from_user_id == username:
-            transactionstext.append(f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message} \n")
+            transactionstext.append(f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message}. "+str(datetime.datetime.now())+"\n")
             money -= transaction.get_out_money_decimal()
         # If to_user_id; add money
         elif transaction.to_user_id and transaction.to_user_id == username:
             if transaction.from_user_id == None:
-                transactionstext.append(f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. \n")
+                transactionstext.append(f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. "+str(datetime.datetime.now())+" \n")
             else:
-                transactionstext.append(f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message} \n")
+                transactionstext.append(f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message}. "+str(datetime.datetime.now())+" \n")
             money += transaction.get_in_money_decimal()
 
     return money, transactionstext
