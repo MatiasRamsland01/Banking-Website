@@ -13,8 +13,7 @@ from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
-from website.db import User, init_db, Transaction, EncryptMsg, DecryptMsg
-from website import db
+from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -142,7 +141,6 @@ def sign_up():
 @auth.route('/homelogin', methods=['GET'])
 @login_required
 def home_login():
-    time.sleep(0.5)
     queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
@@ -189,7 +187,7 @@ def atm_transaction():
                 db.session.commit()
                 message = "ATM deposit: User: " + username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
-                return redirect(url_for('views.home'))
+                return redirect(url_for('auth.home_login'))
             else:
                 message = "ATM deposit: User: " + username + ". Status: Fail. Time: " + str(datetime.datetime.now())
                 current_app.logger.info(message)
@@ -327,10 +325,10 @@ def transaction():
                 datetime.datetime.now())
             current_app.logger.info(message)
 
-            return redirect(url_for('auth.home_login'))
+            return redirect(url_for('views.home'))
         else:
             flash("Invalid request", category='error')
-            return redirect(url_for('views.home'))
+            return redirect(url_for('auth.home_login'))
 
     return render_template('transaction.html', form=form)
 

@@ -30,11 +30,10 @@ app = Flask(__name__)
 uri = os.getenv("DATABASE_URL")  # or other relevant config var
 if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
     uri = uri.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 DATABASE_URL = os.environ['DATABASE_URL']
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-
-db = SQLAlchemy(app)
 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+db = SQLAlchemy(app)
 
 
 csp = {
