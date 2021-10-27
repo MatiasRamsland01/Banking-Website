@@ -78,10 +78,6 @@ QRcode(app)
 from website.views import views
 from website.auth import auth
 
-login_manager = LoginManager(app)
-login_manager.login_view = 'auth.login'
-login_manager.login_message = "You need to log in to access this page!"
-login_manager.login_message_category = 'error'
 
 limiter = Limiter(
 app,
@@ -96,6 +92,10 @@ application_limits=["60 per minute",]
 app.register_blueprint(views, url_prefix='/')
 app.register_blueprint(auth, url_prefix='/')
 
+login_manager = LoginManager(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message = "You need to log in to access this page!"
+login_manager.login_message_category = 'error'
 
 def init_db():
     db.create_all()
