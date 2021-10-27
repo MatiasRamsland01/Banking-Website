@@ -90,7 +90,7 @@ key_func=get_remote_address,
 application_limits=["60 per minute",]
 )
 
-from .db import User
+from website.db import User
 
 @login_manager.user_loader
 def load_user(id):
@@ -104,7 +104,8 @@ app.register_blueprint(views, url_prefix='/')
 app.register_blueprint(auth, url_prefix='/')
 
 
-
+def init_db():
+    db.create_all()
 
 
 
