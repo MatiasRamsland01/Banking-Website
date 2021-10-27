@@ -90,12 +90,14 @@ def sign_up():
     if form.validate_on_submit():
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.username.data) and form.password1.data == form.password2.data:
-
-            # Correct input, now check database
-            init_db()
-            success = True
-            user_by_username = User.query.filter_by(username=form.username.data).first()
-            user_by_email = User.query.filter_by(email=form.email.data).first()
+            try:
+                # Correct input, now check database
+                init_db()
+                success = True
+                user_by_username = User.query.filter_by(username=form.username.data).first()
+                user_by_email = User.query.filter_by(email=form.email.data).first()
+            except:
+                pass
             if user_by_username:
                 flash("Username taken!", category='error')
                 success = False
