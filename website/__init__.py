@@ -18,7 +18,6 @@ import psycopg2
 
 
 
-login_manager = LoginManager()
 
 
 
@@ -31,6 +30,7 @@ uri = os.getenv("DATABASE_URL")  # or other relevant config var
 if uri.startswith("postgres://"): # from SQLAlchemy 1.14, the uri must start with postgresql, not postgres, which heroku provides
     uri = uri.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
 db = SQLAlchemy(app)
 
 
@@ -78,11 +78,10 @@ QRcode(app)
 from website.views import views
 from website.auth import auth
 
-login_manager = LoginManager()
+login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
 login_manager.login_message = "You need to log in to access this page!"
 login_manager.login_message_category = 'error'
-login_manager.init_app(app)
 
 limiter = Limiter(
 app,
@@ -90,14 +89,8 @@ key_func=get_remote_address,
 application_limits=["60 per minute",]
 )
 
-from website.db import User
 
-@login_manager.user_loader
-def load_user(id):
-    try: 
-        return User.query.get(int(id))
-    except:
-        return None
+
 
 
 app.register_blueprint(views, url_prefix='/')
