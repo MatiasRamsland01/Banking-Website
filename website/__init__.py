@@ -17,7 +17,7 @@ from website.db import db
 
 
 
-#db = SQLAlchemy()
+db = SQLAlchemy()
 login_manager = LoginManager()
 
 

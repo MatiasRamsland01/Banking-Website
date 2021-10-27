@@ -11,6 +11,7 @@ from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
 
+
 app = Flask(__name__)  # main.get_app()
 
 db = SQLAlchemy(app)
@@ -60,6 +61,9 @@ class User(UserMixin, db.Model):
     def get_money(self):
         return get_money_from_user(self.username)
 
+class Logs(db.Model):
+    log_id = db.Column(db.Integer, primary_key=True)
+    log = db.Column(db.String(40))
 
 class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)

@@ -12,7 +12,7 @@ from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
-from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg
+from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg, Logs
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,7 +21,6 @@ import pyotp
 import os
 import math
 import re
-from . import login_manager
 from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from flask import request
@@ -43,7 +42,8 @@ def add_user():
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):
     message = "Request Limit: User: " + current_user.username + ". Time: " + str(datetime.datetime.now())
-    current_app.logger.info(message)
+    db.session.add(Logs(log=message))
+    db.session.commit()
     logout_user()
     session['logged_in'] = False
     return make_response(
@@ -56,19 +56,7 @@ def ratelimit_handler(e):
 # Timeout user when inactive in 5 min
 @auth.before_request
 def before_request():
-    log_level = logging.INFO
-    for handler in current_app.logger.handlers:
-        current_app.logger.removeHandler(handler)
-    root = os.path.dirname(os.path.abspath(__file__))
-    logdir = os.path.join(root, 'logs')
-    if not os.path.exists(logdir):
-        os.mkdir(logdir)
-    log_file = os.path.join(logdir, 'app.log')
-    handler = logging.FileHandler(log_file)
-    handler.setLevel(log_level)
-    current_app.logger.addHandler(handler)
-
-    current_app.logger.setLevel(log_level)
+    
 
     flask.session.permanent = True
     current_app.permanent_session_lifetime = datetime.timedelta(minutes=5)
@@ -120,7 +108,8 @@ def sign_up():
                 session['user'] = email
                 session.permanent = True
                 message = "Sign-up: User: " + userName + ". Status sucess. Time: " + str(datetime.datetime.now())
-                current_app.logger.info(message)
+                db.session.add(Logs(log=message))
+                db.session.commit()
 
                 #### Print statements to test values in database, comment away if not needed#########
                 # print("Username: ", User.query.filter_by(username=form.username.data).first().username)
@@ -132,7 +121,8 @@ def sign_up():
             else:
                 message = "Sign-up: User: " + form.username.data + ". Status fail. Time: " + str(
                     datetime.datetime.now())
-                current_app.logger.info(message)
+                db.session.add(Logs(log=message))
+                db.session.commit()
                 return render_template('signup.html', form=form)
     return render_template('signup.html', form=form)
 
@@ -185,17 +175,20 @@ def atm_transaction():
                 db.session.add(new_transaction)
                 db.session.commit()
                 message = "ATM deposit: User: " + username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
-                current_app.logger.info(message)
+                db.session.add(Logs(log=message))
+                db.session.commit()
                 return redirect(url_for('auth.home_login'))
             else:
                 message = "ATM deposit: User: " + username + ". Status: Fail. Time: " + str(datetime.datetime.now())
-                current_app.logger.info(message)
+                db.session.add(Logs(log=message))
+                db.session.commit()
                 return redirect(url_for('auth.atm_transaction'))
 
         else:
             flash("Invalid request", category='error')
             message = "ATM deposit: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
-            current_app.logger.info(message)
+            db.session.add(Logs(log=message))
+            db.session.commit()
             return redirect(url_for('views.home'))
 
     return render_template('atm.html', form=form)
@@ -219,20 +212,21 @@ def login():
                     db.session.commit()
                     session['logged_in'] = True
                     message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
-                    current_app.logger.info(message)
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
                     return redirect(url_for('auth.home_login'))
                 flash("Email, Password or OTP does not match!", category="error")
                 message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
-                current_app.logger.info(message)
+                db.session.add(Logs(log=message))
+                db.session.commit()
             
-                #message = "Log-in: User: " + form.email.data + ". Status: Failed. Time: " + str(datetime.datetime.now())
-                #current_app.logger.info(message)
 
                 flash("Something went wrong. Please try again", category="error")
         else:
             flash("Invalid request", category='error')
             message = "Log-in: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
-            current_app.logger.info(message)
+            db.session.add(Logs(log=message))
+            db.session.commit()
     return render_template('login.html', form=form)
 
 
@@ -310,7 +304,8 @@ def transaction():
                 flash("Unsuccessful transaction", category="error")
                 message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + " " + queried_to_user.username + ". Status: Fail. Time: " + str(
                     datetime.datetime.now())
-                current_app.logger.info(message)
+                db.session.add(Logs(log=message))
+                db.session.commit()
                 return render_template('transaction.html', form=form)
 
             # TODO If everything is correct, register a transaction, and add it to the database
@@ -321,7 +316,8 @@ def transaction():
             db.session.commit()
             message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + "-" + queried_to_user.username + ". Status: Sucess. Time: " + str(
                 datetime.datetime.now())
-            current_app.logger.info(message)
+            db.session.add(Logs(log=message))
+            db.session.commit()
 
             return redirect(url_for('auth.home_login'))
         else:
@@ -335,7 +331,8 @@ def transaction():
 @login_required
 def logout():
     message = "Logout: User: " + current_user.username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
-    current_app.logger.info(message)
+    db.session.add(Logs(log=message))
+    db.session.commit()
     logout_user()
     session['logged_in'] = False
     session.clear()
