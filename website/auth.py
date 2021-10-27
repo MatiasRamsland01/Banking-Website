@@ -13,7 +13,7 @@ from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
-from website.db import User, Transaction, EncryptMsg, DecryptMsg
+from website.db import User, Transaction, EncryptMsg, DecryptMsg, init_db
 from website import db, app
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
@@ -92,6 +92,7 @@ def sign_up():
                 and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
             # Correct input, now check database
+            init_db()
             success = True
             user_by_username = User.query.filter_by(username=form.username.data).first()
             user_by_email = User.query.filter_by(email=form.email.data).first()
