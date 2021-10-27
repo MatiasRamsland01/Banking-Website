@@ -155,20 +155,28 @@ def atm_transaction():
             if amount < 1 or amount > 10_000:
                 success = False
                 flash('Amount needs to be between 1 and 10 000', category='error')
+                return redirect(url_for('auth.atm_transaction'))
+
 
             user = User.query.filter_by(username=username).first()
             if not user:
                 success = False
                 flash(f"User with username {username} doesn't exist", category="error")
+                return redirect(url_for('auth.atm_transaction'))
+
 
             if user and current_user.id != user.id:
                 success = False
                 flash("Can't transfer money from an account you don't own", category="error")
+                return redirect(url_for('auth.atm_transaction'))
+
 
             otp = form.OTP.data
             if pyotp.TOTP(user.token).verify(otp) == False:
                 success = False
                 flash("Invalid OTP", category='error')
+                return redirect(url_for('auth.atm_transaction'))
+
 
             if success:
                 new_transaction = Transaction(to_user_id=username, in_money=amount)
@@ -189,7 +197,8 @@ def atm_transaction():
             message = "ATM deposit: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
             db.session.add(Logs(log=message))
             db.session.commit()
-            return redirect(url_for('views.home'))
+            return redirect(url_for('auth.atm_transaction'))
+            
 
     return render_template('atm.html', form=form)
 
