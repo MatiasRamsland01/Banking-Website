@@ -67,7 +67,7 @@ class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
     # Out Id & Money can be null because we might put in (or take out) money through an ATM
     from_user_id = db.Column(db.String(50), nullable=True)  # TODO ForeignKey?
-    out_money = db.Column(db.Text, nullable=True)
+    out_money = db.Column(db.Integer, nullable=True)
     to_user_id = db.Column(db.String(50))  # TODO ForeignKey?
     in_money = db.Column(db.Text)
     message = db.Column(db.String(120))
@@ -82,12 +82,12 @@ class Transaction(UserMixin, db.Model):
     def get_out_money_decimal(self):
         if self.out_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(self.out_money))
+        return decimal.Decimal(DecryptMsg(bytes(self.out_money)))
 
     def get_in_money_decimal(self):
         if self.in_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(self.in_money))   
+        return decimal.Decimal(DecryptMsg(bytes(self.in_money)))   
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
