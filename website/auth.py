@@ -141,6 +141,7 @@ def sign_up():
 @auth.route('/homelogin', methods=['GET'])
 @login_required
 def home_login():
+    init_db()
     queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
