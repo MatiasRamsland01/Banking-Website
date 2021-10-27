@@ -13,7 +13,8 @@ from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
-from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg
+from website.db import User, init_db, Transaction, EncryptMsg, DecryptMsg
+from website import db
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -141,7 +142,7 @@ def sign_up():
 @auth.route('/homelogin', methods=['GET'])
 @login_required
 def home_login():
-    init_db()
+    time.sleep(0.5)
     queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
