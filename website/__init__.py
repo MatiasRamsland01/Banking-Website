@@ -106,8 +106,6 @@ def load_user(id):
         return None
 
 
-def init_db():
-    db.create_all()
 
 
 
