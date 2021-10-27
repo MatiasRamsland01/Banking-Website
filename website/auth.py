@@ -107,7 +107,7 @@ def sign_up():
                 session['logged_in'] = True
                 session['user'] = email
                 session.permanent = True
-                message = "Sign-up: User: " + userName + ". Status sucess. Time: " + str(datetime.datetime.now())
+                message = "Sign-up: User: " + str(userName) + ". Status sucess. Time: " + str(datetime.datetime.now())
                 db.session.add(Logs(log=message))
                 db.session.commit()
 
