@@ -13,8 +13,7 @@ from flask_wtf.csrf import validate_csrf
 from sqlalchemy import literal
 from sqlalchemy.sql.expression import false
 from werkzeug.local import LocalProxy
-from website.db import User, init_db, Transaction, EncryptMsg, DecryptMsg
-from website import db
+from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg
 from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 # from werkzeug.security import generate_password_hash, check_password_hash
