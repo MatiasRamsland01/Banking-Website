@@ -102,7 +102,6 @@ def sign_up():
                 db.session.add(user)
                 db.session.commit()
 
-                flash('Account Created', category='success')
                 login_user(user)
                 session['logged_in'] = True
                 session['user'] = email
