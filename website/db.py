@@ -44,7 +44,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(100), unique=False, nullable=False)
-    token = db.Column(db.String(150), nullable=False)
+    token = db.Column(db.Text, nullable=False)
     FA = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
