@@ -1,14 +1,13 @@
 import decimal
-import os
 
 
-from flask import Flask, flash
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from flask_login import UserMixin
 from sqlalchemy import or_
 from sqlalchemy.sql.expression import null
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
 
 

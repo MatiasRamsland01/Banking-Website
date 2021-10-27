@@ -1,6 +1,4 @@
-from flask import Blueprint, render_template#from website import db
-#from website.db import User, init_db
-from flask import session
+from flask import Blueprint, render_template
 
 
 views = Blueprint('views', __name__)
@@ -8,6 +6,4 @@ views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET', 'POST'])
 def home():
-    #init_db()
-    #session['logged_in'] = False
     return render_template("home.html")

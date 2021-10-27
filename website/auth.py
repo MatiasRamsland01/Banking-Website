@@ -1,25 +1,16 @@
 from os import error
 import re
 import flask
-import logging
 import datetime
 import flask_login
 from flask import session
 from flask import current_app
-from flask import Blueprint, render_template, request, flash, redirect, abort, make_response
+from flask import Blueprint, render_template, request, flash, redirect, make_response
 from flask.helpers import url_for
-from flask_wtf.csrf import validate_csrf
-from sqlalchemy import literal
-from sqlalchemy.sql.expression import false
-from werkzeug.local import LocalProxy
 from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg, Logs
-from flask_wtf.recaptcha.validators import Recaptcha
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
-# from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import sha256
 import pyotp
-import os
-import math
 import re
 from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
