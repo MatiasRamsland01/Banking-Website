@@ -1,12 +1,11 @@
 from website import db
-from os import error
 import re
 import flask
 import datetime
 import flask_login
 from flask import session
 from flask import current_app
-from flask import Blueprint, render_template, request, flash, redirect, make_response
+from flask import Blueprint, render_template, flash, redirect, make_response
 from flask.helpers import url_for
 from website.db import User, Transaction, EncryptMsg, DecryptMsg, Logs
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
@@ -15,7 +14,6 @@ import pyotp
 import re
 from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
-from flask import request
 from passlib.hash import argon2
 
 from blinker import Namespace
@@ -47,12 +45,12 @@ def ratelimit_handler(e):
         , 429
     )
 
-"""
+
 @auth.errorhandler(Exception)          
 def basic_error(e): 
     flash("Something went wrong", category='error')
     return redirect(url_for('auth.home_login'))
-"""
+
 
 # Timeout user when inactive in 5 min
 @auth.before_request
@@ -110,11 +108,7 @@ def sign_up():
                 db.session.add(Logs(log=message))
                 db.session.commit()
 
-                #### Print statements to test values in database, comment away if not needed#########
-                # print("Username: ", User.query.filter_by(username=form.username.data).first().username)
-                # print("Email: ", User.query.filter_by(username=form.username.data).first().email)
-                # print("Password: ", User.query.filter_by(username=form.username.data).first().password)
-                #####################################################################################
+
 
                 return redirect(url_for('auth.two_factor_view'))
             else:
@@ -141,11 +135,7 @@ def home_login():
 def atm_transaction():
     form = ATMForm()
     if form.validate_on_submit():
-        # if form.username.data[0] == ";": #"Encrypted *data* will flash when someone tries to sql inject"
-        #    flash("Random encrypted bs")
-        #    return redirect(url_for('views.home'))
         if validate_int(form.amount.data) and validate_username(form.username.data):
-            take_out_money = True  # TODO PutInMoney logic through "ATM"
 
             amount = form.amount.data
             username = form.username.data
@@ -238,7 +228,6 @@ def login():
     return render_template('login.html', form=form)
 
 
-# TODO Make user not be able to view this page again and not display secret in session variable (not safe)!
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
     try:
@@ -263,7 +252,6 @@ def transaction():
             to_user_name = form.to_user_name.data
             message = form.message.data
 
-            ATM_transaction = False  # TODO, if an ATM Transaction, then we dont need & shouldnt have both from & to
             success = True
 
             # Check if money amount is legal (between 1-200000)
@@ -272,7 +260,6 @@ def transaction():
                 flash("Money amount has to be a value between 1 and 500'000", category="error")
                 return redirect(url_for('auth.transaction'))
 
-                # return render_template('transaction.html', form=form)
 
             # From ID and To ID exist
             queried_from_user = User.query.filter_by(username=from_user_name).first()
@@ -282,13 +269,11 @@ def transaction():
                 flash(f"User with username {from_user_name} doesn't exist", category="error")
                 return redirect(url_for('auth.transaction'))
 
-                # return render_template('transaction.html', form=form)
             if not queried_to_user:
                 success = False
                 flash(f"User with username {to_user_name} doesn't exist", category="error")
                 return redirect(url_for('auth.transaction'))
 
-                # return render_template('transaction.html', form=form)
 
             # Trying to send money to himself
             if queried_from_user and current_user.username == queried_to_user.username:
@@ -298,7 +283,6 @@ def transaction():
 
 
             amount_in_database: int = queried_from_user.get_money()[0]
-            # flash("Money " + str(amount_in_database))
             if amount > amount_in_database:
                 success = False
                 flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}",
@@ -329,8 +313,6 @@ def transaction():
                 db.session.commit()
                 return render_template('transaction.html', form=form)
 
-            # TODO If everything is correct, register a transaction, and add it to the database
-            #  Update (calculate) saldo if it's on the screen
             new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name,
                                           in_money=amount, message=message)
             db.session.add(new_transaction)
@@ -381,7 +363,6 @@ def validate_password(password):
         except:
             return False
 
-    # Could tell the user what is missing and not just list everything. Might implement this later. It is just to add more if statements
     if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0 or sum < 11 or sum > 200:
         return False
     return True
@@ -432,12 +413,3 @@ def validate_email(email):
     return True
 
 
-### Don't think this is necessary for our soloution with login users
-"""
-@login_manager.user_loader
-def load_user(user_id):
-    # Check if user is logged-in on every page load - didn't work with it yet
-    if user_id is not None:
-        return User.query.get(user_id)
-    return None
-"""

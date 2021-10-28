@@ -2,11 +2,9 @@ import decimal
 
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from flask_login import UserMixin
 from sqlalchemy import or_
-from sqlalchemy.sql.expression import null
 from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
 from website import db
@@ -65,14 +63,12 @@ class Logs(db.Model):
 
 class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
-    # Out Id & Money can be null because we might put in (or take out) money through an ATM
-    from_user_id = db.Column(db.Text, nullable=True)  # TODO ForeignKey?
+    from_user_id = db.Column(db.Text, nullable=True)  
     out_money = db.Column(db.Text, nullable=True)
-    to_user_id = db.Column(db.Text)  # TODO ForeignKey?
+    to_user_id = db.Column(db.Text) 
     in_money = db.Column(db.Text)
     message = db.Column(db.String(120))
 
-    # TimeStamp?
 
      
 

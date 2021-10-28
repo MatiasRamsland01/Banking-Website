@@ -1,7 +1,5 @@
-from itertools import count
 from flask_wtf import FlaskForm
 from flask_wtf.recaptcha.fields import RecaptchaField
-from sqlalchemy.sql.expression import label
 from wtforms import StringField, PasswordField, SubmitField, IntegerField
 from wtforms import validators
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
