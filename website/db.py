@@ -1,15 +1,11 @@
 import decimal
 
-
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-
-from flask_login import UserMixin
-from sqlalchemy import or_
-from sqlalchemy.sql.expression import null
-from werkzeug.security import generate_password_hash
 from cryptography.fernet import Fernet
-
+from flask import Flask
+from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)  # main.get_app()
 
@@ -17,6 +13,7 @@ db = SQLAlchemy(app)
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)
+
 
 def EncryptMsg(string):
     try:
@@ -28,10 +25,12 @@ def EncryptMsg(string):
         encMsg = Encrypter.encrypt(nyEncoded)
     return encMsg
 
+
 def DecryptMsg(encString):
     decMsg = Encrypter.decrypt(encString)
     decoded = decMsg.decode()
     return decoded
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,13 +55,14 @@ class User(UserMixin, db.Model):
         if self.password == password:
             return True
 
-
     def get_money(self):
         return get_money_from_user(self.username)
+
 
 class Logs(db.Model):
     log_id = db.Column(db.Integer, primary_key=True)
     log = db.Column(db.String(40))
+
 
 class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
@@ -75,8 +75,6 @@ class Transaction(UserMixin, db.Model):
 
     # TimeStamp?
 
-     
-
     def contains_user(self, username):
         return username != "" and (self.from_user_id == username or self.to_user_id == username)
 
@@ -88,7 +86,7 @@ class Transaction(UserMixin, db.Model):
     def get_in_money_decimal(self):
         if self.in_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(self.in_money))   
+        return decimal.Decimal(DecryptMsg(self.in_money))
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
@@ -102,19 +100,22 @@ def get_money_from_user(username):
         print(f"Couldn't find user with username {username}")
         return money
 
-    transactions = Transaction.query.filter(    
+    transactions = Transaction.query.filter(
         or_(Transaction.from_user_id == username, Transaction.to_user_id == username))
     for transaction in transactions:
         # If from_user_id; substract money
         if transaction.from_user_id and transaction.from_user_id == username:
-            transactionstext.append(f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message} \n")
+            transactionstext.append(
+                f"Out Money: {transaction.to_user_id} --> {transaction.from_user_id}: - {transaction.get_out_money_decimal()}kr. Message: {transaction.message} \n")
             money -= transaction.get_out_money_decimal()
         # If to_user_id; add money
         elif transaction.to_user_id and transaction.to_user_id == username:
             if transaction.from_user_id == None:
-                transactionstext.append(f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. \n")
+                transactionstext.append(
+                    f"In Money: ATM deposit --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. \n")
             else:
-                transactionstext.append(f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message} \n")
+                transactionstext.append(
+                    f"In Money: {transaction.from_user_id} --> {transaction.to_user_id}: + {transaction.get_in_money_decimal()}kr. Message: {transaction.message} \n")
             money += transaction.get_in_money_decimal()
 
     return money, transactionstext

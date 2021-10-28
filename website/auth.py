@@ -1,23 +1,21 @@
-from os import error
-import re
-import flask
 import datetime
-import flask_login
-from flask import session
-from flask import current_app
-from flask import Blueprint, render_template, request, flash, redirect, make_response
-from flask.helpers import url_for
-from website.db import User, init_db, db, Transaction, EncryptMsg, DecryptMsg, Logs
-from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
-from hashlib import sha256
-import pyotp
 import re
-from flask_login import login_required, logout_user, current_user, login_user
+from hashlib import sha256
+
+import flask
+import flask_login
+import pyotp
+from blinker import Namespace
+from flask import Blueprint, render_template, flash, redirect, make_response
+from flask import current_app
 from flask import jsonify
-from flask import request
+from flask import session
+from flask.helpers import url_for
+from flask_login import login_required, logout_user, current_user, login_user
 from passlib.hash import argon2
 
-from blinker import Namespace
+from website.db import User, init_db, db, Transaction, EncryptMsg, Logs
+from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 
 my_signals = Namespace()
 
@@ -47,10 +45,11 @@ def ratelimit_handler(e):
     )
 
 
-@auth.errorhandler(Exception)          
-def basic_error(e): 
+@auth.errorhandler(Exception)
+def basic_error(e):
     flash("Something went wrong", category='error')
     return redirect(url_for('auth.home_login'))
+
 
 # Timeout user when inactive in 5 min
 @auth.before_request
@@ -61,11 +60,11 @@ def before_request():
     flask.g.user = flask_login.current_user
 
 
-
 def FinnHash(string):
     encoded = string.encode()
     theHash = sha256(encoded).hexdigest()
     return theHash
+
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
@@ -201,26 +200,25 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if validate_password(form.password.data) and validate_email(form.email.data):
-            
-                user = User.query.filter_by(email=form.email.data).first()
-                otp = form.OTP.data
-                if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
-                        user.token).verify(otp):
-                    login_user(user)
-                    user.FA = True
-                    db.session.commit()
-                    session['logged_in'] = True
-                    message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
-                    db.session.add(Logs(log=message))
-                    db.session.commit()
-                    return redirect(url_for('auth.home_login'))
-                flash("Email, Password or OTP does not match!", category="error")
-                message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
+
+            user = User.query.filter_by(email=form.email.data).first()
+            otp = form.OTP.data
+            if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
+                    user.token).verify(otp):
+                login_user(user)
+                user.FA = True
+                db.session.commit()
+                session['logged_in'] = True
+                message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
                 db.session.add(Logs(log=message))
                 db.session.commit()
-            
+                return redirect(url_for('auth.home_login'))
+            flash("Email, Password or OTP does not match!", category="error")
+            message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
+            db.session.add(Logs(log=message))
+            db.session.commit()
 
-                flash("Something went wrong. Please try again", category="error")
+            flash("Something went wrong. Please try again", category="error")
         else:
             flash("Invalid request", category='error')
             message = "Log-in: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
@@ -309,7 +307,8 @@ def transaction():
 
             # TODO If everything is correct, register a transaction, and add it to the database
             #  Update (calculate) saldo if it's on the screen
-            new_transaction = Transaction(out_money=EncryptMsg(amount), from_user_id=from_user_name, to_user_id=to_user_name,
+            new_transaction = Transaction(out_money=EncryptMsg(amount), from_user_id=from_user_name,
+                                          to_user_id=to_user_name,
                                           in_money=EncryptMsg(amount), message=message)
             db.session.add(new_transaction)
             db.session.commit()
