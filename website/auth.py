@@ -79,9 +79,9 @@ def sign_up():
     form = RegisterForm()
     if form.validate_on_submit():
         init_db()
-        if validate_password(form.password1.data) and validate_username(form.username.data) \
-                and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
+        if validate_password(form.password1.data) and validate_username(form.username.data) \
+                and validate_email(form.email.data) and validate_password(form.password2.data):
             # Correct input, now check database
             success = True
             user_by_username = User.query.filter_by(username=form.username.data).first()
@@ -93,7 +93,6 @@ def sign_up():
                 flash("Email taken!", category='error')
                 success = False
             if success:
-                # Sha256 needs a string that is encoded to bytes, hexdigest shows the hexadecimal form of the hash
                 userName = form.username.data
                 # encUsername = EncryptMsg(userName)
                 email = form.email.data
@@ -112,9 +111,6 @@ def sign_up():
                 message = "Sign-up: User: " + str(userName) + ". Status sucess. Time: " + str(datetime.datetime.now())
                 db.session.add(Logs(log=message))
                 db.session.commit()
-
-
-
                 return redirect(url_for('auth.two_factor_view'))
             else:
                 message = "Sign-up: User: " + form.username.data + ". Status fail. Time: " + str(
@@ -122,6 +118,8 @@ def sign_up():
                 db.session.add(Logs(log=message))
                 db.session.commit()
                 return render_template('signup.html', form=form)
+        else:
+            flash("Check your input", category='error')
     return render_template('signup.html', form=form)
 
 
@@ -140,7 +138,7 @@ def home_login():
 def atm_transaction():
     form = ATMForm()
     if form.validate_on_submit():
-        if validate_int(form.amount.data) and validate_username(form.username.data):
+        if validate_int(form.amount.data) and validate_username(form.username.data) and validate_int(form.OTP.data):
 
             amount = form.amount.data
             username = form.username.data
@@ -204,7 +202,7 @@ def login():
         return redirect(url_for('auth.home_login'))
     form = LoginForm()
     if form.validate_on_submit():
-        if validate_password(form.password.data) and validate_email(form.email.data):
+        if validate_password(form.password.data) and validate_email(form.email.data) and validate_int(form.OTP.data):
             user = User.query.filter_by(email=form.email.data).first()
             otp = form.OTP.data
             if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
@@ -233,7 +231,7 @@ def login():
             db.session.commit()
     return render_template('login.html', form=form)
 
-
+@login_required
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
     try:
@@ -252,7 +250,7 @@ def transaction():
     form = TransactionForm()
     if form.validate_on_submit():
         if validate_username(form.from_user_name.data) and validate_username(
-                form.to_user_name.data) and validate_string(form.message.data) and validate_int(form.amount.data):
+                form.to_user_name.data) and validate_string(form.message.data) and validate_int(form.amount.data) and validate_int(form.OTP.data):
             amount = form.amount.data
             from_user_name = form.from_user_name.data
             to_user_name = form.to_user_name.data

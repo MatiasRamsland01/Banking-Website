@@ -37,7 +37,8 @@ csp = {
     '\'unsafe-inline\'',
     'stackpath.bootstrapcdn.com',
     'code.jquery.com',
-    'cdn.jsdelivr.net',
+    'cdnjs.cloudflare.com/',
+    'maxcdn.bootstrapcdn.com',
     'https://www.google.com/recaptcha/',
     'https://www.gstatic.com/recaptcha/',
     ],
@@ -59,7 +60,6 @@ if db_url is None:
     db_url = f"sqlite:///{db_path}"
     # ensure the instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 """
 ##############################
