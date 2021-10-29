@@ -6,10 +6,11 @@ from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash
+from cryptography.fernet import Fernet
+from website import db
 
 app = Flask(__name__)  # main.get_app()
 
-db = SQLAlchemy(app)
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)
@@ -61,19 +62,17 @@ class User(UserMixin, db.Model):
 
 class Logs(db.Model):
     log_id = db.Column(db.Integer, primary_key=True)
-    log = db.Column(db.String(40))
+    log = db.Column(db.Text)
 
 
 class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
-    # Out Id & Money can be null because we might put in (or take out) money through an ATM
-    from_user_id = db.Column(db.Integer, nullable=True)  # TODO ForeignKey?
-    out_money = db.Column(db.String(40), nullable=True)
-    to_user_id = db.Column(db.Integer)  # TODO ForeignKey?
-    in_money = db.Column(db.String(40))
+    from_user_id = db.Column(db.Text, nullable=True)  
+    out_money = db.Column(db.Text, nullable=True)
+    to_user_id = db.Column(db.Text) 
+    in_money = db.Column(db.Text)
     message = db.Column(db.String(120))
 
-    # TimeStamp?
 
     def contains_user(self, username):
         return username != "" and (self.from_user_id == username or self.to_user_id == username)
@@ -81,12 +80,12 @@ class Transaction(UserMixin, db.Model):
     def get_out_money_decimal(self):
         if self.out_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(self.out_money))
+        return decimal.Decimal(self.out_money)
 
     def get_in_money_decimal(self):
         if self.in_money is None:
             return 0
-        return decimal.Decimal(DecryptMsg(self.in_money))
+        return decimal.Decimal(self.in_money)   
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
