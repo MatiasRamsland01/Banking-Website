@@ -2,9 +2,10 @@ asgiref==3.4.1
 blinker==1.4
 brotli==1.0.9
 contextvars==2.4
-cryptography==35.0.0
-dataclasses==0.8
-docutils==0.18
+#cryptography==35.0.0
+#Cython==0.29.24
+#dataclasses==0.8
+#docutils==0.18
 Flask_Limiter==1.4
 Flask_Login==0.5.0
 Flask_QRcode==3.0.0
