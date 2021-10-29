@@ -38,8 +38,6 @@ csp = {
     'stackpath.bootstrapcdn.com',
     'code.jquery.com',
     'cdn.jsdelivr.net',
-    'cdnjs.cloudflare.com',
-    'maxcdn.bootstrapcdn.com',
     'https://www.google.com/recaptcha/',
     'https://www.gstatic.com/recaptcha/',
     ],
