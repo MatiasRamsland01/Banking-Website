@@ -3,7 +3,6 @@ blinker==1.4
 brotli==1.0.9
 contextvars==2.4
 cryptography==35.0.0
-Cython==0.29.24
 dataclasses==0.8
 docutils==0.18
 Flask_Limiter==1.4
