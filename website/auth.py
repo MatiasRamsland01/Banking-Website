@@ -2,7 +2,7 @@ from website import db
 import datetime
 import re
 from hashlib import sha256
-
+from flask import session
 import flask
 import flask_login
 import pyotp
@@ -11,7 +11,7 @@ from flask import Blueprint, render_template, flash, redirect, make_response
 from flask import current_app
 from flask import Blueprint, render_template, flash, redirect, make_response
 from flask.helpers import url_for
-from website.db import User, Transaction, EncryptMsg, DecryptMsg, Logs
+from website.db import User, Transaction, EncryptMsg, DecryptMsg, Logs, init_db
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 from hashlib import sha256
 import pyotp
@@ -19,8 +19,7 @@ import re
 from flask_login import login_required, logout_user, current_user, login_user
 from flask import jsonify
 from passlib.hash import argon2
-
-from website.db import User, init_db, db, Transaction, EncryptMsg, Logs
+from website.db import User, Transaction, EncryptMsg, Logs
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 
 my_signals = Namespace()
@@ -50,12 +49,12 @@ def ratelimit_handler(e):
         , 429
     )
 
-
+"""
 @auth.errorhandler(Exception)
 def basic_error(e):
     flash("Something went wrong", category='error')
     return redirect(url_for('auth.home_login'))
-
+"""
 
 # Timeout user when inactive in 5 min
 @auth.before_request
@@ -79,6 +78,7 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
+        init_db()
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.username.data) and form.password1.data == form.password2.data:
 
@@ -211,6 +211,8 @@ def login():
                     user.token).verify(otp):
                 login_user(user)
                 user.FA = True
+                message = "Log-in: User: " + user.username + "Status: Success. Time: " + str(datetime.datetime.now())
+
                 db.session.add(Logs(log=message))
                 db.session.commit()
                 session['logged_in'] = True
