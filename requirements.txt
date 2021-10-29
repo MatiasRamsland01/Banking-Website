@@ -31,7 +31,7 @@ python-dotenv==0.19.1
 #secrets==1.0.2
 SQLAlchemy==1.4.26
 typing_extensions==3.10.0.2
-watchdog==2.1.6
+#watchdog==2.1.6
 wincertstore==0.2.1
 WTForms==2.3.3
 zipp==3.6.0
