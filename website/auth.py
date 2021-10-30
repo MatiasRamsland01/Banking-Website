@@ -247,6 +247,7 @@ def two_factor_view():
         if user.FA:#Checks if user has already viewed this page
             return redirect(url_for('auth.home_login'))
         user.FA = True
+        db.session.commit()
         intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=user.email, issuer_name='BankA250')
         return render_template('two-factor-setup.html', qr_link=intizalize)
     except: #If it fails it redirects you
