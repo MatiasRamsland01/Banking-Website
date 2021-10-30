@@ -49,12 +49,14 @@ def ratelimit_handler(e):
         , 429
     )
 
+
 """
 @auth.errorhandler(Exception)
 def basic_error(e):
     flash("Something went wrong", category='error')
     return redirect(url_for('auth.home_login'))
 """
+
 
 # Timeout user when inactive in 5 min
 @auth.before_request
@@ -78,8 +80,6 @@ def sign_up():
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
     if form.validate_on_submit():
-        init_db()
-
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.email.data) and validate_password(form.password2.data) \
                 and form.password1.data == form.password2.data:
@@ -150,26 +150,22 @@ def atm_transaction():
                 flash('Amount needs to be between 1 and 10 000', category='error')
                 return redirect(url_for('auth.atm_transaction'))
 
-
             user = User.query.filter_by(username=username).first()
             if not user:
                 success = False
                 flash(f"User with username {username} doesn't exist", category="error")
                 return redirect(url_for('auth.atm_transaction'))
 
-
             if user and current_user.id != user.id:
                 success = False
                 flash("Can't transfer money from an account you don't own", category="error")
                 return redirect(url_for('auth.atm_transaction'))
-
 
             otp = form.OTP.data
             if pyotp.TOTP(user.token).verify(otp) == False:
                 success = False
                 flash("Invalid OTP", category='error')
                 return redirect(url_for('auth.atm_transaction'))
-
 
             if success:
                 new_transaction = Transaction(to_user_id=username, in_money=amount)
@@ -191,7 +187,6 @@ def atm_transaction():
             db.session.add(Logs(log=message))
             db.session.commit()
             return redirect(url_for('auth.atm_transaction'))
-            
 
     return render_template('atm.html', form=form)
 
@@ -232,6 +227,7 @@ def login():
             db.session.commit()
     return render_template('login.html', form=form)
 
+
 @login_required
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
@@ -251,7 +247,8 @@ def transaction():
     form = TransactionForm()
     if form.validate_on_submit():
         if validate_username(form.from_user_name.data) and validate_username(
-                form.to_user_name.data) and validate_string(form.message.data) and validate_int(form.amount.data) and validate_int(form.OTP.data):
+                form.to_user_name.data) and validate_string(form.message.data) and validate_int(
+            form.amount.data) and validate_int(form.OTP.data):
             amount = form.amount.data
             from_user_name = form.from_user_name.data
             to_user_name = form.to_user_name.data
@@ -264,7 +261,6 @@ def transaction():
                 success = False
                 flash("Money amount has to be a value between 1 and 500'000", category="error")
                 return redirect(url_for('auth.transaction'))
-
 
             # From ID and To ID exist
             queried_from_user = User.query.filter_by(username=from_user_name).first()
@@ -279,13 +275,11 @@ def transaction():
                 flash(f"User with username {to_user_name} doesn't exist", category="error")
                 return redirect(url_for('auth.transaction'))
 
-
             # Trying to send money to himself
             if queried_from_user and current_user.username == queried_to_user.username:
                 success = False
                 flash("Can't send money to yourself", category="error")
                 return redirect(url_for('auth.transaction'))
-
 
             amount_in_database: int = queried_from_user.get_money()[0]
             if amount > amount_in_database:
@@ -293,7 +287,6 @@ def transaction():
                 flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}",
                       category='error')
                 return redirect(url_for('auth.transaction'))
-                
 
             # Is logged in on "from ID"
             if queried_from_user and queried_to_user and \
@@ -302,13 +295,11 @@ def transaction():
                 flash("Can't transfer money from an account you don't own", category="error")
                 return redirect(url_for('auth.transaction'))
 
-
             otp = form.OTP.data
             if pyotp.TOTP(queried_from_user.token).verify(otp) == False:
                 success = False
                 flash("Invalid OTP", category='error')
                 return redirect(url_for('auth.transaction'))
-
 
             if not success:
                 flash("Unsuccessful transaction", category="error")
@@ -416,5 +407,3 @@ def validate_email(email):
             flash("Email must consists of legal characters", category='error')
             return False
     return True
-
-
