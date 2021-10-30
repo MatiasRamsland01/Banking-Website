@@ -241,11 +241,13 @@ def login():
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
     try: 
-        secret = current_user.token
-        if current_user.FA:#Checks if user has already viewed this page
+        user = User.query.filter_by(username=current_user.username).first()
+
+        secret = user.token
+        if user.FA:#Checks if user has already viewed this page
             return redirect(url_for('auth.home_login'))
-        current_user.FA = True
-        intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=current_user.email, issuer_name='BankA250')
+        user.FA = True
+        intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=user.email, issuer_name='BankA250')
         return render_template('two-factor-setup.html', qr_link=intizalize)
     except: #If it fails it redirects you
         return redirect(url_for("views.home"))
