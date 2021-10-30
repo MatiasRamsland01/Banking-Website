@@ -19,15 +19,6 @@
 %../FigurerFraProsjektene/MineFunksjoner/,
 %../FigurerFraProsjektene/Prosjekt01_NumeriskIntegrasjon/,
 %../FigurerFraProsjektene/Prosjekt02_Filtrering/,
-%../FigurerFraProsjektene/Prosjekt03_Derivasjon/,
-%../FigurerFraProsjektene/Prosjekt04_ManuellKjoring/,
-%../FigurerFraProsjektene/Prosjekt05_Navn/,
-%../FigurerFraProsjektene/Prosjekt06_Navn/,
-%../FigurerFraProsjektene/Prosjekt07_Navn/,
-%../FigurerFraProsjektene/Prosjekt08_Navn/,
-%../FigurerFraProsjektene/Prosjekt09_navn/,
-%../FigurerFraProsjektene/Prosjekt10_Navn/,
-%../RapportData/Funksjoner/,
 %]{figurepath} 
 
 % Her utvider du med nye mapper
@@ -39,23 +30,39 @@
 % for å kunne skrive norske kommentarer i Matlab og vises i listingspakken
 %\lstset{inputencoding=ansinew}
 
-\lstset{language=Matlab,%
-    %basicstyle=\color{red},
-    inputencoding=ansinew,
-    breaklines=true,%
-    morekeywords={matlab2tikz},
-    keywordstyle=\color{blue},%
-    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
-    identifierstyle=\color{black},%
-    stringstyle=\color{mylilas},
-    commentstyle=\color{mygreen},%
-    showstringspaces=false,%without this there will be a symbol in the places where there is a space
-    numbers=left,%
-    numberstyle={\tiny \color{black}},% size of the numbers
-    numbersep=9pt, % this defines how far the numbers are from the text
-    emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
-    %emph=[2]{word1,word2}, emphstyle=[2]{style},    
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\renewcommand{\figurename}{Fig.}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+morekeywords={self},              % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
 }
+{}
+
 
 \definecolor{darkgreen}{rgb}{0.0, 0.6, 0.0}
 \definecolor{darkred}{rgb}{0.6, 0.0, 0.0}
@@ -75,7 +82,7 @@
 
 \begin{document}
 \setlength{\parskip}{0.5cm}   % denne lager 5mm avstand ved avsnitt
-\selectlanguage{norsk}
+\selectlanguage{english}
 
 % topptekst
 \pagestyle{fancyplain}
@@ -97,16 +104,15 @@
 	\centering
               \begin{tabular}{|l|lll|}\hline
                 \multicolumn{4}{|l|}{\hspace*{130mm}}\\
-                \multicolumn{4}{|l|}{DAT250 TODO}\\[-7mm]
-              %\multicolumn{4}{|r|}{\scalebox{0.4}{\includegraphics{uis_nor_black}}}\\[15mm]
-                \multicolumn{4}{|c|}{\Huge \bf PROSJEKT - HØSTEN 2021
-                }\\[5mm]\hline
+                \multicolumn{4}{|l|}{DAT250}\\[-7mm]
+                \multicolumn{4}{|r|}{\scalebox{0.4}}\\[15mm]
+                \multicolumn{4}{|c|}{\Huge \bf PROSJEKT - HØSTEN 2021}\\[5mm]\hline
                 & & &  \\[-3mm]
-                Prosjekt- & \multicolumn{3}{|l|}{Bank Dat250;} \\
+                Prosjekt- & \multicolumn{3}{|l|}{Project 1, Website security} \\
                 oppgaven & \multicolumn{3}{|l|}{}\\[2mm]\hline
                 \multicolumn{4}{c}{}\\[5mm]\hline
                 & & &  \\[-3mm]
-                Gruppenavn? & \multicolumn{3}{|l|}{\color{red}{AlphaBank?}} \\[2mm]\hline
+                Gruppenavn & \multicolumn{3}{|l|}{\color{red}{Gruppe 15, AlphaBank}} \\[2mm]\hline
                 & & &\\[-3mm]
                 Gruppens  & Navn &  Studentnummer & \\
                 medlemmer  &   &   &  \\[2mm]
@@ -139,11 +145,11 @@
 \newpage
 
 
-%\input{sammendrag.tex}
+\input{introduction.tex}
 
 % Siden sammendraget er uten kapittelnummer, legges dette manuelt inn
 % i innholdsfortegnelsen
-\addcontentsline{toc}{chapter}{\protect\numberline{}Sammendrag}
+\addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
 
 \newpage
 
@@ -158,16 +164,8 @@
 % ingen innrykk ved nytt avsnitt
 \setlength{\parindent}{0em} 
 
-%\input{kap1_integrasjon.tex}
-%\input{kap2_filtrering.tex}
-%\input{kap3_derivasjon.tex}
-%\input{kap4_manuell_kjoring.tex}
-%\input{kap5_automatisk_kjoring.tex}
-%\input{kap6_rekkefølge_int_dev.tex}
-%\input{kap7_rekkefolge_int_dev.tex}
-%\input{kap8_kreativ_komponist.tex}
-%\input{kap9_automatisk_kjoring_pid.tex}
-%\input{kap10_beregning_hastighet.tex}
+\input{chapter1_sitemap.tex}
+\input{chapter2_owasp.tex}
 %\input{konklusjon.tex}
 
 
@@ -180,35 +178,6 @@
 \addcontentsline{toc}{chapter}{Bibliografi} 
 
 \appendix
-
-\addcontentsline{toc}{chapter}{Vedlegg}
-\renewcommand{\appendixname}{Vedlegg}
-\renewcommand{\appendixpagename}{Vedlegg}
-
-
-
-\chapter{Timelister}\label{ch:vedlegg_A}
-
-
-%\chapter{Programlisting egendefinerte funksjoner}\label{ch:vedlegg_B}
-%\section{Derivation.m}
-%\lstinputlisting{Derivation.m}
-%\section{EulerForward.m}
-%\lstinputlisting{EulerForward.m}
-%\section{FIR\_filter.m}
-%\lstinputlisting{FIR_filter.m}
-%\section{IIR\_filter.m}
-%\lstinputlisting{IIR_filter.m}
-%\section{Trapes.m}
-%\lstinputlisting{Trapes.m}
-
-%\chapter{Programlisting prosjekt 01}\label{ch:vedlegg_C}
-%\section{P01\_F4\_MathCalculations.m}
-%\lstinputlisting{P01_F4_MathCalculations.m}
-
-%\chapter{Programlisting prosjekt 02}\label{ch:vedlegg_D}
-%\section{P02\_F4\_MathCalculations.m}
-%\lstinputlisting{P02_F4_MathCalculations.m}
 
 \end{document}
 
