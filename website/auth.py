@@ -201,23 +201,25 @@ def login():
         if validate_password(form.password.data) and validate_email(form.email.data) and validate_int(form.OTP.data):
             user = User.query.filter_by(email=form.email.data).first()
             otp = form.OTP.data
-            if user is not None and argon2.verify(form.password.data, user.password) and pyotp.TOTP(
-                    user.token).verify(otp):
-                login_user(user)
-                user.FA = True
-                message = "Log-in: User: " + user.username + "Status: Success. Time: " + str(datetime.datetime.now())
+            if user is not None:
+                if argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp):
+                    login_user(user)
+                    user.FA = True
+                    message = "Log-in: User: " + user.username + "Status: Success. Time: " + str(
+                        datetime.datetime.now())
 
-                db.session.add(Logs(log=message))
-                db.session.commit()
-                session['logged_in'] = True
-                message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
-                db.session.add(Logs(log=message))
-                db.session.commit()
-                return redirect(url_for('auth.home_login'))
-            flash("Email, Password or OTP does not match!", category="error")
-            message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
-            db.session.add(Logs(log=message))
-            db.session.commit()
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
+                    session['logged_in'] = True
+                    message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
+                    return redirect(url_for('auth.home_login'))
+                else:
+                    flash("Email, Password or OTP does not match!", category="error")
+                    message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
 
             flash("Something went wrong. Please try again", category="error")
         else:
