@@ -11,7 +11,7 @@ from flask import Blueprint, render_template, flash, redirect, make_response
 from flask import current_app
 from flask import Blueprint, render_template, flash, redirect, make_response
 from flask.helpers import url_for
-from website.db import User, Transaction, EncryptMsg, DecryptMsg, Logs, init_db
+from website.db import User, Transaction, EncryptMsg, DecryptMsg, Logs
 from website.forms import RegisterForm, LoginForm, TransactionForm, ATMForm
 from hashlib import sha256
 import pyotp
@@ -50,12 +50,12 @@ def ratelimit_handler(e):
     )
 
 
-"""
+#Error handler so flashes message and redirects user if error occur
 @auth.errorhandler(Exception)
 def basic_error(e):
     flash("Something went wrong", category='error')
     return redirect(url_for('auth.home_login'))
-"""
+
 
 
 # Timeout user when inactive in 5 min
@@ -66,20 +66,23 @@ def before_request():
     flask.session.modified = True
     flask.g.user = flask_login.current_user
 
-
+#Finds the hash
 def FinnHash(string):
     encoded = string.encode()
     theHash = sha256(encoded).hexdigest()
     return theHash
 
-
+#Sign-up page
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
+    #Checks if user is logged in
     if current_user.is_authenticated:
         flash("You are already logged in")
         return redirect(url_for('auth.home_login'))
     form = RegisterForm()
+    #Checks if WTForms are validated
     if form.validate_on_submit():
+        #Double checks
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.email.data) and validate_password(form.password2.data) \
                 and form.password1.data == form.password2.data:
@@ -94,6 +97,7 @@ def sign_up():
                 flash("Email taken!", category='error')
                 success = False
             if success:
+                #Add user du username
                 userName = form.username.data
                 # encUsername = EncryptMsg(userName)
                 email = form.email.data
@@ -127,6 +131,7 @@ def sign_up():
 @auth.route('/homelogin', methods=['GET'])
 @login_required
 def home_login():
+    #Finds user and finds the balance and transaction history
     queried_from_user = User.query.filter_by(username=current_user.username).first()
     amount_in_database: int = queried_from_user.get_money()[0]
     transactions = queried_from_user.get_money()[1]
@@ -138,36 +143,36 @@ def home_login():
 @login_required
 def atm_transaction():
     form = ATMForm()
-    if form.validate_on_submit():
-        if validate_int(form.amount.data) and validate_username(form.username.data) and validate_int(form.OTP.data):
+    if form.validate_on_submit(): #Check WTForm is valid
+        if validate_int(form.amount.data) and validate_username(form.username.data) and validate_int(form.OTP.data): #Validate input from user
 
             amount = form.amount.data
             username = form.username.data
             success = True
 
-            if amount < 1 or amount > 10_000:
+            if amount < 1 or amount > 10_000: #Valid amount
                 success = False
                 flash('Amount needs to be between 1 and 10 000', category='error')
                 return redirect(url_for('auth.atm_transaction'))
 
             user = User.query.filter_by(username=username).first()
-            if not user:
+            if not user: #Check if user exists 
                 success = False
                 flash(f"User with username {username} doesn't exist", category="error")
                 return redirect(url_for('auth.atm_transaction'))
 
-            if user and current_user.id != user.id:
+            if user and current_user.id != user.id: #Checks it with the id
                 success = False
                 flash("Can't transfer money from an account you don't own", category="error")
                 return redirect(url_for('auth.atm_transaction'))
 
             otp = form.OTP.data
-            if pyotp.TOTP(user.token).verify(otp) == False:
+            if pyotp.TOTP(user.token).verify(otp) == False: #Checks if valid OTP
                 success = False
                 flash("Invalid OTP", category='error')
                 return redirect(url_for('auth.atm_transaction'))
 
-            if success:
+            if success: #If successful add to databse
                 new_transaction = Transaction(to_user_id=username, in_money=amount)
                 db.session.add(new_transaction)
                 db.session.commit()
@@ -175,13 +180,14 @@ def atm_transaction():
                 db.session.add(Logs(log=message))
                 db.session.commit()
                 return redirect(url_for('auth.home_login'))
-            else:
+            else: #If not successfull flash error
+                flash("Transaction not successful, check your input")
                 message = "ATM deposit: User: " + username + ". Status: Fail. Time: " + str(datetime.datetime.now())
                 db.session.add(Logs(log=message))
                 db.session.commit()
                 return redirect(url_for('auth.atm_transaction'))
 
-        else:
+        else: #If input doesn't passes the validation
             flash("Invalid request", category='error')
             message = "ATM deposit: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
             db.session.add(Logs(log=message))
@@ -193,18 +199,17 @@ def atm_transaction():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
+    if current_user.is_authenticated: #Checks if user is logged in
         flash("You are already logged in")
         return redirect(url_for('auth.home_login'))
     form = LoginForm()
-    if form.validate_on_submit():
-        if validate_password(form.password.data) and validate_email(form.email.data) and validate_int(form.OTP.data):
+    if form.validate_on_submit(): #Checks if WTForm is validated
+        if validate_password(form.password.data) and validate_email(form.email.data) and validate_int(form.OTP.data): #Validates the input from user
             user = User.query.filter_by(email=form.email.data).first()
             otp = form.OTP.data
-            if user is not None:
-                if argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp):
+            if user is not None: #Checks if user exists
+                if argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp): #Check if password and OTP match and then log-in user
                     login_user(user)
-                    user.FA = True
                     message = "Log-in: User: " + user.username + "Status: Success. Time: " + str(
                         datetime.datetime.now())
 
@@ -215,14 +220,16 @@ def login():
                     db.session.add(Logs(log=message))
                     db.session.commit()
                     return redirect(url_for('auth.home_login'))
-                else:
+                else: #If invalid password or OTP
                     flash("Email, Password or OTP does not match!", category="error")
                     message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
                     db.session.add(Logs(log=message))
                     db.session.commit()
 
-            flash("Something went wrong. Please try again", category="error")
-        else:
+            else: #If email is invaldi
+                flash("Email, Password or OTP does not match!", category="error")
+            
+        else: #If not valid inputs
             flash("Invalid request", category='error')
             message = "Log-in: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
             db.session.add(Logs(log=message))
@@ -233,13 +240,14 @@ def login():
 @login_required
 @auth.route('/two_factor_setup', methods=['GET'])
 def two_factor_view():
-    try:
+    try: 
         secret = current_user.token
-        if current_user.FA:
+        if current_user.FA:#Checks if user has already viewed this page
             return redirect(url_for('auth.home_login'))
+        current_user.FA = True
         intizalize = pyotp.totp.TOTP(secret).provisioning_uri(name=current_user.email, issuer_name='BankA250')
         return render_template('two-factor-setup.html', qr_link=intizalize)
-    except:
+    except: #If it fails it redirects you
         return redirect(url_for("views.home"))
 
 
@@ -247,10 +255,10 @@ def two_factor_view():
 @login_required
 def transaction():
     form = TransactionForm()
-    if form.validate_on_submit():
+    if form.validate_on_submit(): #Checks WTForms input
         if validate_username(form.from_user_name.data) and validate_username(
                 form.to_user_name.data) and validate_string(form.message.data) and validate_int(
-            form.amount.data) and validate_int(form.OTP.data):
+            form.amount.data) and validate_int(form.OTP.data): #Double checks the input
             amount = form.amount.data
             from_user_name = form.from_user_name.data
             to_user_name = form.to_user_name.data
@@ -272,7 +280,7 @@ def transaction():
                 flash(f"User with username {from_user_name} doesn't exist", category="error")
                 return redirect(url_for('auth.transaction'))
 
-            if not queried_to_user:
+            if not queried_to_user: #If user does not exists
                 success = False
                 flash(f"User with username {to_user_name} doesn't exist", category="error")
                 return redirect(url_for('auth.transaction'))
@@ -284,7 +292,7 @@ def transaction():
                 return redirect(url_for('auth.transaction'))
 
             amount_in_database: int = queried_from_user.get_money()[0]
-            if amount > amount_in_database:
+            if amount > amount_in_database: #Checks balance of user and that he/she has enough
                 success = False
                 flash(f"Not enough money to send you have {amount_in_database} and you tried to send {amount}",
                       category='error')
@@ -298,18 +306,20 @@ def transaction():
                 return redirect(url_for('auth.transaction'))
 
             otp = form.OTP.data
-            if pyotp.TOTP(queried_from_user.token).verify(otp) == False:
+            if pyotp.TOTP(queried_from_user.token).verify(otp) == False: #Checks if OTP is valid
                 success = False
                 flash("Invalid OTP", category='error')
                 return redirect(url_for('auth.transaction'))
 
-            if not success:
+            if not success: #If unsuccessful transaction
                 flash("Unsuccessful transaction", category="error")
                 message = "Transaction: UserFrom-UserTo: " + queried_from_user.username + " " + queried_to_user.username + ". Status: Fail. Time: " + str(
                     datetime.datetime.now())
                 db.session.add(Logs(log=message))
                 db.session.commit()
                 return render_template('transaction.html', form=form)
+
+            #Adds transaction to database
 
             new_transaction = Transaction(out_money=amount, from_user_id=from_user_name, to_user_id=to_user_name,
                                           in_money=amount, message=message)
@@ -331,6 +341,7 @@ def transaction():
 @auth.route('/logout')
 @login_required
 def logout():
+    #Logs a user out of the session and redirects the user and clear the session variables
     message = "Logout: User: " + current_user.username + ". Status: Sucess. Time: " + str(datetime.datetime.now())
     db.session.add(Logs(log=message))
     db.session.commit()
@@ -339,7 +350,7 @@ def logout():
     session.clear()
     return redirect(url_for('auth.login'))
 
-
+#Check for valid password
 def validate_password(password):
     bigLetter = 0
     smallLetter = 0
@@ -365,7 +376,7 @@ def validate_password(password):
         return False
     return True
 
-
+#Check for valid username (only letters)
 def validate_username(username):
     if len(username) < 2 or len(username) > 50:
         flash("Username must be longer than one character, and shorter than fifty", category='error')
@@ -377,7 +388,7 @@ def validate_username(username):
     flash("Username can only contain letters and numbers", category='error')
     return False
 
-
+#Checks if input is string
 def validate_string(string):
     for letter in string:
         try:
@@ -386,13 +397,13 @@ def validate_string(string):
             return False
     return True
 
-
+#Checks if input is integer
 def validate_int(integer):
     if isinstance(integer, int) == False:
         return False
     return True
 
-
+#Validate check for email
 def validate_email(email):
     if len(email) < 3 or len(email) > 50:
         flash("Email must be longer than two character, and shorter than fifty", category='error')

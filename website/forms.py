@@ -4,7 +4,7 @@ from wtforms import StringField, PasswordField, SubmitField, IntegerField
 from wtforms import validators
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 
-
+#The form used for registration
 class RegisterForm(FlaskForm):
     username = StringField(label='Username:', validators=[DataRequired(), Length(min=2, max=30,
                                                                                  message="Username must be between 2 and 30 characters!")])
@@ -48,7 +48,7 @@ class RegisterForm(FlaskForm):
         if bigLetter == 0 or smallLetter == 0 or number == 0 or illegal != 0:
             raise ValidationError("Your password must contain digits, small, big letters and no illegal characters.")
 
-
+#Form used for login
 class LoginForm(FlaskForm):
     email = StringField(label='Email', validators=[Email()])
     password = PasswordField(label='Password', validators=[DataRequired(), Length(min=1, max=100,
@@ -58,7 +58,7 @@ class LoginForm(FlaskForm):
 
     submit = SubmitField(label='Log in')
 
-
+#Form used for transaction form
 class TransactionForm(FlaskForm):
     amount = IntegerField(label='Choose your desired amount', validators=[DataRequired(),
                                                                           validators.NumberRange(min=1, max=500000,
@@ -70,7 +70,7 @@ class TransactionForm(FlaskForm):
     OTP = IntegerField(label="Your one time password", validators=[DataRequired()])
     submit = SubmitField(label='Transfer Money')
 
-
+#Form used for ATM transaction
 class ATMForm(FlaskForm):
     username = StringField(label='Username', validators=[DataRequired()])
     amount = IntegerField(label='Choose amount to top up your bank account', validators=[DataRequired(),

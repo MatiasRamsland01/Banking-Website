@@ -32,7 +32,7 @@ def DecryptMsg(encString):
     decoded = decMsg.decode()
     return decoded
 
-
+#What we store in our User table
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
@@ -59,12 +59,12 @@ class User(UserMixin, db.Model):
     def get_money(self):
         return get_money_from_user(self.username)
 
-
+#What we store in our Logs table
 class Logs(db.Model):
     log_id = db.Column(db.Integer, primary_key=True)
     log = db.Column(db.Text)
 
-
+#What we store in our transaction table
 class Transaction(UserMixin, db.Model):
     transaction_id = db.Column(db.Integer, primary_key=True)
     from_user_id = db.Column(db.Text, nullable=True)  
@@ -90,7 +90,7 @@ class Transaction(UserMixin, db.Model):
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
 
-
+#Calculates the balance of a user
 def get_money_from_user(username):
     money = 0
     transactionstext = []

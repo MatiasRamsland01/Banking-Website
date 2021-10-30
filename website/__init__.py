@@ -30,7 +30,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = uri
 ##############################
 
 
-
+#Content security policy, tells what flask-talisman should allow
 csp = {
 'default-src': [
     '\'self\'',
@@ -47,6 +47,7 @@ csp = {
 
 Talisman(app, content_security_policy=csp)
 
+#Sets up the CSRF
 csrf = CSRFProtect()
 csrf.init_app(app)
 
@@ -82,12 +83,14 @@ db.init_app(app)
 from website.views import views
 from website.auth import auth
 
+#Sets up login mananger and sets pages and message when violated
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message = "You need to log in to access this page!"
 login_manager.login_message_category = 'error'
 login_manager.init_app(app)
 
+#Setup for request limiter
 limiter = Limiter(
 app,
 key_func=get_remote_address,
@@ -110,13 +113,3 @@ app.register_blueprint(auth, url_prefix='/')
 
 
 
-def init_db():
-    db.create_all()
-
-
-#@click.command("init-db")
-#@with_appcontext
-#def init_db_command():
-#    """Clear existing data and create new tables."""
-#    init_db()
-#    click.echo("Initialized the database.")
