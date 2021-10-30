@@ -82,7 +82,7 @@ def sign_up():
 
         if validate_password(form.password1.data) and validate_username(form.username.data) \
                 and validate_email(form.email.data) and validate_password(form.password2.data) \
-                and form.password.data == form.password2.data:
+                and form.password1.data == form.password2.data:
             # Correct input, now check database
             success = True
             user_by_username = User.query.filter_by(username=form.username.data).first()
