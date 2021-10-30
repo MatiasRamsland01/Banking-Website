@@ -1,216 +1,221 @@
 
-\chapter{OWASP10 
-}\label{kap:integrasjon}
+\chapter{TODO
+}\label{kap:TODO}
 
-%\begin{figure}[H]
-%  \centering
-%  \scalebox{0.6}{\includegraphics{prinsipp_num_int.pdf}}
-%  \caption{Prinsippet for numerisk integrasjon av tidseriedata.
-%    For hver ny måling $f(k)$ legges det inn et rektangel med bredde
-%    $T_{s}(k-1)$, og totalarealet av rektanglene tilsvarer integralverdien. 
-%    Figuren er hentet fra~\cite{Dre2020}.}
-%  \label{fig:prinsipp_num_int}
-%\end{figure}
+\section{Security and Design}
 
-\section{Problemstilling}
-
-Problemstillingen i dette prosjektet har vært integrasjon i praktiske situasjoner. Ved numerisk integrasjon har vi tilgang bare til tidsseriesignalet, de vil si til data målt gjennom tid istedenfor å ha analytisk funksjon f(x) som kan integreres ved å finne antiderivert. 
-
-Vi har lagt en simulasjon av «flow» i Matlab som skal være integrert. Simulert flow kan være både positiv og negativ, slik at vi kan måle økning eller reduksjon av den originale volumet. 
-Simulasjon av flowsignalet har vi fått til ved å måle reflektert lys med lyssensoren og EV3 enheten fra Lego Mindstorm. Første måling er definert som ingen flow («nullflow»). Alle lysere verdier blir derfor positiv flow og mørkere verdier blir negativ flow.
+Here is a data flow diagram to help identify a flow of data and interactions between components in the application:
 
 \begin{figure}[H]
-\centering
-\scalebox{0.55}{}%\includegraphics{Kap4Fig1Bane.pdf}}
-\caption{Ark brukt til simulasjon av flow}
-\label{fig:kap1fig1bane}
+   \centering
+   \includegraphics[width=\textwidth]{pics/pic4 Data Flow.PNG}
+   \caption{Data flow}
+   \label{fig:cha2fig1dataflow}
 \end{figure}
 
-Vi har prøvd å oppnå målet ved å estimere arealet under flow ved å dele areal og summere det for å få anslag av arealet.
+Some possible threats that we could identify by looking at the system model are:
+\begin{itemize}
+   \item Spoofing
+   \begin{itemize}
+      \item Credential stuffing (attacker having list of valid usernames and passwords)
+      \item Brute force authentication
+      \item Evading the authentication system and exploiting session management
+      \item Cross-Site Request Forgery
+      \item Missing session timeouts 
+  \end{itemize}
+  \item Tampering
+  \begin{itemize}
+     \item Improper input validation
+     \item SQL injection
+     \item XML injection
+     \item Forcefully browsing to authenticated pages 
+     \item tampering with URL to avoid authentication checks
+   \end{itemize}
+   \item Repudiation
+   \begin{itemize}
+    \item  Lack of monitoring (performing unauthorized operation without the ability to be traced or detected)
+   \end{itemize}
+   \item Information disclosure
+   \begin{itemize}
+     \item Unauthorized access to database
+     \item Capturing non-encrypted data
+     \item Access to weakly encrypted content
+   \end{itemize}
+\end{itemize}
 
-\section{Forslag til løsning}
+In next sections we will show the basics of how our website is structured in the code and how our features are implemented within our website. Lastly we will look at how to mitigate some of these threats mentioned above both in chapter 1 but also in chapter 2. % TODO, ref chapters
 
-Vi lagrer verdi og tid fra hver måling vi får fra lyssensoren i to forskjellige vektorer Lys og Tid. Disse to vektorer blir indeksert med helltallet «k» som starter fra 1 og øker med 1 for hver ny måling. Lysverdi fra første måling Tid(1) blir definert som «nullflow» og blir trukket fra alle lysverdier. Data etter subtraksjon blir lagret i Flow vektoren som også er indeksert med k.
+\section{How features are implemented}
 
-\begin{figure}[H]
-\centering
-\scalebox{0.45}{}%\includegraphics{Kap1Fig2FlowLys.pdf}}
-\end{figure}
+\subsection{Getting user input}
 
-Etterpå blir flowsignalet integrert ved hjelp av Euler forover og Trapes metodene. Begge to metodene handler om å dele areal under grafen inni blokker som ligger mellom tidspunkt av målingene på x-eksen. Areal av alle blokker summeres til slutt slik at vi får estimat av totalt areal fra x = 0 til x = k
-
-\subsection{Kode for flow måling}
-
-Flow blir implementert til matlab slikt:
+WTForms extension is used to gather and validate input from users. Depending on the need, built-in or custom validators are used, unfortunately it can be easily bypassed so this is our front-end checks. We implemented it by  creating a Flask form class which is shown in picture X and this method is used for every input we get from a user. For example, sign-up transactions8 etc. 
 
 \begin{python}
-nullflow = Lys(1)
-k = 1
-while loop
-   Flow(k) = Lys(k) - nullflow
-   k = k + 1
-end
+class LoginForm(FlaskForm):
+   email = StringField(label='Email', validators=[Email()])
+   password = PasswordField(label='Password',
+                            validators=[DataRequired(),
+                            Length(min=1, max=100,
+                            message="Password must be between"
+                           +"7 and 100 characters!")])
+   
+   OTP = IntegerField(label="Your one time password",
+                      validators=[DataRequired()])
+
+   recaptcha = RecaptchaField()
+
+   submit = SubmitField(label='Log in')
 \end{python}
 
-Hvor Lys(k) er verdien vi får fra lyssensoren i måling nr k. På samme tid lagres tidspunkt av måling i egen vektor.
+We validate the user input on our back-end as well using various function to check if it contains any illegal characters. More on this in chapter 4.  %TODO REF
 
-\subsection{Integrasjon ved Eulers forover metode}
+\subsection{Creating user}
 
-\begin{figure}[H]
-\centering
-%\scalebox{0.5}{\includegraphics{eulerforovermetode.pdf}}
-\end{figure}
+When the signup form is sent, the input is validated both within WTforms and on backend, then a check is made to see if a user with a given name or email already exists. If not - then the given password is hashed and user data is sent to the database and saved. The application then redirects you to the homepage. We also logs this info in our log database model. If something goes wrong during the process, a red error message will appear.
 
-I Euler forover metoden deles areal til rektangler som har tidsforskjell mellom to målingene som grunnflate og flowverdien som høyde.
+\begin{python}
+@auth.route('/sign-up', methods=['GET', 'POST'])
+def sign_up():
+    if current_user.is_authenticated:
+        flash("You are already logged in")
+        return redirect(url_for('auth.home_login'))
+    form = RegisterForm()
+    if form.validate_on_submit():
+        init_db()
 
-\begin{lstlisting}
-Volum(k) = Volum(k - 1) + Flow(k) * Tidsskritt
-\end{lstlisting}
+        if validate_password(form.password1.data) and validate_username(form.username.data) \
+                and validate_email(form.email.data) and validate_password(form.password2.data) \
+                and form.password1.data == form.password2.data:
+            # Correct input, now check database
+            success = True
+            user_by_username = User.query.filter_by(username=form.username.data).first()
+            user_by_email = User.query.filter_by(email=form.email.data).first()
+            if user_by_username:
+                flash("Username  taken!", category='error')
+                success = False
+            if user_by_email:
+                flash("Email taken!", category='error')
+                success = False
+            if success:
+                userName = form.username.data
+                # encUsername = EncryptMsg(userName)
+                email = form.email.data
+                # hashedEmail = FinnHash(email)
+                password1 = form.password1.data
+                hashedPassword = argon2.hash(password1)
+                secret = pyotp.random_base32()
+                user = User(username=userName, email=email, password=hashedPassword, token=secret, FA=False)
+                db.session.add(user)
+                db.session.commit()
 
-Hvor Tidsskritt er tid mellom måling k og måling (k - 1)
+                login_user(user)
+                session['logged_in'] = True
+                session['user'] = email
+                session.permanent = True
+                message = "Sign-up: User: " + str(userName) + ". Status sucess. Time: " + str(datetime.datetime.now())
+                db.session.add(Logs(log=message))
+                db.session.commit()
+                return redirect(url_for('auth.two_factor_view'))
+            else:
+                message = "Sign-up: User: " + form.username.data + ". Status fail. Time: " + str(
+                    datetime.datetime.now())
+                db.session.add(Logs(log=message))
+                db.session.commit()
+                return render_template('signup.html', form=form)
+        else:
+            flash("Check your input", category='error')
+    return render_template('signup.html', form=form)
+\end{python}
 
-\begin{lstlisting}
-Tidsskritt = Tid(k) - Tid(k - 1)
-\end{lstlisting}
+Argon2 function is being used to hash passwords.
 
-Formelen summerer forrige estimat av arealet med areal som kommer med ny flowmåling. Som du ser i figur 3 denne metoden tar ikke med trekanter som oppstår mellom grafen og rektangler, men estimatet blir mer nøyaktig med økt antall målinger i tidsintervallet.
+\subsection{Login process/Session management}
 
-\subsection{Integrasjon ved trapes metode}
+When the login form is sent, the input is also validated both front-end and backend. Then the database is searched for a user with a given email and given password is compared with hashed database password. It also checks for reCAPTCHA and the OTP (one-time-password) is correct. If everything is okay, the app redirects the user to his homepage. If something goes wrong during the process, a red error message will appear.
 
-\begin{figure}[H]
-\centering
-%\scalebox{0.5}{\includegraphics{integrasjonvedtrapes.pdf}}
-\end{figure}
+\begin{python}
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        flash("You are already logged in")
+        return redirect(url_for('auth.home_login'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        if validate_password(form.password.data) and validate_email(form.email.data) and validate_int(form.OTP.data):
+            user = User.query.filter_by(email=form.email.data).first()
+            otp = form.OTP.data
+            if user is not None:
+                if argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp):
+                    login_user(user)
+                    user.FA = True
+                    message = "Log-in: User: " + user.username + "Status: Success. Time: " + str(
+                        datetime.datetime.now())
 
-Trapes metoden tar gjennomsnittet mellom to flowverdier og omgjør areal mellom to tidspunkt til trapes. Denne trapesen har 2 lysverdier som 2 parallelle sider og Tidsskritt som høyde.
-Areal av trapesen blir regnet ut med formel:
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
+                    session['logged_in'] = True
+                    message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
+                    return redirect(url_for('auth.home_login'))
+                else:
+                    flash("Email, Password or OTP does not match!", category="error")
+                    message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
+                    db.session.add(Logs(log=message))
+                    db.session.commit()
 
-\begin{equation}
-A = (a + b) * h/ 2   
-\end{equation}
+            flash("Something went wrong. Please try again", category="error")
+        else:
+            flash("Invalid request", category='error')
+            message = "Log-in: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
+            db.session.add(Logs(log=message))
+            db.session.commit()
+    return render_template('login.html', form=form)
+\end{python}
 
-Etterpå blir areal av trapesen lagt til forrige estimat av arealet. 
+Furthermore a user can log out simply by clicking on the logout button in the navigation bar, and gets redirected to the log-in page. 
 
-\begin{lstlisting}
-volum(k) = volum(k - 1) + (flow(k - 1) + flow(k)) * Tidsskritt / 2  
-\end{lstlisting}
-
-Siden denne formelen bruker gjennomsnittet mellom to flowverdiene, blir det mindre feil i estimat når stor variasjon mellom nåværende og forrige måling av flow skjer.
-
-\section{Verifikasjon}
-
-Her verifiserer vi estimat av volum med kalkulasjon gjort for hånd mellom punkt utlest i flowsignalet og volum.
-
-\subsection{Verifikasjon del 1}
-
-\begin{figure}[H]
-\centering
-%\scalebox{0.6}{\includegraphics{sammenligning.pdf}}
-\end{figure}
-
-Figur over viser at det er økning med 8 i tidsintervallet fra 9,028s til 11,57s
-
-\begin{lstlisting}
-Areal = Lys * Tid(slutt) - Lys * Tid(start)
-Areal = Lys * Tidsskritt
-\end{lstlisting}
-
-\begin{verbatim}
-Tidsskritt = 11,57 - 9,028 = 2,542
-Lys = 8
-Areal = 8 * 2,542 = 20,336
-\end{verbatim}
-
-Dette stemmer med avlesning fra volumet:
-\begin{verbatim}
-Stigning av volumet = 19,25 - (-1,042) = 20,292
-\end{verbatim}
-
-\subsection{Verifikasjon del 2, sinusfunksjonen}
-
-Volum av sinusfunksjonen blir beregnet med formelen:
-
-\begin{equation}
-V(t) = \int a·sin(\omega·t)dt
-\end{equation}
-
-\begin{equation}
-\omega = vinkelfrekvens  
-\end{equation}
-
-\begin{equation}
-V(t) = -a · (1 /\omega) · cos(\omega·t) + C
-\end{equation}
-
-Hvor a står for amplituden og $\omega$ er vinkelfart. Konstanten C er volum ved Flow(1), altså 0.
-
-\begin{figure}[H]
-\centering
-%\scalebox{0.3}{\includegraphics{sinuskurve.pdf}}
-\end{figure}
-
-Topp1 = 8,154s \\
-Topp2 = 9,852s \\
-Bunn = 8,981s
-
-Amplitude = (Ymax - Ymin) / 2 \\
-Amplitude = (6 - (-8)) / 2 \\
-Amplitude = 7
-
-Vinkelfart = 2pi / Tidsforskjellen mellom 2 topper \\
-Vinkelfart = 2Pi / (9,852s - 8,154s) = 2Pi / 1,698 \\
-Vinkelfart = 3,700 rad/s
-
-Volumet ved 1. toppen (tid = 8,154s) vil være: \\
-Volum(8,154) = - 7 * ( 1 / 3,700 ) * cos(3,700 * 8,154) \\
-Volum(8,154) = -0,60350
-
-Volumet ved 2. toppen (tid = 9,852s) vil være: \\
-Volum(9,852) = - 7 * ( 1 / 3,700 ) * cos(3,700 * 9,852) \\
-Volum(9,852) = -0,60245
-
-Volum(8,154) og Volum(9,852) er praktisk likt, det betyr altså at beregningene av vinkelfart stemmer.
-
-Toppunkt og bunnpunkt i denne funksjonen skjer når cosinus er lik 1 eller -1.
-Bunnpunkt skjer ved cos(t)= 1, altså ved t = 0 \\
-Volum(0) = - 7 * ( 1 / 3,700 ) * cos(3,700 * 0) \\
-Volum(0) = -1,89
-
-Areal ved minimalpunkt I denne sinusfunksjonen er -1.88, men den er bare halvparten av «negativ» flow, som stopper mellom bunnpunkt og topppunkt. Derfor må vi gange areal som vi får i bunnpunkt med 2.
+The application uses the Flask-Login extension for session management. It allows us to restrict some pages to be visible only for logged-in users, but we will go deeper into the security of this in chapter 4. %TODO REF
 
 \begin{figure}[H]
-\centering
-%\scalebox{0.45}{\includegraphics{Kap1Fig7.pdf}}
+   \centering
+   \includegraphics[width=\textwidth]{pics/pic9.1 loginrequired.PNG}
+   \caption{Login required}
+   \label{fig:cha2fig2loginrequired}
 \end{figure}
-
--1,89 * 2 = -3,78
-
-Dette stemmer med data fra volumgrafen i figur 6: \\
-35,83 - 32,1 = 3,73
-
-Volumet har blitt mindre med 3,73, som er veldig nærme forventet 3,78.
-
-
-\section{Integrasjonsmetoder i eksterne funksjoner}
-
-Til slutt har vi lagret funksjoner i separate .mat filer slik at koden for integrering kan brukes i andre prosjekter.
-
-Her er kallet til funksjoner EulerForward:
-\begin{lstlisting}
-volumEuler(k) = EulerForward(volum(k-1), flow(k-1), Ts(k-1))
-\end{lstlisting}
-
-EulerForward trenger forrige areal estimat, forrige flowverdien og tidsskritt mellom aktuell og forrige måling.
-
-Kallet til Trapesfunksjonen ses ut slik: 
-\begin{lstlisting}
-volumTrapes(k) = Trapes(volum(k-1),flow(k-1:k),Ts(k-1))
-\end{lstlisting}
-
-Trapes funksjonen trenger å vite nåværende flowverdien i tillegg til forrige areal estimat, forrige flowverdien og tidsskritt mellom aktuell og forrige måling.
-
 
 \begin{figure}[H]
-\centering
-%\scalebox{0.3}{\includegraphics{sammenligningavtofunk.pdf}}
+   \centering
+   \includegraphics[width=\textwidth]{pics/pic9.2 need to log in.PNG}
+   \caption{No access}
+   \label{fig:cha2fig3noaccess}
 \end{figure}
+
+\subsection{ATM and Transaction}
+
+These services first validate data both front-end and back-end. Then authenticate given data to check if said username exists, valid amount etc. It also check for reCAPTCHA and OTP. If everything checks out, a transaction is made. If something goes wrong during the process, a red error message will appear. 
+
+\subsection{Database}
+
+Flask-sqlalchemy extension provides support for SQLALchemy. We use three database models – user, transaction and Logs. The user stores the user information, like username, email, password, id, token(used for 2FA) and FA check (whether they have already accesses QR-code page). The password is stores in the database using argon2 hash. We will discuss our approach on why we chose this algorithm in chapter 4. 
+
+In our transaction model we save the id of the transaction, from\_user, to\_user, in and out money and a message. As you have seen we don’t store the account balance in the database as a security measures and to get as close to the real world as possible. We simply use a for loop to go through each transaction for that given user. The implementation looks like this:
+
+\begin{python}
+class Transaction(UserMixin, db.Model):
+   transaction_id = db.Column(db.Integer, primary_key=True)
+   from_user_id = db.Column(db.Text, nullable=True)  
+   out_money = db.Column(db.Text, nullable=True)
+   to_user_id = db.Column(db.Text) 
+   in_money = db.Column(db.Text)
+   message = db.Column(db.String(120))
+\end{python}
+
+Lastly we have another database model called logs. This simply stores the id of the log and the log message, which contains the action made, user (if any), success or fail and what time it was logged/happened. We store both success made by a user and failures. 
+
+\begin{python}
+class Logs(db.Model):
+    log_id = db.Column(db.Integer, primary_key=True)
+    log = db.Column(db.Text)
+\end{python}

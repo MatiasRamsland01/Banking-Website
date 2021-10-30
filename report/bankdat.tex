@@ -33,6 +33,8 @@
 % Default fixed font does not support bold face
 \DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
 \DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+\DeclareFixedFont{\codefontb}{T1}{txtt}{bx}{n}{10}
+\DeclareFixedFont{\codefont}{T1}{txtt}{m}{n}{10}
 
 % Custom colors
 \usepackage{color}
@@ -41,15 +43,16 @@
 \definecolor{deepgreen}{rgb}{0,0.5,0}
 
 \renewcommand{\figurename}{Fig.}
+\renewcommand{\chaptername}{Chapter}
 
 % Python style for highlighting
 \newcommand\pythonstyle{\lstset{
 language=Python,
-basicstyle=\ttm,
+basicstyle=\codefont,
 morekeywords={self},              % Add keywords here
-keywordstyle=\ttb\color{deepblue},
+keywordstyle=\codefontb\color{deepblue},
 emph={MyClass,__init__},          % Custom highlighting
-emphstyle=\ttb\color{deepred},    % Custom highlighting style
+emphstyle=\codefontb\color{deepred},    % Custom highlighting style
 stringstyle=\color{deepgreen},
 frame=tb,                         % Any extra options here
 showstringspaces=false
