@@ -6,7 +6,138 @@ This section describes how prepared are we against common threats listed in OWAS
 
 %TODO SORT ME prob A1-10
 
-\section{Injection}
+\section{A01 Broken Access Control}
+
+The number one of security breaches is Broken Access Control and therefore very important for our development team. This breach is about being able to acts outside of their intendent permissions. For example if a user is not logged in it can’t view pages on the website that they are not authorized to see or make requests. 
+
+A way to mitigate this flaw is by using flask-login. When a user login we use the login(user) code. This logs the user inn and can access routes in our website that requires a user to log-in. We use the “@login required” parameter for the implemented route. The code makes it so that the user that tries to access the page/route must be logged in. When a user logs out we call the code logout(user). This removes the flag that the user is logged in and has now not access to the pages it had when logged in. The code snippets below demonstrate this. 
+
+Lastly to mitigate this security fault is checking if the user has been inactive for more than 5 minutes. This is important if a user forgets to exit the website or logging out, because then the session cookie will still be available. The implementation looks like this:
+
+\begin{python}
+@auth.before_request
+def before_request():
+    """Timeout user when inactive in 5 min"""
+    flask.session.permanent = True
+    current_app.permanent_session_lifetime\
+        = datetime.timedelta(minutes=5)
+    flask.session.modified = True
+    flask.g.user = flask_login.current_user
+\end{python}
+
+\section{A02 Cryptographic Failures}
+Cryptography is the process of turning data into a format that is impossible for humans to extract any information out of. It is especially important when storing private information about people like, credit card number, health records, personal information, etc, in our databases. That also applies to our website where we will store user passwords, transactions, and money.
+\subsection{Hash functions}
+There are two methods of cryptography that we have employed, the first one is hashing. Hashing turns data into an unreadable mess and has no inverse function to "unhash" that data again. That is a key property that we need for storing sensitive data like passwords which we will never need to display. The hash will always have the same size output no matter what the size of the input, making it harder to reverse-engineer the original string. In the case of passwords we have to make sure that different passwords don't get the same hash, to achieve this hash functions use salts, strings of random characters appended onto the original string to create a unique hash every time. 
+\paragraph{}
+The hash function we have decided to use for hashing passwords in our database is argon2-cffi. For password hashing it is important that it is very costly, this is to reduce the time needed to crack the original. Argon2 not only makes hashing passwords costly on the execution time but also on the memory cost and employs parallelism to use several threads. All this combined makes up for an excellent hashing algorithm for passwords.
+\paragraph{}
+To implement argon2 in flask we import and use the hash module from passlib:
+\begin{python}
+from passlib.hash import argon2
+\end{python}
+The argon2 function has methods for hashing and verifying the hash as following:
+\begin{python}
+argon2.hash(inputPass)
+argon2.verify(hashedPass, inputPass)
+\end{python}
+\paragraph{}
+The hash method for argon2 takes in a user input password and optional parameters then hashes the password accordingly. The parameters are memory usage, time usage (iterations), and degree of parallelism, which we can call, M, T and P respectively. By default argon2.hash() will have the values: M = 100MB, T = 2 iterations and P = 8 degrees. These values are sufficient to fulfill OWASP's minimum requirement of M=15MiB, T=2 iterations and P = 1 degrees. 
+\paragraph{}
+In the code we achieve this by doing:
+
+\begin{python}
+password1 = form.password1.data
+hashedPassword = argon2.hash(password1)
+secret = pyotp.random_base32()
+user = User(username=userName,email=email,
+    password=hashedPassword,token=secret, FA=False)
+db.session.add(user)
+db.session.commit()
+\end{python}
+
+Here the user input password while signing up will be hashed using argon2 hash function and put into a user class with all the relevant parameters. This class will then be put into the database and committed to be stored there. It is important for the password to be hashed before storing, or else it will be vulnerable to attackers that have gained some form of access to the database. Hashing makes sure that even if the data is breached, it will not be easily decoded. 
+\paragraph{}
+In the case of logging in using that password we use the verify method from argon2. This will return a boolean value if the input password matches the hashed password that is stored in the database. We do this in python with an if-statement: 
+\begin{python}
+if user is not None and argon2.verify(form.password.data, 
+            user.password) and pyotp.TOTP(user.token).verify(otp):
+    login_user(user)
+\end{python}
+\paragraph{}
+This piece of code checks first and foremost that the user actually has an entry in the database, and then if the password given matches that users hashed password. The part with pyotp is for Two-Factor Authentication which is outside the scope of this section. When the code successfully verifies the users password it will then proceed to log the user in and allow them access to all of our services that require it.
+
+\subsection{Encryption}
+The other way to utilise cryptography is encryption. The biggest difference between encryption and hashing is that encryption is reversible. That means for every encrypted piece of data, we have a inverse method, which we call decryption to turn it back into readable data. A simple way to assure authenticity is by using keys. The key is a piece of data that will allow you access to encrypt or decrypt the data. Within encryption there are two popular methods to use, symmetric and asymmetric encryption. The former uses the same encryption key for both encryption and decryption, hence the name symmetric, while the latter uses a private key and public key.
+\paragraph{}
+
+For the purposes of our website we have only used symmetric encryption. Symmetric encryption requires the that both the encryption and decryption needs the same key. This brings upon us the challenge of how to securely store the key itself. The recommended and safest way is to use a "Hardware Security Module". This and most other options were not viable or available to us, so due to lack of resources we decided to just let it sit in the source code. This approach is very unsafe, but the only other viable option was storing it in the database, which requires a direct access without going through the code. However seeing as storing it in the database was almost as bad of a solution as just having it in the source code, we decided that it was worth the risk. 
+\paragraph{}
+With this naive approach we have decided only encrypt transactions made by users. This way if attackers somehow got access to the database dumps they would be unable to see how much money was transferred without the encryption key. We achieved this in python by using the Fernet module from the crypgraphy import like so:
+\begin{python}[language=Python]
+from cryptography.fernet import Fernet
+\end{python}
+\paragraph{}
+This module allows us to use some useful methods to create a function to encrypt and decrypt messages. To do this we first have to initialize our encrypter with the encryption key as following:
+\begin{python}
+encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
+Encrypter = Fernet(encKey)
+\end{python}
+\paragraph{}
+The encryption key encKey was generated using the generate\_key() method from the Fernet module, due to the uncertainty of key generation we have decided to extract it and keep it static for all our purposes. As said before this is very naive and should be avoided if possible. With the encrypter initialized we can create the functions for encryption and decryption:
+\begin{python}
+def EncryptMsg(string):
+try:
+    encoded = string.encode()
+    encMsg = Encrypter.encrypt(encoded)
+except AttributeError:
+    nyString = str(string)
+    nyEncoded = nyString.encode()
+    encMsg = Encrypter.encrypt(nyEncoded)
+return encMsg
+\end{python}
+\paragraph{}
+This function takes in a input and attemts to encode it to bytes. This is because the encrypt method in our encrypter only accepts data in the byte datatype. Python's inbuilt encode() method allows us to turn strings to bytes directly. However encode() only works for strings, hence we have our exception where if the input is anything else, it will attempt to turn it into a string first. This is important for transactions where we want to encrypt the amount. All of this will return a encrypted message which can safely be stored in the database. To decrypt the messages we have made a function for decryption:
+\begin{python}
+def DecryptMsg(encString):
+decMsg = Encrypter.decrypt(encString)
+decoded = decMsg.decode()
+return decoded
+\end{python}
+\paragraph{}
+This function is admittedly more simple as it only takes in a encrypted message, uses the decrypt method from our encrypter which will return a byte, then decodes it back to a string object, which we can read as humans. With these functions at our disposal we can use them when we insert and extract from the database. In the following example we will insert the transaction amount as encrypted data:
+\begin{python}
+new_transaction = Transaction(out_money=EncryptMsg(amount), 
+                from_user_id=from_user_name, to_user_id=to_user_name,
+                in_money=EncryptMsg(amount), message=message)
+    db.session.add(new_transaction)
+    db.session.commit()
+\end{python}
+\paragraph{}
+In this code we are encryption the amount of money transferred before it gets committed to our database. Because we need to use this value later for calculations we have to decrypt it elsewhere, otherwise using a hash function would be the better choice. This calculation is done to find out the sum of money a user has, instead of using fixed amounts, we add and subtract total transactions for a more accurate calculation of money:
+
+\begin{python}
+class Transcaction():
+out_money = db.Column(db.String(40), nullable=True)
+out_money = db.Column(db.String(40), nullable=True)
+
+def get_out_money_decimal(self):
+    if self.out_money is None:
+        return 0
+    return decimal.Decimal(DecryptMsg(self.out_money))
+def get_in_money_decimal(self):
+    if self.in_money is None:
+        return 0
+    return decimal.Decimal(DecryptMsg(self.in_money)) 
+\end{python}
+\paragraph{}
+Here we use the decryptMsg function we have made to decrypt our database entries before using them in the methods, get\_out\_money\_decimal and get\_in\_money\_decimal. These are the methods that are later used in the transaction calculations. That will ensure that we don't use bytes in calculations but integers, that get turned into a decimal with the decimal.Decimal() function.
+
+Ideally we would have wanted to use this for storing usernames as well, but there were certain walls to overcome. We could not get the matching salts if we wanted to compare a user inputted username to a stored encrypted username. This caused a few issues which we decided was not important enough to solve, as we have no restriction in what the username can be, it should not relate to personal information hence storing it encrypted should not be a priority. 
+
+All in all we have a fine structure in the use of cryptography in our website, the hashing part is far more than necessary for OWASP, but the encryption part is severely lacking. But as we have not employed a basis of using real names and addresses in our website, this should be sufficient. 
+
+\section{A03 Injection}
 
 Injection attack happens when web application receives input which can be interpreted a command or query. One of the most notable injection attacks is SQL injection, which can lead to reading, modifying or deleting database by an attacker. Typically injection attacks happens through form input fields, like those in login form.
 
@@ -14,6 +145,33 @@ To avoid this, user input must be validated before it is sent as a query. In add
 
 (ref. http://www.rmunn.com/sqlalchemy-tutorial/tutorial.html) % TODO
 % TODO rest to be finished by lukas
+
+\section{A04 Insecure Design}
+
+This new category in OWASP Top 10 is about flaws in design and system architecture. Some weaknesses and technical requirements need to be thought about before starting the implementation. An example of that could be risk profiling and resource management. “A house is as strong as its foundation”. 
+While creating this application we have researched secure way to design systems and created threat model to help us recognize and evaluate possible vulnerabilities. We have also prepared for some known attack methods and evaluated which external packages will be used based on security. Furthermore everything that has been implemented we focus on security, for example by setting bounds to user input so that it don’t cause buffer overflow, sanitize all inputs of a user and a robust error handler so it doesn’t crash our website. 
+
+\section{A05 Security Misconfiguration}
+
+This security flaw is about misconfiguration of the website, for example available administrative interfaces, not good error handling and still being in debug mode etc.
+For example when we are in development face we often use debug mode, which makes it easier to debug error in the website but also it automatically update your code changes (at least in flask). This can be harmful if not reverted back on deployment. This is because an attacker loves to get error messages and can easily understand how your website is flawed and in which way.  This is simply to remember to disable debug mode which is this line of code: <code>
+Another thing we need to is have an error handler for flask, so that the attacker won´t really know what error happened if it manages to create one. In our application we simply check for any errors and if detected we flash a red error message and redirects you do the home page. This also acts as a protective layer against crashing the website. The code used is:
+
+\begin{python}
+@auth.errorhandler(Exception)
+def basic_error(e):
+    """Error handler so flashes message
+    and redirects user if error occur"""
+    flash("Something went wrong", category='error')
+    return redirect(url_for('auth.home_login'))
+\end{python}
+
+Since we don´t use any administrative access because of the potential of being a security risk, all the admin access must have access to the deployment website and can make changes there, not directly on the website. Therefore all users have the same access when using the website.
+
+\section{A06 Vulnerable and Outdated Components}
+
+This Owasp category is about use of unmaintained or out-of-date components with known vulnerabilities. It may become hard to track all dependencies together with nested dependencies.
+To work against this we remove all unused dependencies and we check those which are being used, so we would know when one becomes unmaintained. All dependencies are kept on a list together with version used so the process becomes semi-automated.
 
 \section{A07:2021 Identification and Authentication Failures}
 
@@ -46,6 +204,15 @@ def ratelimit_handler(e):
 If an attacker manages to get ahold of an users password we uses two factor authentication which is compatible with google authenticator. We uses this verification after each transaction, deposit and when we log-in. This makes the attacker not being able to access that users account without also having access to their google authenticator app. This acts like a second layer to the users security.  The code we used to implement this is <code>
 We have also implemented many more features to prevent this type of security breach like same message if failed log in attempt but we won´t cover this since it is not the most important. 
 
+
+\section{A08 Software and Data Integrity Failures}
+
+This new category in 2021 is about making sure application uses trusted packages from external sources. This is because using modules from insecure sources can lead to injection of malicious code into the system.
+
+External packages used in this application are received via python pip to which only maintainers have access to. It shouldn’t be a problem as long as we don’t make a typo in package name – which can be used in “typosquatting” attack, where attacker uploads a malicious code to python pip with a name similar to another package.
+
+We can also manually verify that it was produced by the publisher by downloading package and checking signature file.
+
 \section{A09 Security Logging and Monitoring Failures}
 
 A09 has been recently more important over the years. This security breach includes not being able to detect or log activity on the website. This includes also securing the log functions so that no malicious attacks can go through this feature. 
@@ -77,58 +244,4 @@ Another logging information we have is ReCAPTCHA. As you can see from picture be
     \includegraphics[width=\textwidth]{pics/recaptchaLog.png}
     \caption{reCAPTCHA Log}
     \label{fig:cha3fig1recaptchalog}
- \end{figure}
-
-\section{A05 Security Misconfiguration}
-
-This security flaw is about misconfiguration of the website, for example available administrative interfaces, not good error handling and still being in debug mode etc.
-For example when we are in development face we often use debug mode, which makes it easier to debug error in the website but also it automatically update your code changes (at least in flask). This can be harmful if not reverted back on deployment. This is because an attacker loves to get error messages and can easily understand how your website is flawed and in which way.  This is simply to remember to disable debug mode which is this line of code: <code>
-Another thing we need to is have an error handler for flask, so that the attacker won´t really know what error happened if it manages to create one. In our application we simply check for any errors and if detected we flash a red error message and redirects you do the home page. This also acts as a protective layer against crashing the website. The code used is:
-
-\begin{python}
-@auth.errorhandler(Exception)
-def basic_error(e):
-    """Error handler so flashes message
-    and redirects user if error occur"""
-    flash("Something went wrong", category='error')
-    return redirect(url_for('auth.home_login'))
-\end{python}
-
-Since we don´t use any administrative access because of the potential of being a security risk, all the admin access must have access to the deployment website and can make changes there, not directly on the website. Therefore all users have the same access when using the website.
-
-\section{A04 Insecure Design}
-
-This new category in OWASP Top 10 is about flaws in design and system architecture. Some weaknesses and technical requirements need to be thought about before starting the implementation. An example of that could be risk profiling and resource management. “A house is as strong as its foundation”. 
-While creating this application we have researched secure way to design systems and created threat model to help us recognize and evaluate possible vulnerabilities. We have also prepared for some known attack methods and evaluated which external packages will be used based on security. Furthermore everything that has been implemented we focus on security, for example by setting bounds to user input so that it don’t cause buffer overflow, sanitize all inputs of a user and a robust error handler so it doesn’t crash our website. 
-
-\section{A06 Vulnerable and Outdated Components}
-
-This Owasp category is about use of unmaintained or out-of-date components with known vulnerabilities. It may become hard to track all dependencies together with nested dependencies.
-To work against this we remove all unused dependencies and we check those which are being used, so we would know when one becomes unmaintained. All dependencies are kept on a list together with version used so the process becomes semi-automated.
-
-\section{A01 Broken Access Control}
-
-The number one of security breaches is Broken Access Control and therefore very important for our development team. This breach is about being able to acts outside of their intendent permissions. For example if a user is not logged in it can’t view pages on the website that they are not authorized to see or make requests. 
-
-A way to mitigate this flaw is by using flask-login. When a user login we use the login(user) code. This logs the user inn and can access routes in our website that requires a user to log-in. We use the “@login required” parameter for the implemented route. The code makes it so that the user that tries to access the page/route must be logged in. When a user logs out we call the code logout(user). This removes the flag that the user is logged in and has now not access to the pages it had when logged in. The code snippets below demonstrate this. 
-
-Lastly to mitigate this security fault is checking if the user has been inactive for more than 5 minutes. This is important if a user forgets to exit the website or logging out, because then the session cookie will still be available. The implementation looks like this:
-
-\begin{python}
-@auth.before_request
-def before_request():
-    """Timeout user when inactive in 5 min"""
-    flask.session.permanent = True
-    current_app.permanent_session_lifetime\
-        = datetime.timedelta(minutes=5)
-    flask.session.modified = True
-    flask.g.user = flask_login.current_user
-\end{python}
-
-\section{A08 Software and Data Integrity Failures}
-
-This new category in 2021 is about making sure application uses trusted packages from external sources. This is because using modules from insecure sources can lead to injection of malicious code into the system.
-
-External packages used in this application are received via python pip to which only maintainers have access to. It shouldn’t be a problem as long as we don’t make a typo in package name – which can be used in “typosquatting” attack, where attacker uploads a malicious code to python pip with a name similar to another package.
-
-We can also manually verify that it was produced by the publisher by downloading package and checking signature file.
+\end{figure}
