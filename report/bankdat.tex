@@ -86,7 +86,7 @@ showstringspaces=false
 \begin{document}
 \setlength{\parskip}{0.5cm}   % denne lager 5mm avstand ved avsnitt
 \selectlanguage{english}
-
+\setlocalecaption{english}{contents}{Contents}
 % topptekst
 \pagestyle{fancyplain}
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
@@ -143,16 +143,13 @@ showstringspaces=false
 % uten nummer
 
 \addcontentsline{toc}{chapter}{\protect\numberline{}Innhold} 
-\tableofcontents
+\tableofcontents{}
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
 
 \newpage
 
-
 \input{introduction.tex}
-
-% Siden sammendraget er uten kapittelnummer, legges dette manuelt inn
-% i innholdsfortegnelsen
-\addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
 
 \newpage
 
@@ -177,9 +174,9 @@ showstringspaces=false
 % prøve. Andre linje er selve filen med dine referanser. Siste linje
 % legger bibliografi inn i innholdsfortegnelsen. 
 
-\bibliographystyle{plain}
+%\bibliographystyle{plain}
 %\bibliography{referanser.bib}
-\addcontentsline{toc}{chapter}{Bibliografi} 
+%\addcontentsline{toc}{chapter}{Bibliografi} 
 
 \appendix
 

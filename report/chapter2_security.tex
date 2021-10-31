@@ -1,6 +1,6 @@
 
-\chapter{TODO
-}\label{kap:TODO}
+\chapter{Security
+}\label{kap:security}
 
 \section{Security and Design}
 
@@ -74,59 +74,12 @@ We validate the user input on our back-end as well using various function to che
 
 When the signup form is sent, the input is validated both within WTforms and on backend, then a check is made to see if a user with a given name or email already exists. If not - then the given password is hashed and user data is sent to the database and saved. The application then redirects you to the homepage. We also logs this info in our log database model. If something goes wrong during the process, a red error message will appear.
 
-\begin{python}
-@auth.route('/sign-up', methods=['GET', 'POST'])
-def sign_up():
-    if current_user.is_authenticated:
-        flash("You are already logged in")
-        return redirect(url_for('auth.home_login'))
-    form = RegisterForm()
-    if form.validate_on_submit():
-        init_db()
-
-        if validate_password(form.password1.data) and validate_username(form.username.data) \
-                and validate_email(form.email.data) and validate_password(form.password2.data) \
-                and form.password1.data == form.password2.data:
-            # Correct input, now check database
-            success = True
-            user_by_username = User.query.filter_by(username=form.username.data).first()
-            user_by_email = User.query.filter_by(email=form.email.data).first()
-            if user_by_username:
-                flash("Username  taken!", category='error')
-                success = False
-            if user_by_email:
-                flash("Email taken!", category='error')
-                success = False
-            if success:
-                userName = form.username.data
-                # encUsername = EncryptMsg(userName)
-                email = form.email.data
-                # hashedEmail = FinnHash(email)
-                password1 = form.password1.data
-                hashedPassword = argon2.hash(password1)
-                secret = pyotp.random_base32()
-                user = User(username=userName, email=email, password=hashedPassword, token=secret, FA=False)
-                db.session.add(user)
-                db.session.commit()
-
-                login_user(user)
-                session['logged_in'] = True
-                session['user'] = email
-                session.permanent = True
-                message = "Sign-up: User: " + str(userName) + ". Status sucess. Time: " + str(datetime.datetime.now())
-                db.session.add(Logs(log=message))
-                db.session.commit()
-                return redirect(url_for('auth.two_factor_view'))
-            else:
-                message = "Sign-up: User: " + form.username.data + ". Status fail. Time: " + str(
-                    datetime.datetime.now())
-                db.session.add(Logs(log=message))
-                db.session.commit()
-                return render_template('signup.html', form=form)
-        else:
-            flash("Check your input", category='error')
-    return render_template('signup.html', form=form)
-\end{python}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{pics/pic7 signup.png}
+    \caption{Sign up backend code}
+    \label{fig:cha2fig2signupcode}
+\end{figure}
 
 Argon2 function is being used to hash passwords.
 
@@ -134,45 +87,12 @@ Argon2 function is being used to hash passwords.
 
 When the login form is sent, the input is also validated both front-end and backend. Then the database is searched for a user with a given email and given password is compared with hashed database password. It also checks for reCAPTCHA and the OTP (one-time-password) is correct. If everything is okay, the app redirects the user to his homepage. If something goes wrong during the process, a red error message will appear.
 
-\begin{python}
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        flash("You are already logged in")
-        return redirect(url_for('auth.home_login'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        if validate_password(form.password.data) and validate_email(form.email.data) and validate_int(form.OTP.data):
-            user = User.query.filter_by(email=form.email.data).first()
-            otp = form.OTP.data
-            if user is not None:
-                if argon2.verify(form.password.data, user.password) and pyotp.TOTP(user.token).verify(otp):
-                    login_user(user)
-                    user.FA = True
-                    message = "Log-in: User: " + user.username + "Status: Success. Time: " + str(
-                        datetime.datetime.now())
-
-                    db.session.add(Logs(log=message))
-                    db.session.commit()
-                    session['logged_in'] = True
-                    message = "Log-in: User: " + user.username + "Status: Sucess. Time: " + str(datetime.datetime.now())
-                    db.session.add(Logs(log=message))
-                    db.session.commit()
-                    return redirect(url_for('auth.home_login'))
-                else:
-                    flash("Email, Password or OTP does not match!", category="error")
-                    message = "Log-in: User: " + user.username + "Status: Fail. Time: " + str(datetime.datetime.now())
-                    db.session.add(Logs(log=message))
-                    db.session.commit()
-
-            flash("Something went wrong. Please try again", category="error")
-        else:
-            flash("Invalid request", category='error')
-            message = "Log-in: User: Invalid Input. Status: Fail. Time: " + str(datetime.datetime.now())
-            db.session.add(Logs(log=message))
-            db.session.commit()
-    return render_template('login.html', form=form)
-\end{python}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{pics/pic8 login.png}
+    \caption{Login backend code}
+    \label{fig:cha2fig3logincode}
+\end{figure}
 
 Furthermore a user can log out simply by clicking on the logout button in the navigation bar, and gets redirected to the log-in page. 
 
@@ -182,14 +102,14 @@ The application uses the Flask-Login extension for session management. It allows
    \centering
    \includegraphics[width=\textwidth]{pics/pic9.1 loginrequired.PNG}
    \caption{Login required}
-   \label{fig:cha2fig2loginrequired}
+   \label{fig:cha2fig3loginrequired}
 \end{figure}
 
 \begin{figure}[H]
    \centering
    \includegraphics[width=\textwidth]{pics/pic9.2 need to log in.PNG}
    \caption{No access}
-   \label{fig:cha2fig3noaccess}
+   \label{fig:cha2fig4noaccess}
 \end{figure}
 
 \subsection{ATM and Transaction}

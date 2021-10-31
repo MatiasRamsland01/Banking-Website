@@ -2,9 +2,7 @@
 \chapter{OWASP Top Ten
 }\label{kap:owasptopten}
 
-This section describes how prepared are we against common threats listed in OWASP Top 10 //TODO
-
-%TODO SORT ME prob A1-10
+This chapter describes how prepared are we against common threats listed in OWASP Top Ten
 
 \section{A01 Broken Access Control}
 
@@ -146,9 +144,8 @@ All in all we have a fine structure in the use of cryptography in our website, t
 
 Injection attack happens when web application receives input which can be interpreted a command or query. One of the most notable injection attacks is SQL injection, which can lead to reading, modifying or deleting database by an attacker. Typically injection attacks happens through form input fields, like those in login form.
 
-To avoid this, user input must be validated before it is sent as a query. In addition we also use SQLAlchemy which automatically quotes special characters like apostrophes in data.
+To avoid this, user input must be validated before it is sent as a query. In addition we also use \href{http://www.rmunn.com/sqlalchemy-tutorial/tutorial.html}{SQLAlchemy} which automatically quotes special characters like apostrophes in data.
 
-(ref. http://www.rmunn.com/sqlalchemy-tutorial/tutorial.html) % TODO
 % TODO rest to be finished by lukas
 
 \section{A04 Insecure Design}
@@ -178,12 +175,13 @@ Since we don´t use any administrative access because of the potential of being 
 This Owasp category is about use of unmaintained or out-of-date components with known vulnerabilities. It may become hard to track all dependencies together with nested dependencies.
 To work against this we remove all unused dependencies and we check those which are being used, so we would know when one becomes unmaintained. All dependencies are kept on a list together with version used so the process becomes semi-automated.
 
-\section{A07:2021 Identification and Authentication Failures}
+\section{A07 Identification and Authentication Failures}
 
 This security fault is known as Broken Authentication, which is about user´s identity is breached with weaknesses with the authentication in our application, for example using automated attacks. We have implemented a few things to mitigate this, as reCAPTCHA, ratelimit , two factor authentication, strong password etc.   
 
 Firstly to avoid brute forcing and automated attacks, reCAPTCHA and ratelimit has a huge impact on this. The way we implanted this is making a reCAPTCHA user on google and verifying this in our flask WTforms. <code> reCAPTCHA = recaptchaField() <code>. It is possible to bypass wtforms validators/reCAPTCHA so we also made a request limiter, which makes a response and blocks out the user, which will reset in a couple of minutes. We have sat the limit to 60 POST/GET request since that should be more than enough for a normal user. Anything more than that we will block it. The code we used to implement this is:
 
+\pagebreak
 \begin{python}
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):
@@ -209,7 +207,7 @@ def ratelimit_handler(e):
 If an attacker manages to get ahold of an users password we uses two factor authentication which is compatible with google authenticator. We uses this verification after each transaction, deposit and when we log-in. This makes the attacker not being able to access that users account without also having access to their google authenticator app. This acts like a second layer to the users security.  The code we used to implement this is <code>
 We have also implemented many more features to prevent this type of security breach like same message if failed log in attempt but we won´t cover this since it is not the most important. 
 
-
+\pagebreak
 \section{A08 Software and Data Integrity Failures}
 
 This new category in 2021 is about making sure application uses trusted packages from external sources. This is because using modules from insecure sources can lead to injection of malicious code into the system.
@@ -226,6 +224,7 @@ In our website we log every major request. This includes log in, sign-up, transa
 
 We also verifies that the input doesn’t contain any illegal character, so the way we log things doesn’t become a security breach, for example injection in to the database. This is because so that it is harder to breach the log and loads of information about users becomes available to the attacker. The code for this check is: 
 
+\pagebreak
 \begin{python}
 def validate_username(username):
     """Checks for valid username (only letters and numbers)"""
