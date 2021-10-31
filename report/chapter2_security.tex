@@ -66,7 +66,7 @@ We decided that it's better design-wise to have one "master" class for transacti
 
 \subsection{Getting user input}
 
-WTForms extension is used to gather and validate input from users. Depending on the need, built-in or custom validators are used, unfortunately it can be easily bypassed so this is our front-end checks. We implemented it by  creating a Flask form class which is shown in picture X and this method is used for every input we get from a user. For example, sign-up transactions8 etc. 
+WTForms extension is used to gather and validate input from users. Depending on the need, built-in or custom validators are used, unfortunately it can be easily bypassed so this is our front-end checks. We implemented it by  creating a Flask form class which is shown in the picture below and this method is used for every input we get from a user. For example, sign-up transactions etc. 
 
 \begin{python}
 class LoginForm(FlaskForm):
@@ -85,11 +85,11 @@ class LoginForm(FlaskForm):
    submit = SubmitField(label='Log in')
 \end{python}
 
-We validate the user input on our back-end as well using various function to check if it contains any illegal characters. More on this in chapter 4.  %TODO REF
+We validate the user input on our back-end as well using various function to check if it contains any illegal characters. More on this in the next chapter.  %TODO REF
 
 \subsection{Creating user}
 
-When the signup form is sent, the input is validated both within WTforms and on backend, then a check is made to see if a user with a given name or email already exists. If not - then the given password is hashed and user data is sent to the database and saved. The application then redirects you to the homepage. We also logs this info in our log database model. If something goes wrong during the process, a red error message will appear.
+When the signup form is sent, the input is validated both within WTForms and on backend, then a check is made to see if a user with a given name or email already exists. If not - then the given password is hashed and user data is sent to the database and saved. The application then redirects you to the homepage. We also logs this info in our log database model. If something goes wrong during the process, a red error message will appear.
 
 \begin{figure}[H]
     \centering
@@ -113,7 +113,7 @@ When the login form is sent, the input is also validated both front-end and back
 
 Furthermore a user can log out simply by clicking on the logout button in the navigation bar, and gets redirected to the log-in page. 
 
-The application uses the Flask-Login extension for session management. It allows us to restrict some pages to be visible only for logged-in users, but we will go deeper into the security of this in chapter 4. %TODO REF
+The application uses the Flask-Login extension for session management. It allows us to restrict some pages to be visible only for logged-in users, but we will go deeper into the security of this in the next chapter. %TODO REF
 
 \begin{figure}[H]
    \centering
@@ -135,7 +135,7 @@ These services first validate data both front-end and back-end. Then authenticat
 
 \subsection{Database}
 
-Flask-sqlalchemy extension provides support for SQLALchemy. We use three database models – user, transaction and Logs. The user stores the user information, like username, email, password, id, token(used for 2FA) and FA check (whether they have already accesses QR-code page). The password is stores in the database using argon2 hash. We will discuss our approach on why we chose this algorithm in chapter 4. 
+Flask-sqlalchemy extension provides support for SQLALchemy. We use three database models – user, transaction and Logs. The user stores the user information, like username, email, password, id, token(used for 2FA) and FA check (whether they have already accesses QR-code page). The password is stored in the database using argon2 hash. We will discuss our approach on why we chose this algorithm in the next chapter. 
 
 In our transaction model we save the id of the transaction, from\_user, to\_user, in and out money and a message. As you have seen we don’t store the account balance in the database as a security measures and to get as close to the real world as possible. We simply use a for loop to go through each transaction for that given user. The implementation looks like this:
 
