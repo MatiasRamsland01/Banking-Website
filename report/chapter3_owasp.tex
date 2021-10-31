@@ -29,9 +29,9 @@ def before_request():
 Cryptography is the process of turning data into a format that is impossible for humans to extract any information out of. It is especially important when storing private information about people like, credit card number, health records, personal information, etc, in our databases. That also applies to our website where we will store user passwords, transactions, and money.
 \subsection{Hash functions}
 There are two methods of cryptography that we have employed, the first one is hashing. Hashing turns data into an unreadable mess and has no inverse function to "unhash" that data again. That is a key property that we need for storing sensitive data like passwords which we will never need to display. The hash will always have the same size output no matter what the size of the input, making it harder to reverse-engineer the original string. In the case of passwords we have to make sure that different passwords don't get the same hash, to achieve this hash functions use salts, strings of random characters appended onto the original string to create a unique hash every time. 
-\paragraph{}
+
 The hash function we have decided to use for hashing passwords in our database is argon2-cffi. For password hashing it is important that it is very costly, this is to reduce the time needed to crack the original. Argon2 not only makes hashing passwords costly on the execution time but also on the memory cost and employs parallelism to use several threads. All this combined makes up for an excellent hashing algorithm for passwords.
-\paragraph{}
+
 To implement argon2 in flask we import and use the hash module from passlib:
 \begin{python}
 from passlib.hash import argon2
@@ -41,9 +41,9 @@ The argon2 function has methods for hashing and verifying the hash as following:
 argon2.hash(inputPass)
 argon2.verify(hashedPass, inputPass)
 \end{python}
-\paragraph{}
+
 The hash method for argon2 takes in a user input password and optional parameters then hashes the password accordingly. The parameters are memory usage, time usage (iterations), and degree of parallelism, which we can call, M, T and P respectively. By default argon2.hash() will have the values: M = 100MB, T = 2 iterations and P = 8 degrees. These values are sufficient to fulfill OWASP's minimum requirement of M=15MiB, T=2 iterations and P = 1 degrees. 
-\paragraph{}
+
 In the code we achieve this by doing:
 
 \begin{python}
@@ -57,33 +57,36 @@ db.session.commit()
 \end{python}
 
 Here the user input password while signing up will be hashed using argon2 hash function and put into a user class with all the relevant parameters. This class will then be put into the database and committed to be stored there. It is important for the password to be hashed before storing, or else it will be vulnerable to attackers that have gained some form of access to the database. Hashing makes sure that even if the data is breached, it will not be easily decoded. 
-\paragraph{}
+
+\pagebreak
 In the case of logging in using that password we use the verify method from argon2. This will return a boolean value if the input password matches the hashed password that is stored in the database. We do this in python with an if-statement: 
 \begin{python}
 if user is not None and argon2.verify(form.password.data, 
             user.password) and pyotp.TOTP(user.token).verify(otp):
     login_user(user)
 \end{python}
-\paragraph{}
+
 This piece of code checks first and foremost that the user actually has an entry in the database, and then if the password given matches that users hashed password. The part with pyotp is for Two-Factor Authentication which is outside the scope of this section. When the code successfully verifies the users password it will then proceed to log the user in and allow them access to all of our services that require it.
 
 \subsection{Encryption}
+We use a python package called talisman, it forces the entire website to be ran in https, encrypted http, over TLS or SSL.
+So basically an added encryption layer of SSL or TLS. It protects data from eavesdropping and man-in-the-middle attacks.
+
 The other way to utilise cryptography is encryption. The biggest difference between encryption and hashing is that encryption is reversible. That means for every encrypted piece of data, we have a inverse method, which we call decryption to turn it back into readable data. A simple way to assure authenticity is by using keys. The key is a piece of data that will allow you access to encrypt or decrypt the data. Within encryption there are two popular methods to use, symmetric and asymmetric encryption. The former uses the same encryption key for both encryption and decryption, hence the name symmetric, while the latter uses a private key and public key.
-\paragraph{}
 
 For the purposes of our website we have only used symmetric encryption. Symmetric encryption requires the that both the encryption and decryption needs the same key. This brings upon us the challenge of how to securely store the key itself. The recommended and safest way is to use a "Hardware Security Module". This and most other options were not viable or available to us, so due to lack of resources we decided to just let it sit in the source code. This approach is very unsafe, but the only other viable option was storing it in the database, which requires a direct access without going through the code. However seeing as storing it in the database was almost as bad of a solution as just having it in the source code, we decided that it was worth the risk. 
-\paragraph{}
+
 With this naive approach we have decided only encrypt transactions made by users. This way if attackers somehow got access to the database dumps they would be unable to see how much money was transferred without the encryption key. We achieved this in python by using the Fernet module from the crypgraphy import like so:
 \begin{python}[language=Python]
 from cryptography.fernet import Fernet
 \end{python}
-\paragraph{}
+
 This module allows us to use some useful methods to create a function to encrypt and decrypt messages. To do this we first have to initialize our encrypter with the encryption key as following:
 \begin{python}
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)
 \end{python}
-\paragraph{}
+
 The encryption key encKey was generated using the generate\_key() method from the Fernet module, due to the uncertainty of key generation we have decided to extract it and keep it static for all our purposes. As said before this is very naive and should be avoided if possible. With the encrypter initialized we can create the functions for encryption and decryption:
 \begin{python}
 def EncryptMsg(string):
@@ -96,15 +99,16 @@ except AttributeError:
     encMsg = Encrypter.encrypt(nyEncoded)
 return encMsg
 \end{python}
-\paragraph{}
+
 This function takes in a input and attemts to encode it to bytes. This is because the encrypt method in our encrypter only accepts data in the byte datatype. Python's inbuilt encode() method allows us to turn strings to bytes directly. However encode() only works for strings, hence we have our exception where if the input is anything else, it will attempt to turn it into a string first. This is important for transactions where we want to encrypt the amount. All of this will return a encrypted message which can safely be stored in the database. To decrypt the messages we have made a function for decryption:
+
 \begin{python}
 def DecryptMsg(encString):
 decMsg = Encrypter.decrypt(encString)
 decoded = decMsg.decode()
 return decoded
 \end{python}
-\paragraph{}
+
 This function is admittedly more simple as it only takes in a encrypted message, uses the decrypt method from our encrypter which will return a byte, then decodes it back to a string object, which we can read as humans. With these functions at our disposal we can use them when we insert and extract from the database. In the following example we will insert the transaction amount as encrypted data:
 \begin{python}
 new_transaction = Transaction(out_money=EncryptMsg(amount), 
@@ -113,7 +117,7 @@ new_transaction = Transaction(out_money=EncryptMsg(amount),
     db.session.add(new_transaction)
     db.session.commit()
 \end{python}
-\paragraph{}
+
 In this code we are encryption the amount of money transferred before it gets committed to our database. Because we need to use this value later for calculations we have to decrypt it elsewhere, otherwise using a hash function would be the better choice. This calculation is done to find out the sum of money a user has, instead of using fixed amounts, we add and subtract total transactions for a more accurate calculation of money:
 
 \begin{python}
@@ -130,8 +134,9 @@ def get_in_money_decimal(self):
         return 0
     return decimal.Decimal(DecryptMsg(self.in_money)) 
 \end{python}
-\paragraph{}
-Here we use the decryptMsg function we have made to decrypt our database entries before using them in the methods, get\_out\_money\_decimal and get\_in\_money\_decimal. These are the methods that are later used in the transaction calculations. That will ensure that we don't use bytes in calculations but integers, that get turned into a decimal with the decimal.Decimal() function.
+
+\pagebreak
+Here we use the decryptMsg function we have made to decrypt our database entries before using them in the methods, get\textunderscore out\textunderscore money\textunderscore decimal and \linebreak get\textunderscore in\textunderscore money\textunderscore decimal. These are the methods that are later used in the transaction calculations. That will ensure that we don't use bytes in calculations but integers, that get turned into a decimal with the decimal.Decimal() function.
 
 Ideally we would have wanted to use this for storing usernames as well, but there were certain walls to overcome. We could not get the matching salts if we wanted to compare a user inputted username to a stored encrypted username. This caused a few issues which we decided was not important enough to solve, as we have no restriction in what the username can be, it should not relate to personal information hence storing it encrypted should not be a priority. 
 
