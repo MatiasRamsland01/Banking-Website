@@ -3,14 +3,12 @@ import decimal
 from cryptography.fernet import Fernet
 from flask import Flask
 from flask_login import UserMixin
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash
-from cryptography.fernet import Fernet
+
 from website import db
 
 app = Flask(__name__)  # main.get_app()
-
 
 encKey = b'FtSL3pqkp2yHZIDPCmP3e_70WJX2GK2iFpEtPcx7MAk='
 Encrypter = Fernet(encKey)
@@ -32,8 +30,9 @@ def DecryptMsg(encString):
     decoded = decMsg.decode()
     return decoded
 
-#What we store in our User table
+
 class User(UserMixin, db.Model):
+    """User data that we store in our User table"""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -59,20 +58,21 @@ class User(UserMixin, db.Model):
     def get_money(self):
         return get_money_from_user(self.username)
 
-#What we store in our Logs table
+
 class Logs(db.Model):
+    """Log data that we store in our Logs table"""
     log_id = db.Column(db.Integer, primary_key=True)
     log = db.Column(db.Text)
 
-#What we store in our transaction table
+
 class Transaction(UserMixin, db.Model):
+    """Transaction data that we store in our transaction table"""
     transaction_id = db.Column(db.Integer, primary_key=True)
-    from_user_id = db.Column(db.Text, nullable=True)  
+    from_user_id = db.Column(db.Text, nullable=True)
     out_money = db.Column(db.Text, nullable=True)
-    to_user_id = db.Column(db.Text) 
+    to_user_id = db.Column(db.Text)
     in_money = db.Column(db.Text)
     message = db.Column(db.String(120))
-
 
     def contains_user(self, username):
         return username != "" and (self.from_user_id == username or self.to_user_id == username)
@@ -85,13 +85,14 @@ class Transaction(UserMixin, db.Model):
     def get_in_money_decimal(self):
         if self.in_money is None:
             return 0
-        return decimal.Decimal(self.in_money)   
+        return decimal.Decimal(self.in_money)
 
     def __eq__(self, other):
         return self.transaction_id == other.transaction_id
 
-#Calculates the balance of a user
+
 def get_money_from_user(username):
+    """Calculates the balance of a user"""
     money = 0
     transactionstext = []
     user = User.query.filter_by(username=username).first()
