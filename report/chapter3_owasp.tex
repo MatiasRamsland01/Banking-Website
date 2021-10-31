@@ -146,7 +146,13 @@ Injection attack happens when web application receives input which can be interp
 
 To avoid this, user input must be validated before it is sent as a query. In addition we also use \href{http://www.rmunn.com/sqlalchemy-tutorial/tutorial.html}{SQLAlchemy} which automatically quotes special characters like apostrophes in data.
 
-% TODO rest to be finished by lukas
+WTForms can't be 100\% trusted when it comes to security, because they can be bypassed with the help of a custom get request (not through WTForms UI).
+That's why we have secondary internal check, after WTForm check. So if someone bypasses the front-end Form check, we make sure we catch that nothing illegal happens to the program.
+This is also a nice secondary layer in case WTForms has a problem/doesn't work properly, even if it the user is doing it correctly through WTForms front end.
+
+We tested for SQL injection with all username, email and password fields. And it seems that SQL\textunderscore Alchemy filter\textunderscore by function sanitized it's data, in case of injection, or other abnormalities.
+
+"; OR 1=1 -- Is not a valid input query, but, if it somehow goes through our checks it's not being transformed into a command, instead of correctly being interpreted as query data.
 
 \section{A04 Insecure Design}
 
@@ -181,7 +187,6 @@ This security fault is known as Broken Authentication, which is about user´s id
 
 Firstly to avoid brute forcing and automated attacks, reCAPTCHA and ratelimit has a huge impact on this. The way we implanted this is making a reCAPTCHA user on google and verifying this in our flask WTforms. <code> reCAPTCHA = recaptchaField() <code>. It is possible to bypass wtforms validators/reCAPTCHA so we also made a request limiter, which makes a response and blocks out the user, which will reset in a couple of minutes. We have sat the limit to 60 POST/GET request since that should be more than enough for a normal user. Anything more than that we will block it. The code we used to implement this is:
 
-\pagebreak
 \begin{python}
 @auth.app_errorhandler(429)
 def ratelimit_handler(e):

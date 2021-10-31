@@ -36,6 +36,20 @@
 \DeclareFixedFont{\codefontb}{T1}{txtt}{bx}{n}{10}
 \DeclareFixedFont{\codefont}{T1}{txtt}{m}{n}{10}
 
+\newcounter{question}
+\setcounter{question}{0}
+
+\newcommand\Que[1]{%
+   \leavevmode\par
+   \stepcounter{question}
+   \noindent
+   \thequestion. Q --- #1\par}
+
+\newcommand\Ans[2][]{%
+    \leavevmode\noindent
+   {\leftskip37pt
+    A --- \textbf{#1}#2\par}}
+
 % Custom colors
 \usepackage{color}
 \definecolor{deepblue}{rgb}{0,0,0.5}

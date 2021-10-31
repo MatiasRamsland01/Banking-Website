@@ -45,6 +45,23 @@ Some possible threats that we could identify by looking at the system model are:
 
 In next sections we will show the basics of how our website is structured in the code and how our features are implemented within our website. Lastly we will look at how to mitigate some of these threats mentioned above both in chapter 1 but also in chapter 2. % TODO, ref chapters
 
+\subsection{Design choices}
+
+We “deny by default” all but essential intranet traffic, the only way to have a read/write connection with our database, is to log in, or sign up.
+Otherwise, the site is in a "special" read-only status, where you can only view the public html, and get no data from the database. Like most, if not all, secure websites.
+
+We decided that it's better design-wise to have one "master" class for transactions, and not to have a "balance" value in our database table, it comes with a number of advantages:
+\begin{itemize}
+    \item It's easier to keep track with abnormalities, if anything fishy is going on, our system will show us why and how.
+    \item It's much harder to directly change the balance value in the database, since it's not stored in one place, and all the transactions should be read-only once verified and validated.
+    \item It's an easier system to manage, than having two separate data classes for normal transaction, and one-user transactions (ATM).
+\end{itemize}
+
+\Que{Why can from and out money values be null?}
+\Ans{Because ATM process allows for putting in money, where there is not user/user account to get money from}
+\Que{Why are we saving money value data in a string?}
+\Ans{With some research, there were two options of saving money amounts. Either with a non-fixed point decimal, or a long string. Since SQL\textunderscore Alchemy doesn't support decimals too well.We decided to go with a very long string instead, that way we can have perfect precision, and support very large numbers as well.}
+
 \section{How features are implemented}
 
 \subsection{Getting user input}
