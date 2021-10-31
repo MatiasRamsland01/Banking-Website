@@ -10,6 +10,7 @@
 \usepackage{ragged2e,colortbl,appendix}
 \usepackage{here,hyperref,multirow,pdfpages}
 \usepackage[font=small,labelfont=bf]{caption}
+\usepackage{url}
 
 \usepackage{xcolor}
 \usepackage{lipsum,todonotes} 
@@ -101,6 +102,7 @@ showstringspaces=false
 \setlength{\parskip}{0.5cm}   % denne lager 5mm avstand ved avsnitt
 \selectlanguage{english}
 \setlocalecaption{english}{contents}{Contents}
+\setlocalecaption{english}{bib}{Bibliography}
 % topptekst
 \pagestyle{fancyplain}
 \renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
@@ -161,6 +163,7 @@ showstringspaces=false
 
 \addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
 
+
 \newpage
 
 \input{introduction.tex}
@@ -183,14 +186,21 @@ showstringspaces=false
 \input{chapter3_owasp.tex}
 %\input{konklusjon.tex}
 
-
 % Første linje er bibliografistilen, her finner flere varianter som du
 % prøve. Andre linje er selve filen med dine referanser. Siste linje
 % legger bibliografi inn i innholdsfortegnelsen. 
 
-%\bibliographystyle{plain}
+\bibliographystyle{plain}
 %\bibliography{referanser.bib}
-%\addcontentsline{toc}{chapter}{Bibliografi} 
+
+\begin{thebibliography}{9}
+  \bibitem{web_BibTex}
+  OWASP (2021) \emph{\url{https://owasp.org/Top10/}}.
+  
+  \label{Bibliografi}
+\end{thebibliography}
+
+\addcontentsline{toc}{chapter}{Bibliografi}
 
 \appendix
 
